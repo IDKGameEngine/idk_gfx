@@ -1,4 +1,4 @@
-#version 450 core
+#version 460 core
 
 out FS_in {
     layout (location = 0) vec2 texcoord;
