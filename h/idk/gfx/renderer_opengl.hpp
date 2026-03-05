@@ -21,6 +21,9 @@ public:
     virtual void endFrame() final;
     virtual void onShutdown() final;
 
+    void debugOutputEnable();
+    void debugOutputDisable();
+
 private:
     idk::core::IWindow *mWin;
     SDL_Window *mSdlWin;

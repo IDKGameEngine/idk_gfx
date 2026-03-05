@@ -1,5 +1,5 @@
 #include "idk/gfx/renderer_opengl.hpp"
-#include "libidk/log.hpp"
+#include "idk/gfx/gfx.hpp"
 
 using namespace idk::gfx;
 
@@ -22,8 +22,11 @@ RendererOpenGL::RendererOpenGL(idk::core::IWindow *win)
     VLOG_INFO("Context supports OpenGL {}.{}", mGlVersionMajor, mGlVersionMinor);
     VLOG_INFO("Context supports OpenGL {}.{}", GLVersion.major, GLVersion.minor);
 
+    this->debugOutputEnable();
+
     gl::CreateVertexArrays(1, &mDummyVao);
 }
+
 
 RendererOpenGL::~RendererOpenGL()
 {

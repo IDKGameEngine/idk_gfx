@@ -24,7 +24,16 @@ target_link_libraries(
 target_sources(
     ${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/renderer_opengl.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/buffer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/debug.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/framebuffer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/underlyingtype.cpp"
 )
+
+
+
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
