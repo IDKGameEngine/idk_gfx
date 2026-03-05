@@ -4,7 +4,7 @@
 
 
 #ifdef IDK_GFX_OPENGL
-    #include "idk/gfx/gl_renderer.hpp"
+    #include "idk/gfx/renderer_opengl.hpp"
     namespace idk::gfx
     {
         using RenderEngine = RendererOpenGL;

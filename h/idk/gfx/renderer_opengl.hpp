@@ -5,6 +5,7 @@
 #include "idk/gfx/gl_bindings.hpp"
 #include <SDL3/SDL.h>
 
+
 namespace idk::gfx
 {
     class RendererOpenGL;
@@ -18,10 +19,13 @@ public:
     virtual ~RendererOpenGL();
     virtual void beginFrame() final;
     virtual void endFrame() final;
+    virtual void onShutdown() final;
 
 private:
     idk::core::IWindow *mWin;
-    GLuint mVAO;
+    SDL_Window *mSdlWin;
+    SDL_GLContext mGlCtx;
+    GLuint mDummyVao;
 
 };
 

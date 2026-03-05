@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(idk_gfx VERSION 0.0.1)
+project(idk_gfx CXX)
+
 # add_compile_options(-Werror -Wall -Wextra)
 find_package(SDL3 REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -22,7 +23,7 @@ target_link_libraries(
 )
 target_sources(
     ${PROJECT_NAME} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/gl_renderer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/renderer_opengl.cpp"
 )
     
 
