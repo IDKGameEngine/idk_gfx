@@ -39,11 +39,10 @@ void RendererOpenGL::beginFrame()
 void RendererOpenGL::endFrame()
 {
     gl::ClearColor(0.0f, 0.75f, 0.25f, 1.0f);
-
+    gl::Clear(GL_COLOR_BUFFER_BIT);
 
     SDL_GL_SwapWindow(mSdlWin);
 }
-
 
 void RendererOpenGL::onShutdown()
 {
