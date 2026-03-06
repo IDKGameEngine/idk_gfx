@@ -1,0 +1,1 @@
+https://shader-slang.org/slang/user-guide/glsl-target-specific
