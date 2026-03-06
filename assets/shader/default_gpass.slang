@@ -28,11 +28,8 @@ struct camera_t
 
 cbuffer Uniforms
 {
-    ConstantBuffer<camera_t> cam;
-    // RWStructuredBuffer<camera_t> rw_ree; // read write
-    // StructuredBuffer<camera_t> ro_ree;   // read only
+    camera_t cam;
 };
-
 
 
 [shader("vertex")]
