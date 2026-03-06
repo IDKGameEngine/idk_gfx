@@ -1,8 +1,7 @@
 #pragma once
 
-// #include "libidk/inplace.hpp"
 #include "idk/core/type.hpp"
-#include "libidk/log.hpp"
+#include "idk/core/log.hpp"
 #include "idk/gfx/gl_bindings.hpp"
 
 #include <memory>
@@ -11,8 +10,6 @@
 
 namespace idk::gfx
 {
-    using IdType = uint32_t;
-
     class Camera;
 
     class GfxResource;
@@ -43,8 +40,8 @@ namespace idk::gfx
 class idk::gfx::GfxResource: idk::NonCopyable
 {
 public:
-    IdType mId;
-    GfxResource(IdType id): mId(id) {  }
+    GLuint mId;
+    GfxResource(GLuint id): mId(id) {  }
 };
 
 

@@ -1,8 +1,10 @@
 #include "idk/gfx/renderer_opengl.hpp"
 #include "idk/gfx/gfx.hpp"
+#include "idk/gfx/shader.hpp"
 
 using namespace idk::gfx;
 
+static RenderProgram *m_winprg;
 
 RendererOpenGL::RendererOpenGL(idk::core::IWindow *win)
 :   mWin(win),
@@ -25,6 +27,8 @@ RendererOpenGL::RendererOpenGL(idk::core::IWindow *win)
     this->debugOutputEnable();
 
     gl::CreateVertexArrays(1, &mDummyVao);
+
+    m_winprg = new RenderProgram("assets/shader/screenquad.vert.spv", "assets/shader/screenquad.frag.spv");
 }
 
 
@@ -43,6 +47,11 @@ void RendererOpenGL::endFrame()
 {
     gl::ClearColor(0.0f, 0.75f, 0.25f, 1.0f);
     gl::Clear(GL_COLOR_BUFFER_BIT);
+
+    gl::UseProgram(m_winprg->mId);
+
+    // gl::BindVertexArray(mDummyVao);
+    // gl::DrawArrays(GL_TRIANGLES, 0, 3);
 
     SDL_GL_SwapWindow(mSdlWin);
 }

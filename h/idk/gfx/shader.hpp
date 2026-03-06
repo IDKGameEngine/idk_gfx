@@ -20,7 +20,7 @@ namespace idk::gfx::detail
 class idk::gfx::ShaderProgram
 {
 public:
-    const IdType mId;
+    const GLuint mId;
     ShaderProgram();
     ~ShaderProgram();
 };
