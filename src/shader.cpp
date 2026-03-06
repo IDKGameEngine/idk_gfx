@@ -17,7 +17,7 @@ ShaderProgram::~ShaderProgram()
 
 static idk::FileReader<128*1024> file_reader_;
 
-detail::Shader::Shader(ShaderProgram *prog, uint32_t shaderId, const char *filepath)
+detail::Shader::Shader(ShaderProgram *prog, uint32_t shaderId, const char *entryname, const char *filepath)
 :   mId(shaderId),
     mOkay(false),
     mFilepath(filepath)
@@ -33,7 +33,7 @@ detail::Shader::Shader(ShaderProgram *prog, uint32_t shaderId, const char *filep
     // gl::CompileShader(mId);
 
     gl::ShaderBinary(1, &mId, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, src, str.length());
-    gl::SpecializeShader(mId, "main", 0, 0, 0);
+    gl::SpecializeShader(mId, entryname, 0, 0, 0);
 
     GLint result, length;
     gl::GetShaderiv(mId, GL_COMPILE_STATUS, &result);
@@ -60,8 +60,8 @@ detail::Shader::Shader(ShaderProgram *prog, uint32_t shaderId, const char *filep
 
 
 RenderProgram::RenderProgram(const char *vertpath, const char *fragpath)
-:   mVert(this, gl::CreateShader(GL_VERTEX_SHADER), vertpath),
-    mFrag(this, gl::CreateShader(GL_FRAGMENT_SHADER), fragpath)
+:   mVert(this, gl::CreateShader(GL_VERTEX_SHADER), "vertmain", vertpath),
+    mFrag(this, gl::CreateShader(GL_FRAGMENT_SHADER), "fragmain", fragpath)
 {
     if (mVert.mOkay && mFrag.mOkay)
     {
@@ -75,13 +75,12 @@ RenderProgram::RenderProgram(const char *vertpath, const char *fragpath)
 
     gl::DeleteShader(mVert.mId);
     gl::DeleteShader(mFrag.mId);
-
 }
 
 
 
 ComputeProgram::ComputeProgram(const char *comppath)
-:   mComp(this, gl::CreateShader(GL_COMPUTE_SHADER), comppath)
+:   mComp(this, gl::CreateShader(GL_COMPUTE_SHADER), "compmain", comppath)
 {
     if (mComp.mOkay)
     {

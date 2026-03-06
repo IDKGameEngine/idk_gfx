@@ -28,7 +28,7 @@ RendererOpenGL::RendererOpenGL(idk::core::IWindow *win)
 
     gl::CreateVertexArrays(1, &mDummyVao);
 
-    m_winprg = new RenderProgram("assets/shader/screenquad.vert.spv", "assets/shader/screenquad.frag.spv");
+    m_winprg = new RenderProgram("assets/shader/screenquad.vert", "assets/shader/screenquad.frag");
 }
 
 

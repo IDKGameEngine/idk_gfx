@@ -11,7 +11,7 @@ namespace idk::gfx::detail
         uint32_t mId;
         bool     mOkay;
         const char *mFilepath;
-        Shader(idk::gfx::ShaderProgram*, uint32_t id, const char *filepath);
+        Shader(idk::gfx::ShaderProgram*, uint32_t id, const char *entryname, const char *filepath);
     };
 }
 

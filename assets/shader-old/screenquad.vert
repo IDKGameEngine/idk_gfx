@@ -4,15 +4,6 @@ out FS_in {
     layout (location = 0) vec2 texcoord;
 } vsout;
 
-layout (std140, binding = 0)
-uniform ubo_CameraData {
-    vec4 mouse;
-    vec4 rgba;
-    mat4 T;
-    mat4 V;
-    mat4 P;
-} uboCameraData;
-// #include "ubo.glsl"
 
 void main()
 {
@@ -24,5 +15,26 @@ void main()
 
     vsout.texcoord = texcoord;
     gl_Position = vec4(position, 1.0, 1.0);
+}
+
+
+
+
+#version 460
+layout(row_major) uniform;
+layout(row_major) buffer;
+
+#line 3 0
+void main()
+{
+
+#line 3
+    uint _S1 = uint(gl_VertexIndex);
+
+#line 3
+    gl_Position = vec4(vec2(float(_S1 % 2U), float(_S1 / 2U)) * 4.0 - 1.0, 1.0, 1.0);
+
+#line 9
+    return;
 }
 
