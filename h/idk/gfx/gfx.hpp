@@ -15,14 +15,18 @@ namespace idk::gfx
     class GfxResource;
     class Framebuffer;
     class Texture;
-    class ShaderProgram;
+
+    class BaseRaiiShader;
+    class VertexShader;
+    class FragmentShader;
+    class ComputeShader;
+
+    class BaseRaiiProgram;
     class RenderProgram;
     class ComputeProgram;
 
     using FramebufferPtr    = std::shared_ptr<Framebuffer>;
     using TexturePtr        = std::shared_ptr<Texture>;
-    using RenderProgramPtr  = std::shared_ptr<RenderProgram>;
-    using ComputeProgramPtr = std::shared_ptr<ComputeProgram>;
 
     enum class TextureFormat
     {

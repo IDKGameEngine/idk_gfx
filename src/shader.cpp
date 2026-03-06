@@ -6,34 +6,38 @@
 
 using namespace idk::gfx;
 
+#ifdef IDK_GFX_OPENGL_SPIRV
+    #define IDK_GFX_SHADERPATH "assets/shader/spv"
+#else
+    #define IDK_GFX_SHADERPATH "assets/shader/glsl"
 
-ShaderProgram::ShaderProgram()
-:   mId(gl::CreateProgram()) { }
-
-ShaderProgram::~ShaderProgram()
-{ gl::DeleteProgram(mId); }
-
+#endif
 
 
 static idk::FileReader<128*1024> file_reader_;
 
-detail::Shader::Shader(ShaderProgram *prog, uint32_t shaderId, const char *entryname, const char *filepath)
-:   mId(shaderId),
-    mOkay(false),
+
+BaseRaiiShader::BaseRaiiShader(GLuint id, const char *entryname, const char *filepath )
+:   mId(id),
+    mOkay(true),
     mFilepath(filepath)
 {
     if (!file_reader_.loadFile(filepath))
-        return;
+    {
+        VLOG_FATAL("Failed to open file: {}", filepath);
+    }
 
-    // shader_preprocess(std::string(filepath));
     std::string str = idk::file::loadRaw(std::string(filepath));
     const char *src = str.c_str();
 
-    // gl::ShaderSource(mId, 1, &src, NULL);
-    // gl::CompileShader(mId);
-
+#if 0
     gl::ShaderBinary(1, &mId, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, src, str.length());
     gl::SpecializeShader(mId, entryname, 0, 0, 0);
+#else
+    (void)entryname;
+    gl::ShaderSource(mId, 1, &src, NULL);
+    gl::CompileShader(mId);
+#endif
 
     GLint result, length;
     gl::GetShaderiv(mId, GL_COMPILE_STATUS, &result);
@@ -50,50 +54,66 @@ detail::Shader::Shader(ShaderProgram *prog, uint32_t shaderId, const char *entry
 
         mOkay = false;
     }
-    else
-    {
-        gl::AttachShader(prog->mId, mId);
-        mOkay = true;
-    }
 }
 
+BaseRaiiShader::~BaseRaiiShader() { gl::DeleteProgram(mId); }
+
+VertexShader::VertexShader(const char *filepath)
+: BaseRaiiShader(gl::CreateShader(GL_VERTEX_SHADER), "vertmain", filepath) {  }
+
+FragmentShader::FragmentShader(const char *filepath)
+: BaseRaiiShader(gl::CreateShader(GL_FRAGMENT_SHADER), "fragmain", filepath) { }
+
+ComputeShader::ComputeShader(const char *filepath)
+: BaseRaiiShader(gl::CreateShader(GL_COMPUTE_SHADER), "compmain", filepath) { }
 
 
-RenderProgram::RenderProgram(const char *vertpath, const char *fragpath)
-:   mVert(this, gl::CreateShader(GL_VERTEX_SHADER), "vertmain", vertpath),
-    mFrag(this, gl::CreateShader(GL_FRAGMENT_SHADER), "fragmain", fragpath)
+
+
+BaseRaiiProgram::BaseRaiiProgram(): mId(gl::CreateProgram()) {  }
+BaseRaiiProgram::~BaseRaiiProgram() { gl::DeleteProgram(mId); }
+
+RenderProgram::RenderProgram(const char *vertFilePath, const char *fragFilePath)
+:   BaseRaiiProgram(),
+    mVert(vertFilePath),
+    mFrag(fragFilePath),
+    mOkay(mVert.mOkay && mFrag.mOkay)
 {
-    if (mVert.mOkay && mFrag.mOkay)
+    // if (!(mVert.mOkay && mFrag.mOkay))
+    if (mOkay == false)
     {
-        gl::ValidateProgram(mId);
-        gl::LinkProgram(mId);
-    }
-    else
-    {
-        VLOG_ERROR("Shader compilation failue");
+        VLOG_FATAL(
+            "Failed to compile RenderProgram, vert=\"{}\", frag=\"{}\"",
+            vertFilePath, fragFilePath
+        );
     }
 
+    gl::AttachShader(mId, mVert.mId);
+    gl::AttachShader(mId, mFrag.mId);
+    gl::ValidateProgram(mId);
+    gl::LinkProgram(mId);
     gl::DeleteShader(mVert.mId);
     gl::DeleteShader(mFrag.mId);
 }
 
 
 
-ComputeProgram::ComputeProgram(const char *comppath)
-:   mComp(this, gl::CreateShader(GL_COMPUTE_SHADER), "compmain", comppath)
+ComputeProgram::ComputeProgram(const char *filepath)
+:   BaseRaiiProgram(),
+    mComp(filepath)
 {
-    if (mComp.mOkay)
+    if (mComp.mOkay == false)
     {
-        gl::ValidateProgram(mId);
-        gl::LinkProgram(mId);
-    }
-    else
-    {
-        VLOG_ERROR("Shader compilation failue");
+        VLOG_FATAL("Failed to compile ComputeProgram, comp=\"{}\"", filepath);
     }
 
+
+    gl::AttachShader(mId, mComp.mId);
+    gl::ValidateProgram(mId);
+    gl::LinkProgram(mId);
     gl::DeleteShader(mComp.mId);
 }
+
 
 
 

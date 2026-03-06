@@ -17,7 +17,7 @@ namespace idk::gfx
         UboGpuOnly(const char *name, size_t size);
         ~UboGpuOnly();
         void write(size_t offset, size_t nbytes, const void *src);
-        void bindToProgram(ShaderProgram*);
+        void bindToProgram(BaseRaiiProgram*);
         void bindToIndex(uint32_t idx);
     };
 
@@ -70,7 +70,7 @@ namespace idk::gfx
         SsboGpuOnly(const char *name, size_t size, const void *data = nullptr);
         ~SsboGpuOnly();
         void write(size_t offset, size_t size, const void *data);
-        void bindToProgram(ShaderProgram*);
+        void bindToProgram(BaseRaiiProgram*);
         void bindToIndex(uint32_t idx);
     };
 }

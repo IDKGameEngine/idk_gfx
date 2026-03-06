@@ -26,7 +26,7 @@ void UboGpuOnly::write(size_t offset, size_t nbytes, const void *src)
     gl::NamedBufferSubData(mId, offset, nbytes, src);
 }
 
-void UboGpuOnly::bindToProgram(ShaderProgram *P)
+void UboGpuOnly::bindToProgram(BaseRaiiProgram *P)
 {
     GLint idx = gl::GetUniformBlockIndex(P->mId, mName);
     gl::BindBufferBase(GL_UNIFORM_BUFFER, idx, mId);
@@ -88,7 +88,7 @@ void SsboGpuOnly::write(size_t offset, size_t nbytes, const void *src)
     gl::NamedBufferSubData(mId, offset, nbytes, src);
 }
 
-void SsboGpuOnly::bindToProgram(ShaderProgram *P)
+void SsboGpuOnly::bindToProgram(BaseRaiiProgram *P)
 {
     GLuint idx = gl::GetProgramResourceIndex(P->mId, GL_SHADER_STORAGE_BLOCK, mName);
     gl::BindBufferBase(GL_SHADER_STORAGE_BUFFER, idx, mId);

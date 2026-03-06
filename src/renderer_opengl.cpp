@@ -40,18 +40,20 @@ RendererOpenGL::~RendererOpenGL()
 
 void RendererOpenGL::beginFrame()
 {
-    SDL_GL_MakeCurrent(mSdlWin, mGlCtx);
+
 }
 
 void RendererOpenGL::endFrame()
 {
-    gl::ClearColor(0.0f, 0.75f, 0.25f, 1.0f);
-    gl::Clear(GL_COLOR_BUFFER_BIT);
+    SDL_GL_MakeCurrent(mSdlWin, mGlCtx);
+
+    // gl::ClearColor(0.0f, 0.75f, 0.25f, 1.0f);
+    // gl::Clear(GL_COLOR_BUFFER_BIT);
 
     gl::UseProgram(m_winprg->mId);
 
-    // gl::BindVertexArray(mDummyVao);
-    // gl::DrawArrays(GL_TRIANGLES, 0, 3);
+    gl::BindVertexArray(mDummyVao);
+    gl::DrawArrays(GL_TRIANGLES, 0, 3);
 
     SDL_GL_SwapWindow(mSdlWin);
 }
