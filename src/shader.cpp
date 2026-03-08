@@ -30,7 +30,7 @@ BaseRaiiShader::BaseRaiiShader(GLuint id, const char *entryname, const char *fil
     std::string str = idk::file::loadRaw(std::string(filepath));
     const char *src = str.c_str();
 
-#if 0
+#if 1
     gl::ShaderBinary(1, &mId, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, src, str.length());
     gl::SpecializeShader(mId, entryname, 0, 0, 0);
 #else
@@ -59,13 +59,13 @@ BaseRaiiShader::BaseRaiiShader(GLuint id, const char *entryname, const char *fil
 BaseRaiiShader::~BaseRaiiShader() { gl::DeleteProgram(mId); }
 
 VertexShader::VertexShader(const char *filepath)
-: BaseRaiiShader(gl::CreateShader(GL_VERTEX_SHADER), "vertmain", filepath) {  }
+: BaseRaiiShader(gl::CreateShader(GL_VERTEX_SHADER), "main", filepath) {  }
 
 FragmentShader::FragmentShader(const char *filepath)
-: BaseRaiiShader(gl::CreateShader(GL_FRAGMENT_SHADER), "fragmain", filepath) { }
+: BaseRaiiShader(gl::CreateShader(GL_FRAGMENT_SHADER), "main", filepath) { }
 
 ComputeShader::ComputeShader(const char *filepath)
-: BaseRaiiShader(gl::CreateShader(GL_COMPUTE_SHADER), "compmain", filepath) { }
+: BaseRaiiShader(gl::CreateShader(GL_COMPUTE_SHADER), "main", filepath) { }
 
 
 
@@ -79,7 +79,6 @@ RenderProgram::RenderProgram(const char *vertFilePath, const char *fragFilePath)
     mFrag(fragFilePath),
     mOkay(mVert.mOkay && mFrag.mOkay)
 {
-    // if (!(mVert.mOkay && mFrag.mOkay))
     if (mOkay == false)
     {
         VLOG_FATAL(
@@ -106,7 +105,6 @@ ComputeProgram::ComputeProgram(const char *filepath)
     {
         VLOG_FATAL("Failed to compile ComputeProgram, comp=\"{}\"", filepath);
     }
-
 
     gl::AttachShader(mId, mComp.mId);
     gl::ValidateProgram(mId);

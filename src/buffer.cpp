@@ -6,10 +6,10 @@ using namespace idk::gfx;
 
 
 
-UboGpuOnly::UboGpuOnly(const char *name, size_t size)
+UboGpuOnly::UboGpuOnly(size_t size, const char *name)
 :   GfxResource(0U),
-    mName(name),
-    mSize(size)
+    mSize(size),
+    mName(name)
 {
     gl::CreateBuffers(1, &mId);
     gl::NamedBufferData(mId, mSize, nullptr, GL_DYNAMIC_DRAW); 
@@ -40,8 +40,8 @@ void UboGpuOnly::bindToIndex(uint32_t idx)
 
 
 
-UboGpuCpu::UboGpuCpu(const char *name, size_t size)
-:   UboGpuOnly(name, size),
+UboGpuCpu::UboGpuCpu(size_t size, const char *name)
+:   UboGpuOnly(size, name),
     mData(std::malloc(size))
 {
 
@@ -68,33 +68,33 @@ void UboGpuCpu::sendToGpu()
 
 
 
-SsboGpuOnly::SsboGpuOnly(const char *name, size_t size, const void *data)
-:   GfxResource(0U),
-    mName(name),
-    mSize(size)
-{
-    gl::CreateBuffers(1, &mId);
-    gl::NamedBufferData(mId, mSize, data, GL_DYNAMIC_DRAW); 
-}
+// SsboGpuOnly::SsboGpuOnly(const char *name, size_t size, const void *data)
+// :   GfxResource(0U),
+//     mName(name),
+//     mSize(size)
+// {
+//     gl::CreateBuffers(1, &mId);
+//     gl::NamedBufferData(mId, mSize, data, GL_DYNAMIC_DRAW); 
+// }
 
-SsboGpuOnly::~SsboGpuOnly()
-{
-    gl::DeleteBuffers(1, &mId);
-}
+// SsboGpuOnly::~SsboGpuOnly()
+// {
+//     gl::DeleteBuffers(1, &mId);
+// }
 
-void SsboGpuOnly::write(size_t offset, size_t nbytes, const void *src)
-{
-    gl::NamedBufferSubData(mId, offset, nbytes, src);
-}
+// void SsboGpuOnly::write(size_t offset, size_t nbytes, const void *src)
+// {
+//     gl::NamedBufferSubData(mId, offset, nbytes, src);
+// }
 
-void SsboGpuOnly::bindToProgram(BaseRaiiProgram *P)
-{
-    GLuint idx = gl::GetProgramResourceIndex(P->mId, GL_SHADER_STORAGE_BLOCK, mName);
-    gl::BindBufferBase(GL_SHADER_STORAGE_BUFFER, idx, mId);
-}
+// void SsboGpuOnly::bindToProgram(BaseRaiiProgram *P)
+// {
+//     GLuint idx = gl::GetProgramResourceIndex(P->mId, GL_SHADER_STORAGE_BLOCK, mName);
+//     gl::BindBufferBase(GL_SHADER_STORAGE_BUFFER, idx, mId);
+// }
 
-void SsboGpuOnly::bindToIndex(uint32_t idx)
-{
-    gl::BindBufferBase(GL_SHADER_STORAGE_BUFFER, idx, mId);
-}
+// void SsboGpuOnly::bindToIndex(uint32_t idx)
+// {
+//     gl::BindBufferBase(GL_SHADER_STORAGE_BUFFER, idx, mId);
+// }
 

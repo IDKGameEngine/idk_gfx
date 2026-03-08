@@ -1,4 +1,20 @@
-#include "h/types.slang"
+#include "idk/gfx/slang_bindings.hpp"
+
+struct VertexShaderInput
+{
+    uint id : SV_VertexID;
+};
+
+struct VertexShaderOutput
+{
+    float2 uv;
+    float4 sv_position : SV_Position;
+};
+
+
+[[vk::binding(idk::UBO3_t::BINDING_IDX, 0)]]
+ConstantBuffer<idk::UBO3_t> ubo3;
+
 
 
 [shader("vertex")]
@@ -19,6 +35,15 @@ VertexShaderOutput vertmain(VertexShaderInput vsin)
 [shader("fragment")]
 float4 fragmain(VertexShaderOutput fsin) : SV_Target0
 {
-    return float4(fsin.uv, 0.0, 1.0);
+    float3 rgb = float3(fsin.uv, 0.0);
+    float2 sz = ubo3.winsz.xy;
+
+    float d = distance(sz*ubo3.gamepos.xy, sz*fsin.uv);
+    if (d < 16.0f)
+    {
+        rgb = float3(1.0f);
+    }
+
+    return float4(rgb, 1.0);
 }
 

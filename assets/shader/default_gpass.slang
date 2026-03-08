@@ -1,7 +1,7 @@
 struct VertexShaderInput
 {
-    float4 pos;
-    float4 norm;
+    float3 pos;
+    float3 norm;
     float2 tex;
 };
 
@@ -37,7 +37,7 @@ VertexShaderOutput vertmain(VertexShaderInput vsin)
 {
     VertexShaderOutput vsout;
 
-    float3 position = mul(cam.M, vsin.pos).xyz;
+    float3 position = mul(cam.M, float4(vsin.pos, 1.0)).xyz;
 
     vsout.worldpos    = position;
     vsout.worldnorm   = normalize(mul(float3x3(cam.M), vsin.norm.xyz));

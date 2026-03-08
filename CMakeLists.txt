@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(idk_gfx CXX)
 
 # add_compile_options(-Werror -Wall -Wextra)
-find_package(SDL3 REQUIRED)
+# find_package(SDL3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/external/glad")
@@ -19,7 +19,7 @@ target_include_directories(
     ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h" "${CMAKE_CURRENT_SOURCE_DIR}/h_"
 )
 target_link_libraries(
-    ${PROJECT_NAME} PUBLIC glad OpenGL::GL OpenGL::GLU SDL3::SDL3 glm idk_core
+    ${PROJECT_NAME} PUBLIC glad OpenGL::GL OpenGL::GLU SDL3::SDL3 glm::glm-header-only idk_core
 )
 target_sources(
     ${PROJECT_NAME} PRIVATE
