@@ -5,7 +5,7 @@ using namespace idk::gfx;
 
 
 Texture::Texture(int w, int h, const void *data, TextureFormat fmt)
-:   GfxResource(0),
+:   GfxResource(0U),
     mWidth(w), mHeight(h),
     mTextureFormat(fmt)
 {

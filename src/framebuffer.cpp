@@ -5,7 +5,7 @@ using namespace idk::gfx;
 
 
 Framebuffer::Framebuffer()
-:   GfxResource(0)
+:   GfxResource(0U)
 {
     gl::CreateFramebuffers(1, &mId);
     // gl::NamedFramebufferTexture(mId, GL_COLOR_ATTACHMENT0, mTexture->mId, 0);
@@ -19,7 +19,7 @@ Framebuffer::Framebuffer()
 
 
 Framebuffer::Framebuffer(Texture &&tex)
-:   GfxResource(0), mTexture(new Texture(std::move(tex)))
+:   GfxResource(0U), mTexture(new Texture(std::move(tex)))
 {
     gl::CreateFramebuffers(1, &mId);
     gl::NamedFramebufferTexture(mId, GL_COLOR_ATTACHMENT0, mTexture->mId, 0);

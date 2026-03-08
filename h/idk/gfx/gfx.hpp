@@ -1,10 +1,10 @@
 #pragma once
 
-#include "idk/core/renderer.hpp"
-#include <memory>
+#include "idk/core/engine.hpp"
+
 
 namespace idk::gfx
 {
-    void main(idk::core::IWindow*);
+    void main(idk::core::IEngine*);
 }
 

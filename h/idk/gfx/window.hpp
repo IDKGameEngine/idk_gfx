@@ -5,23 +5,27 @@
 #include <glm/glm.hpp>
 
 
-class idk::gfx::Window
+class idk::gfx::WindowSDL3: public idk::NonCopyable, public idk::NonMovable
 {
 public:
-    Window(const core::WindowDesc&);
-    ~Window();
+    const char   *mTitle;
+    SDL_Window   *mSdlWin;
+    SDL_GLContext mGlCtx;
+    glm::ivec2    mSizei;
+    glm::vec2     mSizef;
 
-    virtual int   getWidth() const final;
-    virtual int   getHeight() const final;
-    virtual void *getNativeHandle() const final;
-    virtual void *getGpuContext() const final;
-    virtual void  pollEvents() final;
+    WindowSDL3(const idk::core::WindowDesc&);
+    ~WindowSDL3();
+
+    void makeCurrent();
+    void swapWindow();
+    // virtual int   getWidth() const final;
+    // virtual int   getHeight() const final;
+    // virtual void *getNativeHandle() const final;
+    // virtual void *getGpuContext() const final;
+    // virtual void  pollEvents() final;
 
 private:
-    const char *title_;
-    SDL_Window *sdlWin_;
-    SDL_GLContext glCtx_;
 
-    glm::vec2 size_;
 };
 

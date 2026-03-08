@@ -16,7 +16,7 @@ target_compile_features(
     ${PROJECT_NAME} PUBLIC cxx_std_23
 )
 target_include_directories(
-    ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h"
+    ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h" "${CMAKE_CURRENT_SOURCE_DIR}/h_"
 )
 target_link_libraries(
     ${PROJECT_NAME} PUBLIC glad OpenGL::GL OpenGL::GLU SDL3::SDL3 glm idk_core
@@ -31,6 +31,9 @@ target_sources(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/underlyingtype.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/window.cpp"
+
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/idk_gfx/mesh.cpp"
 )
 
 

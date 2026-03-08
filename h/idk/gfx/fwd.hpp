@@ -3,7 +3,6 @@
 #include "idk/core/log.hpp"
 #include "idk/core/type.hpp"
 #include "idk/core/renderer.hpp"
-#include "idk/core/window.hpp"
 #include "idk/gfx/gl_bindings.hpp"
 
 #include <memory>
@@ -13,7 +12,7 @@
 namespace idk::gfx
 {
     class Camera;
-    class Window;
+    class WindowSDL3;
 
     class GfxResource;
     class Framebuffer;
@@ -43,12 +42,13 @@ namespace idk::gfx
 }
 
 
-
 class idk::gfx::GfxResource: idk::NonCopyable
 {
+private:
+
 public:
     GLuint mId;
-    GfxResource(GLuint id): mId(id) {  }
+    GfxResource(uint32_t id): mId(id) {  }
 };
 
 

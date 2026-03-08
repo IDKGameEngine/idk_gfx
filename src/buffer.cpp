@@ -1,6 +1,5 @@
 #include "idk/gfx/buffer.hpp"
 #include "idk/gfx/shader.hpp"
-
 #include <cstring>
 
 using namespace idk::gfx;
@@ -8,7 +7,7 @@ using namespace idk::gfx;
 
 
 UboGpuOnly::UboGpuOnly(const char *name, size_t size)
-:   GfxResource(0),
+:   GfxResource(0U),
     mName(name),
     mSize(size)
 {
@@ -70,7 +69,7 @@ void UboGpuCpu::sendToGpu()
 
 
 SsboGpuOnly::SsboGpuOnly(const char *name, size_t size, const void *data)
-:   GfxResource(0),
+:   GfxResource(0U),
     mName(name),
     mSize(size)
 {
