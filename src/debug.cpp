@@ -1,5 +1,5 @@
-#include "idk/gfx/renderer_opengl.hpp"
 #include "idk/gfx/gfx.hpp"
+#include "idk/gfx/renderer.hpp"
 #include <iostream>
 
 using namespace idk::gfx;
@@ -59,7 +59,7 @@ static void debugmsg_callback( GLenum source, GLenum type, GLuint id, GLenum sev
 
 
 
-void RendererOpenGL::debugOutputEnable()
+void RenderEngine::debugOutputEnable()
 {
     gl::Enable(GL_DEBUG_OUTPUT);
     gl::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -71,7 +71,7 @@ void RendererOpenGL::debugOutputEnable()
 }
 
 
-void RendererOpenGL::debugOutputDisable()
+void RenderEngine::debugOutputDisable()
 {
     gl::DebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 }

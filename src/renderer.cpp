@@ -1,12 +1,12 @@
-#include "idk/gfx/renderer_opengl.hpp"
 #include "idk/gfx/gfx.hpp"
+#include "idk/gfx/renderer.hpp"
 #include "idk/gfx/shader.hpp"
 
 using namespace idk::gfx;
 
 static RenderProgram *m_winprg;
 
-RendererOpenGL::RendererOpenGL(idk::core::IWindow *win)
+RenderEngine::RenderEngine(const idk::core::IWindowPtr &win)
 :   mWin(win),
     mSdlWin(static_cast<SDL_Window*>(win->getNativeHandle())),
     mGlCtx(static_cast<SDL_GLContext>(win->getGpuContext()))
@@ -16,6 +16,8 @@ RendererOpenGL::RendererOpenGL(idk::core::IWindow *win)
 
     if (!SDL_GL_MakeCurrent(mSdlWin, mGlCtx))
         VLOG_ERROR("SDL_GL_MakeCurrent: {}", SDL_GetError());
+
+    VLOG_INFO("gfx::Renderer Initialized");
 
     GLint mGlVersionMajor, mGlVersionMinor;
     gl::GetIntegerv(GL_MAJOR_VERSION, &mGlVersionMajor);
@@ -32,18 +34,24 @@ RendererOpenGL::RendererOpenGL(idk::core::IWindow *win)
 }
 
 
-RendererOpenGL::~RendererOpenGL()
+RenderEngine::~RenderEngine()
 {
     gl::DeleteVertexArrays(1, &mDummyVao);
 }
 
 
-void RendererOpenGL::beginFrame()
+void RenderEngine::beginFrame()
 {
 
 }
 
-void RendererOpenGL::endFrame()
+void RenderEngine::endFrame()
+{
+
+}
+
+
+void RenderEngine::onUpdate()
 {
     SDL_GL_MakeCurrent(mSdlWin, mGlCtx);
 
@@ -58,7 +66,25 @@ void RendererOpenGL::endFrame()
     SDL_GL_SwapWindow(mSdlWin);
 }
 
-void RendererOpenGL::onShutdown()
+
+void RenderEngine::onEnable()
+{
+
+}
+
+void RenderEngine::onDisable()
+{
+
+}
+
+
+void RenderEngine::onRestart()
+{
+
+}
+
+
+void RenderEngine::onShutdown()
 {
 
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "idk/gfx/gfx.hpp"
+#include "idk/gfx/fwd.hpp"
 
 
 class idk::gfx::Texture: public GfxResource

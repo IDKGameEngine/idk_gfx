@@ -1,51 +1,10 @@
 #pragma once
 
-#include "idk/core/type.hpp"
-#include "idk/core/log.hpp"
-#include "idk/gfx/gl_bindings.hpp"
-
+#include "idk/core/renderer.hpp"
 #include <memory>
-#include <vector>
-
 
 namespace idk::gfx
 {
-    class Camera;
-
-    class GfxResource;
-    class Framebuffer;
-    class Texture;
-
-    class BaseRaiiShader;
-    class VertexShader;
-    class FragmentShader;
-    class ComputeShader;
-
-    class BaseRaiiProgram;
-    class RenderProgram;
-    class ComputeProgram;
-
-    using FramebufferPtr    = std::shared_ptr<Framebuffer>;
-    using TexturePtr        = std::shared_ptr<Texture>;
-
-    enum class TextureFormat
-    {
-        RED_U8,
-        RGB_U8,
-        RGBA_U8,
-        RGBA_U32,
-        RGBA_F16,
-        RGBA_F32
-    };
+    idk::core::IRendererPtr create_renderer(const idk::core::IWindowPtr&);
 }
-
-
-
-class idk::gfx::GfxResource: idk::NonCopyable
-{
-public:
-    GLuint mId;
-    GfxResource(GLuint id): mId(id) {  }
-};
-
 

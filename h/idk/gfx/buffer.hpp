@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "idk/gfx/gfx.hpp"
+#include "idk/gfx/fwd.hpp"
 // #include "gfx/gl_storage.hpp"
 
 
