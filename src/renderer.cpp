@@ -6,7 +6,7 @@ using namespace idk::gfx;
 
 static RenderProgram *m_winprg;
 
-RenderEngine::RenderEngine(const idk::core::IWindowPtr &win)
+RenderEngine::RenderEngine(idk::core::IWindow *win)
 :   mWin(win),
     mSdlWin(static_cast<SDL_Window*>(win->getNativeHandle())),
     mGlCtx(static_cast<SDL_GLContext>(win->getGpuContext()))

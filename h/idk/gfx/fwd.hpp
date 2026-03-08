@@ -13,6 +13,7 @@
 namespace idk::gfx
 {
     class Camera;
+    class Window;
 
     class GfxResource;
     class Framebuffer;

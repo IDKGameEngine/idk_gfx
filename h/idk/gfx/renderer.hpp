@@ -13,7 +13,7 @@ namespace idk::gfx
 class idk::gfx::RenderEngine: public idk::core::IRenderer
 {
 public:
-    RenderEngine(const idk::core::IWindowPtr &win);
+    RenderEngine(idk::core::IWindow *win);
     virtual ~RenderEngine();
     virtual void beginFrame() final;
     virtual void endFrame() final;
@@ -28,7 +28,7 @@ public:
     void debugOutputDisable();
 
 private:
-    idk::core::IWindowPtr mWin;
+    idk::core::IWindow *mWin;
     SDL_Window *mSdlWin;
     SDL_GLContext mGlCtx;
     GLuint mDummyVao;

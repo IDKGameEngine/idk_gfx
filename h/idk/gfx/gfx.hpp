@@ -5,6 +5,6 @@
 
 namespace idk::gfx
 {
-    idk::core::IRendererPtr create_renderer(const idk::core::IWindowPtr&);
+    void main(idk::core::IWindow*);
 }
 

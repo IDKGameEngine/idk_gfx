@@ -1,8 +1,13 @@
 #include "idk/gfx/gfx.hpp"
 #include "idk/gfx/renderer.hpp"
 
-idk::core::IRendererPtr idk::gfx::create_renderer(const idk::core::IWindowPtr &win)
+
+void idk::gfx::main(idk::core::IWindow *ptr)
 {
-    return std::make_shared<idk::gfx::RenderEngine>(win);
+    idk::gfx::RenderEngine ren(ptr);
+
+
+    ren.onUpdate();
+
 }
 
