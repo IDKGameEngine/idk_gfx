@@ -40,3 +40,5 @@ add_custom_target(
         ${CMAKE_CURRENT_SOURCE_DIR}/assets ${IDK_OUTPUT_DIR}/assets
 )
 add_dependencies(${PROJECT_NAME} idk_gfx_assets)
+
+install(CODE "execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/slangc.sh)")
