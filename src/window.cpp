@@ -1,6 +1,5 @@
 #include "idk/gfx/window.hpp"
 #include "idk/core/log.hpp"
-#include <filesystem>
 
 using namespace idk::gfx;
 
@@ -12,11 +11,6 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
     mSizei(desc.width, desc.height),
     mSizef(glm::vec2(mSizei))
 {
-    std::filesystem::current_path(std::filesystem::path(SDL_GetBasePath()));
-
-    if (false == SDL_Init(SDL_INIT_VIDEO))
-        VLOG_FATAL("{}", SDL_GetError());
-
     if (!SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))
         VLOG_ERROR("{}", SDL_GetError());
 
