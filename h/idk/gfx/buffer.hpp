@@ -6,6 +6,30 @@
 
 namespace idk::gfx
 {
+    template <GLenum Target_, uint32_t Idx_>
+    class BufferObject: public GfxResourceBase<gl::CreateBuffers, gl::DeleteBuffers>
+    {
+    private:
+        const size_t mSize;
+
+    public:
+        BufferObject(size_t size)
+        :   GfxResourceBase(), mSize(size)
+        {
+            gl::NamedBufferData(mId, mSize, nullptr, GL_DYNAMIC_DRAW);
+            gl::BindBufferBase(Target_, Idx_, mId);
+        }
+
+        void write(size_t offset, size_t nbytes, const void *data)
+        {
+            IDK_ASSERT(nbytes < mSize, "nbytes cannot be larger than mSize");
+            IDK_ASSERT(offset+nbytes < mSize, "out of bounds copy");
+            gl::NamedBufferSubData(mId, offset, nbytes, data);
+        }
+
+    };
+
+
     class UboGpuOnly: public GfxResource
     {
     protected:
@@ -55,23 +79,3 @@ namespace idk::gfx
         T *operator->() { return &mObject; }
     };
 }
-
-
-
-// namespace idk::gfx
-// {
-//     class SsboGpuOnly: public GfxResource
-//     {
-//     protected:
-//         const char *mName;
-//         const size_t mSize;
-
-//     public:
-//         SsboGpuOnly(const char *name, size_t size, const void *data = nullptr);
-//         ~SsboGpuOnly();
-//         void write(size_t offset, size_t size, const void *data);
-//         void bindToProgram(BaseRaiiProgram*);
-//         void bindToIndex(uint32_t idx);
-//     };
-// }
-

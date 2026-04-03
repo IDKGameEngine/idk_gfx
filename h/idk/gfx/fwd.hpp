@@ -14,7 +14,12 @@ namespace idk::gfx
     class Camera;
     class WindowSDL3;
 
+    using MakeObjFunc_ = void(*)(int32_t n, uint32_t *buf);
+    using KillObjFunc_ = void(*)(int32_t n, uint32_t *buf);
+    template <MakeObjFunc_ MakeObj, KillObjFunc_ KillObj>
+    class GfxResourceBase;
     class GfxResource;
+
     class Framebuffer;
     class Texture;
 
@@ -40,6 +45,18 @@ namespace idk::gfx
         RGBA_F32
     };
 }
+
+
+template <idk::gfx::MakeObjFunc_ MakeObj, idk::gfx::KillObjFunc_ KillObj>
+class idk::gfx::GfxResourceBase: idk::NonCopyable
+{
+private:
+
+public:
+    GLuint mId;
+    GfxResourceBase() { MakeObj(1, &mId); }
+    ~GfxResourceBase() { KillObj(1, &mId); }
+};
 
 
 class idk::gfx::GfxResource: idk::NonCopyable

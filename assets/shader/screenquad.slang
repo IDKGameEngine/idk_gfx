@@ -1,4 +1,4 @@
-#include "idk/gfx/slang_bindings.hpp"
+#include "idk/gfx/slang.hpp"
 
 struct VertexShaderInput
 {

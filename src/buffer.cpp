@@ -64,10 +64,6 @@ void UboGpuCpu::sendToGpu()
 }
 
 
-
-
-
-
 // SsboGpuOnly::SsboGpuOnly(const char *name, size_t size, const void *data)
 // :   GfxResource(0U),
 //     mName(name),

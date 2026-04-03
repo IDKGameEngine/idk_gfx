@@ -3,7 +3,7 @@
 #include "idk/gfx/buffer.hpp"
 #include "idk/gfx/shader.hpp"
 #include "idk/gfx/window.hpp"
-#include "idk/gfx/slang_bindings.hpp"
+#include "idk/gfx/slang.hpp"
 #include "idk_gfx/mesh.hpp"
 #include "idk/core/metric.hpp"
 
@@ -11,9 +11,13 @@
 using namespace idk::gfx;
 
 static RenderProgram *m_winprg;
+static ComputeProgram *m_automata_prg;
+
 static glm::vec4 bgtint_ = glm::vec4(1.0f);
 static glm::vec4 fgtint_ = glm::vec4(1.0f);
+
 static UboWrapperT<slang::UBO3_t> *ubo3_;
+
 
 
 RenderEngine::RenderEngine( const idk::core::WindowDesc &windesc,
@@ -42,6 +46,7 @@ RenderEngine::RenderEngine( const idk::core::WindowDesc &windesc,
 
     meshbuf_ = new gfx__::MeshBuffer(64*idk::MEGA, 64*idk::MEGA);
     m_winprg = new RenderProgram("assets/shader/screenquad.vert", "assets/shader/screenquad.frag");
+    m_automata_prg = new ComputeProgram("assets/shader/automata.comp");
 
     ubo3_ = new UboWrapperT<slang::UBO3_t>();
 }
