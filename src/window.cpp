@@ -5,6 +5,15 @@
 using namespace idk::gfx;
 
 
+// static void file_dialog_callback(void *userdata, const char *const *filelist, int filter)
+// {
+//     (void)userdata;
+//     (void)filelist;
+//     (void)filter;
+//     printf("[file_dialog_callback] WOOP\n");
+// }
+
+
 WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
 :   mTitle(desc.title),
     mSdlWin(nullptr),
@@ -43,9 +52,8 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
     mGlCtx = SDL_GL_CreateContext(mSdlWin);
     if (mGlCtx == nullptr)
         VLOG_FATAL("SDL_GL_CreateContext: {}", SDL_GetError());
-    
-    SDL_SetWindowOpacity(mSdlWin, 0.5f);
 
+    // SDL_ShowOpenFileDialog(file_dialog_callback, nullptr, mSdlWin, NULL, 0, NULL, true);
 }
 
 WindowSDL3::~WindowSDL3()
