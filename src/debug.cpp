@@ -1,4 +1,3 @@
-#include "idk/gfx/gfx.hpp"
 #include "idk/gfx/renderer.hpp"
 #include <iostream>
 

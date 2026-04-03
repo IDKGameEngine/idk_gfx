@@ -14,9 +14,10 @@ namespace idk::gfx
 {
     class RenderEngine;
 
-    enum class CmdType: int
+    enum class GfxCmdType: int
     {
         Invalid = 0,
+        DebugOutputEnable,
         BgColorSet,
         BgColorAdd,
         FgColorSet,
@@ -24,12 +25,13 @@ namespace idk::gfx
         SomethingElse
     };
 
-    struct CmdData
+    struct GfxCmd
     {
-        idk::gfx::CmdType type;
+        GfxCmdType type;
 
         union
         {
+            bool as_debugOutputEnable;
             glm::vec4 as_rgba;
         };
     };
@@ -42,20 +44,23 @@ namespace idk::gfx__
 }
 
 
-class idk::gfx::RenderEngine: public idk::core::IRenderer
+class idk::gfx::RenderEngine: public idk::core::Service
 {
 public:
-    RenderEngine(const idk::core::WindowDesc&, core::DblBufferReader<CmdData>&);
+    RenderEngine(const idk::core::WindowDesc&);
     virtual ~RenderEngine();
-    virtual void beginFrame() final;
-    virtual void endFrame() final;
+    virtual void onUpdate(idk::IEngine*) final;
+    virtual void onShutdown(idk::IEngine*) final;
 
     void debugOutputEnable();
     void debugOutputDisable();
 
+    core::DblBufferWriter<GfxCmd> getQueueWriter();
+
 private:
     gfx::WindowSDL3 *win_;
-    core::DblBufferReader<CmdData> &cmdbuf_;
+    core::DoubleBuffer<GfxCmd> gfxqueue_;
+    core::DblBufferReader<GfxCmd> gfxread_;
 
     GLuint mDummyVao;
     gfx__::MeshBuffer *meshbuf_;

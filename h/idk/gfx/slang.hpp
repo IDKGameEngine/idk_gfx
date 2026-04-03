@@ -53,67 +53,6 @@ namespace IDK_SLANG_NAMESPACE
         vec4 vel;
     };
 
-    #ifdef __cplusplus
-
-
-    #endif
-
-    // #ifdef __cplusplus
-    //     template <uint32_t B> struct SSBO_Type { static constexpr uint32_t BINDING_IDX = B; };
-
-    //     #define SSBO_TYPE(Idx_) \
-            
-    //         struct SSBO_Type<uint32_t Idx_> \
-    //         { \
-    //             static constexpr const uint32_t BINDING_IDX = Idx_; \
-    //         };
-
-    //     struct SSBO_0 SSBO_TYPE()
-
-    //     using vec2 = glm::vec2;
-    //     using vec3 = glm::vec3;
-    //     using vec4 = glm::vec4;
-    // #else
-    //     typedef float2 vec2;
-    //     typedef float3 vec3;
-    //     typedef float4 vec4;
-    // #endif
-
-    // struct SSBO_Type<uint32_t Idx_>
-    // {
-    //     static constexpr const uint32_t BINDING_IDX = Idx_;
-    // };
-
-    // struct SSBO_0: SSBO_Type<BINDING_SSBO_0>
-    // {
-    //     vec4 particles;
-    // };
-
-    // struct SSBO_1: SSBO_Type<BINDING_SSBO_1>
-    // {
-    //     vec4 particles;
-    // };
-
-    // #ifdef __cplusplus
-    //     template <uint32_t BindIdx>
-    //     struct SSBO_Type
-    //     {
-    //         static constexpr const uint32_t BINDING_IDX = BindIdx;
-    //     };
-
-    //     struct SSBO0_t: public SSBO_Type<BINDING_SSBO0>
-    //     {
-            
-    //     };
-
-    //     struct SSBO1_t: public SSBO_Type<BINDING_SSBO1>
-    //     {
-    //         vec4 winsz;
-    //         vec4 bgtint;
-    //         vec4 fgtint;
-    //         vec4 gamepos;
-    //     };
-    // #endif
 }
 
 #undef IDK_SLANG_NAMESPACE

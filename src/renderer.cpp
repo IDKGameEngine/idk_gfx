@@ -1,4 +1,3 @@
-#include "idk/gfx/gfx.hpp"
 #include "idk/gfx/renderer.hpp"
 #include "idk/gfx/buffer.hpp"
 #include "idk/gfx/shader.hpp"
@@ -20,10 +19,9 @@ static UboWrapperT<slang::UBO3_t> *ubo3_;
 
 
 
-RenderEngine::RenderEngine( const idk::core::WindowDesc &windesc,
-                            core::DblBufferReader<CmdData> &cmdbuf )
+RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
 :   win_(new WindowSDL3(windesc)),
-    cmdbuf_(cmdbuf)
+    gfxread_(gfxqueue_)
 {
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
         VLOG_FATAL("gladLoadGLLoader failure");
@@ -58,49 +56,57 @@ RenderEngine::~RenderEngine()
 }
 
 
-void RenderEngine::beginFrame()
+void RenderEngine::onUpdate(idk::IEngine *engine)
 {
+    SDL_Event e;
+    while (SDL_PollEvent(&e))
+    {
+        if (e.type == SDL_EVENT_QUIT)
+        {
+            VLOG_INFO("SDL_EVENT_QUIT");
+            engine->shutdown();
+        }
+    }
+
+
     auto &ubo3 = *ubo3_;
 
-    while (!cmdbuf_->empty())
+    while (!gfxread_->empty())
     {
-        auto &cmd = cmdbuf_->front();
+        auto &cmd = gfxread_->front();
 
         switch (cmd.type)
         {
-            case CmdType::BgColorSet:
+            case GfxCmdType::BgColorSet:
                 ubo3_->mDirty = true;
                 ubo3->gamepos = cmd.as_rgba;
                 break;
 
-            case CmdType::BgColorAdd:
+            case GfxCmdType::BgColorAdd:
                 ubo3_->mDirty = true;
                 ubo3->gamepos += cmd.as_rgba;
                 break;
 
-            case CmdType::FgColorSet:
+            case GfxCmdType::FgColorSet:
                 ubo3_->mDirty = true;
                 ubo3->fgtint = cmd.as_rgba;
                 break;
 
-            case CmdType::FgColorAdd:
+            case GfxCmdType::FgColorAdd:
                 ubo3_->mDirty = true;
                 ubo3->fgtint += cmd.as_rgba;
                 break;
 
             default:
-                VLOG_FATAL("gfx::CmdType is Invalid!");
+                VLOG_FATAL("gfx::GfxCmdType is Invalid!");
                 break;
         }
 
-        cmdbuf_->pop();
+        gfxread_->pop();
     }
-}
 
 
 
-void RenderEngine::endFrame()
-{
     win_->makeCurrent();
     (*ubo3_)->winsz = glm::vec4(win_->mSizef, 0.0f, 0.0f);
 
@@ -119,5 +125,19 @@ void RenderEngine::endFrame()
     gl::DrawArrays(GL_TRIANGLES, 0, 3);
 
     win_->swapWindow();
+
+    gfxqueue_.swapBuffers();
+}
+
+
+void RenderEngine::onShutdown(idk::IEngine*)
+{
+    VLOG_INFO("RenderEngine::onShutdown");
+}
+
+
+idk::core::DblBufferWriter<GfxCmd> RenderEngine::getQueueWriter()
+{
+    return idk::core::DblBufferWriter<GfxCmd>(gfxqueue_);
 }
 
