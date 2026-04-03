@@ -1,5 +1,6 @@
 #include "idk/gfx/window.hpp"
 #include "idk/core/log.hpp"
+#include <filesystem>
 
 using namespace idk::gfx;
 
@@ -11,6 +12,12 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
     mSizei(desc.width, desc.height),
     mSizef(glm::vec2(mSizei))
 {
+    if (false == SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_CAMERA))
+    {
+        VLOG_FATAL("{}", SDL_GetError());
+    }
+    std::filesystem::current_path(std::filesystem::path(SDL_GetBasePath()));
+
     if (!SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))
         VLOG_ERROR("{}", SDL_GetError());
 
@@ -36,6 +43,8 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
     mGlCtx = SDL_GL_CreateContext(mSdlWin);
     if (mGlCtx == nullptr)
         VLOG_FATAL("SDL_GL_CreateContext: {}", SDL_GetError());
+    
+    SDL_SetWindowOpacity(mSdlWin, 0.5f);
 
 }
 
