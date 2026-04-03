@@ -2,10 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(idk_gfx CXX)
 
-# add_compile_options(-Werror -Wall -Wextra)
-# find_package(SDL3 REQUIRED)
 find_package(OpenGL REQUIRED)
-
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/external/glad")
 
 

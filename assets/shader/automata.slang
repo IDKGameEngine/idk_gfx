@@ -1,6 +1,6 @@
 #include "idk/gfx/slang.hpp"
 
-[[vk::binding(idk::BINDING_SSBO_0, 0)]]
+layout(binding = idk::BINDING_SSBO_0, set = 0)
 StructuredBuffer<idk::SSBO_0, Std430DataLayout> dataIn;
 
 [[vk::binding(idk::BINDING_SSBO_1, 0)]]
@@ -19,3 +19,20 @@ void compmain(uint3 threadId : SV_DispatchThreadID)
     dataOut[i].pos = vec4((pos+vel).xyz, 0.0);
 }
 
+
+// [[vk::binding(idk::BINDING_UBO_0, 0)]]
+// StructuredBuffer<DescriptorHandle<Texture2D>> textureHandles;
+
+// vec4 sampleBindless(DescriptorHandle<Texture2D> handle, vec2 uv)
+// {
+//     handle.Load()
+//     handle.Sample(SamplerState uv);
+//     textureHandles[0].
+//     Sampler2D tex = Sampler2D(handle);
+//     return tex.Sample(uv);
+// }
+
+// void testfn()
+// {
+//     vec4 rgba = sampleBindless(textureHandles[0])
+// }
