@@ -16,7 +16,7 @@ target_include_directories(
     ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h" "${CMAKE_CURRENT_SOURCE_DIR}/h_"
 )
 target_link_libraries(
-    ${PROJECT_NAME} PUBLIC glad OpenGL::GL OpenGL::GLU SDL3::SDL3-static glm::glm-header-only idk_core
+    ${PROJECT_NAME} PUBLIC glad-object OpenGL::GL OpenGL::GLU SDL3::SDL3-static glm::glm-header-only idk_core
 )
 target_sources(
     ${PROJECT_NAME} PRIVATE
@@ -24,12 +24,11 @@ target_sources(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/debug.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/framebuffer.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/idk_gfxapi.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/model.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/renderer.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/window.cpp"
-
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/idk_gfx/mesh.cpp"
 )
 
 

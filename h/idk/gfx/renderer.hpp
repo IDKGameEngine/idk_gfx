@@ -8,6 +8,7 @@
 #include "idk/gfx/shader.hpp"
 #include "idk/gfx/slang.hpp"
 #include "idk/gfx/texture.hpp"
+#include "idk/gfx/mesh.hpp"
 
 #include "idk/core/raii.hpp"
 #include "idk/core/double_buffer.hpp"
@@ -41,7 +42,7 @@ namespace idk::gfx
 
 }
 
-namespace idk::gfx__
+namespace idk
 {
     class MeshBuffer;
 }
@@ -57,20 +58,22 @@ public:
     core::DblBufferWriter<GfxCmd> getQueueWriter();
 
 private:
-    gfx::WindowSDL3 *win_;
-    core::RaiiFunc<void(bool)> raii_;
-    core::DoubleBuffer<GfxCmd> gfxqueue_;
+    gfx::WindowSDL3              *win_;
+    core::RaiiFunc<void(bool)>    raii_;
+    core::DoubleBuffer<GfxCmd>    gfxqueue_;
     core::DblBufferReader<GfxCmd> gfxread_;
+
     UniformBufferWriter<slang::UniformBuffer03> uboWt3;
 
     gfx::TextureFormatDesc automataFmt;
-    gfx::Texture automataTexA;
-    gfx::Texture automataTexB;
+    gfx::Texture  automataTexA;
+    gfx::Texture  automataTexB;
+    gfx::Texture *automataTexPtr[2];
     gfx::ComputeProgram automataProg;
     gfx::ComputeProgram clearProg;
     gfx::RenderProgram  winProg;
     GLuint mDummyVao;
-    gfx__::MeshBuffer *meshbuf_;
+    gfx::MeshBuffer *meshbuf_;
 
 };
 

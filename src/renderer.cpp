@@ -2,7 +2,6 @@
 #include "idk/gfx/framebuffer.hpp"
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/window.hpp"
-#include "idk_gfx/mesh.hpp"
 #include "idk/core/metric.hpp"
 
 using namespace idk::gfx;
@@ -11,25 +10,21 @@ extern void gfxDebugOutputEnable(bool);
 static glm::vec4 bgtint_ = glm::vec4(1.0f);
 static glm::vec4 fgtint_ = glm::vec4(1.0f);
 
-static Texture *automataTexA_ptr;
-static Texture *automataTexB_ptr;
-
 
 RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
 :   win_(new WindowSDL3(windesc)),
     raii_(gfxDebugOutputEnable, true),
     gfxread_(gfxqueue_),
     uboWt3(),
-    automataFmt(GL_RGBA16F, GL_RGBA, GL_UNSIGNED_BYTE),
+    automataFmt(GL_R8, GL_RGBA, GL_UNSIGNED_BYTE),
     automataTexA(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, nullptr, automataFmt),
     automataTexB(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, nullptr, automataFmt),
     automataProg("assets/shader/automata.comp"),
     clearProg("assets/shader/clear.comp"),
     winProg("assets/shader/screenquad.vert", "assets/shader/screenquad.frag")
 {
-    automataTexA_ptr = &automataTexA;
-    automataTexB_ptr = &automataTexB;
-
+    automataTexPtr[0] = &automataTexA;
+    automataTexPtr[1] = &automataTexB;
     VLOG_INFO("gfx::Renderer Initialized");
 
     GLint mGlVersionMajor, mGlVersionMinor;
@@ -38,14 +33,14 @@ RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
     VLOG_INFO("Context supports OpenGL {}.{}", mGlVersionMajor, mGlVersionMinor);
 
     gl::CreateVertexArrays(1, &mDummyVao);
-    meshbuf_ = new gfx__::MeshBuffer(64*idk::MEGA, 64*idk::MEGA);
+    meshbuf_ = new gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA);
 
     gl::UseProgram(clearProg.mId);
-    automataTexA_ptr->bindImageTexture(8);
-    automataTexB_ptr->bindImageTexture(9);
+    automataTexPtr[0]->bindImageTexture(8);
+    automataTexPtr[1]->bindImageTexture(9);
     gl::DispatchCompute(slang::AUTOMATA_WIDTH/8, slang::AUTOMATA_WIDTH/8, 1);
     gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
-    std::swap(automataTexA_ptr, automataTexB_ptr);
+    std::swap(automataTexPtr[0], automataTexPtr[1]);
 
 }
 
@@ -111,15 +106,15 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
     }
 
     gl::UseProgram(automataProg.mId);
-    automataTexA_ptr->bindImageTexture(8);
-    automataTexB_ptr->bindImageTexture(9);
+    automataTexPtr[0]->bindImageTexture(8);
+    automataTexPtr[1]->bindImageTexture(9);
     gl::DispatchCompute(slang::AUTOMATA_WIDTH/8, slang::AUTOMATA_WIDTH/8, 1);
     gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
-    std::swap(automataTexA_ptr, automataTexB_ptr);
+    std::swap(automataTexPtr[0], automataTexPtr[1]);
 
 
     gl::UseProgram(winProg.mId);
-    automataTexA_ptr->bindImageTexture(8);
+    automataTexPtr[0]->bindImageTexture(8);
     uboWt3.bind();
     gl::BindVertexArray(mDummyVao);
     gl::DrawArrays(GL_TRIANGLES, 0, 3);

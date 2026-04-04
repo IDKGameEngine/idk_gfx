@@ -1,12 +1,12 @@
-#include "idk_gfx/mesh.hpp"
+#include "idk/gfx/mesh.hpp"
 #include "idk/gfx/gl_bindings.hpp"
 #include "idk/core/assert.hpp"
 #include "idk/core/metric.hpp"
 
-using namespace idk::gfx__;
+using namespace idk;
 
 
-idk::gfx__::BufferObject::BufferObject(size_t bytesize)
+gfx::VertexBuffer::VertexBuffer(size_t bytesize)
 :   gfx::GfxResource(0),
     capacity(bytesize),
     offset(0),
@@ -16,7 +16,7 @@ idk::gfx__::BufferObject::BufferObject(size_t bytesize)
     gl::NamedBufferData(mId, capacity, nullptr, GL_DYNAMIC_COPY);
 }
 
-void idk::gfx__::BufferObject::write_data(void *src, size_t nbytes)
+void gfx::VertexBuffer::write_data(void *src, size_t nbytes)
 {
     gl::NamedBufferSubData(mId, offset, nbytes, src);
     offset += nbytes;
@@ -28,7 +28,7 @@ void idk::gfx__::BufferObject::write_data(void *src, size_t nbytes)
 
 
 
-idk::gfx__::VertexArrayObject::VertexArrayObject(const VertexDescriptor &desc, BufferObject &vbo, BufferObject &ibo)
+gfx::VertexArrayObject::VertexArrayObject(const VertexDescriptor &desc, VertexBuffer &vbo, VertexBuffer &ibo)
 :   GfxResource(0),
     desc_(desc),
     vbo_(vbo),
@@ -57,7 +57,7 @@ idk::gfx__::VertexArrayObject::VertexArrayObject(const VertexDescriptor &desc, B
 }
 
 
-MeshBuffer::MeshBuffer(size_t nbytes_vertices, size_t nbytes_indices)
+gfx::MeshBuffer::MeshBuffer(size_t nbytes_vertices, size_t nbytes_indices)
 :   basevertex_(0),
     baseindex_(0),
     vdesc_(),
@@ -71,8 +71,8 @@ MeshBuffer::MeshBuffer(size_t nbytes_vertices, size_t nbytes_indices)
 
 
 
-MeshDescriptor MeshBuffer::loadMesh( size_t nbytes_vertices, size_t nbytes_indices,
-                                     void *vertices, void *indices )
+gfx::MeshDescriptor gfx::MeshBuffer::loadMesh( size_t nbytes_vertices, size_t nbytes_indices,
+                                               void *vertices, void *indices )
 {
     vbo_.write_data(vertices, nbytes_vertices);
     vbo_.write_data(indices, nbytes_indices);
@@ -93,12 +93,12 @@ MeshDescriptor MeshBuffer::loadMesh( size_t nbytes_vertices, size_t nbytes_indic
     return desc;
 }
 
-void MeshBuffer::bind()
+void gfx::MeshBuffer::bind()
 {
     gl::BindVertexArray(vao_.mId);
 }
 
-void MeshBuffer::clear()
+void gfx::MeshBuffer::clear()
 {
     vbo_.offset = 0;
     ibo_.offset = 0;
@@ -106,22 +106,22 @@ void MeshBuffer::clear()
 
 
 
-void *MeshBuffer::mapVBO( GLenum access )
+void *gfx::MeshBuffer::mapVBO( GLenum access )
 {
     return gl::MapNamedBuffer(vbo_.mId, access);
 }
 
-void *MeshBuffer::mapIBO( GLenum access )
+void *gfx::MeshBuffer::mapIBO( GLenum access )
 {
     return gl::MapNamedBuffer(ibo_.mId, access);
 }
 
-void MeshBuffer::unmapVBO()
+void gfx::MeshBuffer::unmapVBO()
 {
     gl::UnmapNamedBuffer(vbo_.mId);
 }
 
-void MeshBuffer::unmapIBO()
+void gfx::MeshBuffer::unmapIBO()
 {
     gl::UnmapNamedBuffer(ibo_.mId);
 }

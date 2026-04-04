@@ -86,7 +86,7 @@ namespace idk
         vec4 data1[512];
     );
 
-    static constexpr const int AUTOMATA_WIDTH = 512;
+    static constexpr const int AUTOMATA_WIDTH = 1024;
 
 
 #ifdef __cplusplus

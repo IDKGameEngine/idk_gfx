@@ -2,30 +2,16 @@
 
 #include "idk/gfx/fwd.hpp"
 
-// desc.attrib_size[idx]   = 2;
-// desc.attrib_nbytes[idx] = sizeof(glm::vec2);
-// idx += 1;
-
-// desc.attrib_size[idx]   = 4;
-// desc.attrib_nbytes[idx] = sizeof(glm::ivec4);
-// idx += 1;
-
-// desc.attrib_size[idx]   = 4;
-// desc.attrib_nbytes[idx] = sizeof(glm::vec4);
-// idx += 1;
-
-namespace idk::gfx__
+namespace idk::gfx
 {
     class  VertexDescriptor;
-    struct BufferObject;
+    struct VertexBuffer;
     struct VertexArrayObject;
     struct MeshDescriptor;
     class  MeshBuffer;
 }
 
-
-
-class idk::gfx__::VertexDescriptor
+class idk::gfx::VertexDescriptor
 {
 private:
     GLuint offset_;
@@ -68,7 +54,7 @@ public:
 };
 
 
-struct idk::gfx__::MeshDescriptor
+struct idk::gfx::MeshDescriptor
 {
     int    material;
     GLuint baseVertex, firstIndex, numVertices, numIndices;
@@ -79,26 +65,26 @@ struct idk::gfx__::MeshDescriptor
 };
 
 
-struct idk::gfx__::BufferObject: public idk::gfx::GfxResource
+struct idk::gfx::VertexBuffer: public idk::gfx::GfxResource
 {
     size_t capacity;
     size_t offset;
     float  totalusage;
-    BufferObject(size_t capacity);
+    VertexBuffer(size_t capacity);
     void write_data(void *src, size_t nbytes);
 };
 
 
-struct idk::gfx__::VertexArrayObject: public idk::gfx::GfxResource
+struct idk::gfx::VertexArrayObject: public idk::gfx::GfxResource
 {
     VertexDescriptor desc_;
-    BufferObject &vbo_;
-    BufferObject &ibo_;
-    VertexArrayObject(const VertexDescriptor&, BufferObject &vbo, BufferObject &ibo);
+    VertexBuffer &vbo_;
+    VertexBuffer &ibo_;
+    VertexArrayObject(const VertexDescriptor&, VertexBuffer &vbo, VertexBuffer &ibo);
 };
 
 
-class idk::gfx__::MeshBuffer
+class idk::gfx::MeshBuffer
 {
 public:
     MeshBuffer(size_t nbytes_vertices, size_t nbytes_indices);
@@ -116,8 +102,8 @@ public:
 private:
     uint32_t basevertex_, baseindex_;
     VertexDescriptor  vdesc_;
-    BufferObject      vbo_;
-    BufferObject      ibo_;
+    VertexBuffer      vbo_;
+    VertexBuffer      ibo_;
     VertexArrayObject vao_;
 
     void *vertex_alloc(size_t);
