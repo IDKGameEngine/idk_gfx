@@ -2,13 +2,19 @@
 #include "idk/gfx/framebuffer.hpp"
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/window.hpp"
+#include "idk/core/file.hpp"
 #include "idk/core/metric.hpp"
+
+extern void gfxDebugOutputEnable(bool);
 
 using namespace idk::gfx;
 
-extern void gfxDebugOutputEnable(bool);
-static glm::vec4 bgtint_ = glm::vec4(1.0f);
-static glm::vec4 fgtint_ = glm::vec4(1.0f);
+#include <SDL3_image/SDL_image.h>
+static void image_load_test()
+{
+    SDL_Surface *img = IMG_Load("assets/noise/perlin.jpg");
+    printf("%dx%d*", img->w, img->h)
+}
 
 
 RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)

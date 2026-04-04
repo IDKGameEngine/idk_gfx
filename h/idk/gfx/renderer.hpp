@@ -6,9 +6,9 @@
 #include "idk/gfx/fwd.hpp"
 #include "idk/gfx/buffer.hpp"
 #include "idk/gfx/shader.hpp"
-#include "idk/gfx/slang.hpp"
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/mesh.hpp"
+#include "idk/slang.hpp"
 
 #include "idk/core/raii.hpp"
 #include "idk/core/double_buffer.hpp"

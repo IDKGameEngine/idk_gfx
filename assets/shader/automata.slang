@@ -1,5 +1,4 @@
-#include "idk/gfx/slang.hpp"
-
+#include "idk/slang.hpp"
 
 layout(binding = 8) RWTexture2D<vec4> inputImage;
 layout(binding = 9) RWTexture2D<vec4> outputImage;

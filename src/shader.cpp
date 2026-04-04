@@ -13,7 +13,6 @@ using namespace idk::gfx;
 
 #endif
 
-
 static idk::FileReader<128*1024> file_reader_;
 
 

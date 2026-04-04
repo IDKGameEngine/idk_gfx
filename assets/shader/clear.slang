@@ -1,4 +1,4 @@
-#include "idk/gfx/slang.hpp"
+#include "idk/slang.hpp"
 
 layout(binding = 9) RWTexture2D<vec4> outputImage;
 // layout(binding = 8) Texture2D<vec3> noiseImage;
