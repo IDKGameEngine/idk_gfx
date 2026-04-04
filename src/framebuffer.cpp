@@ -4,34 +4,32 @@
 using namespace idk::gfx;
 
 
-Framebuffer::Framebuffer()
-:   GfxResource(0U)
+// Framebuffer::Framebuffer()
+// :   GfxResourceBase()
+// {
+//     // gl::NamedFramebufferTexture(mId, GL_COLOR_ATTACHMENT0, mTexture->mId, 0);
+//     // gl::NamedFramebufferTexture(mId, GL_DEPTH_ATTACHMENT, depthTex, 0);
+
+//     // if (gl::CheckNamedFramebufferStatus(mId, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+//     // {
+//     //     VLOG_ERROR("Error on glCheckNamedFramebufferStatus");
+//     // }
+// }
+
+
+Framebuffer::Framebuffer(TexturePtr tex)
+:   GfxResourceBase(),
+    mTexture(tex)
 {
-    gl::CreateFramebuffers(1, &mId);
-    // gl::NamedFramebufferTexture(mId, GL_COLOR_ATTACHMENT0, mTexture->mId, 0);
-    // gl::NamedFramebufferTexture(mId, GL_DEPTH_ATTACHMENT, depthTex, 0);
-
-    // if (gl::CheckNamedFramebufferStatus(mId, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    // {
-    //     VLOG_ERROR("Error on glCheckNamedFramebufferStatus");
-    // }
-}
-
-
-Framebuffer::Framebuffer(Texture &&tex)
-:   GfxResource(0U), mTexture(new Texture(std::move(tex)))
-{
-    gl::CreateFramebuffers(1, &mId);
     gl::NamedFramebufferTexture(mId, GL_COLOR_ATTACHMENT0, mTexture->mId, 0);
     // gl::NamedFramebufferTexture(mId, GL_DEPTH_ATTACHMENT, depthTex, 0);
-
     _check_status();
 }
 
 
-Framebuffer::~Framebuffer()
+void Framebuffer::bind()
 {
-    gl::DeleteFramebuffers(1, &mId);
+    gl::BindFramebuffer(GL_FRAMEBUFFER, mId);
 }
 
 
@@ -44,11 +42,11 @@ void Framebuffer::_check_status()
 }
 
 
-void Framebuffer::setTextureDst(const std::shared_ptr<Texture> &outTex)
-{
-    mTexture = outTex;
-    gl::NamedFramebufferTexture(mId, GL_COLOR_ATTACHMENT0, mTexture->mId, 0);
-    _check_status();
-}
+// void Framebuffer::setTextureDst(const std::shared_ptr<Texture> &outTex)
+// {
+//     mTexture = outTex;
+//     gl::NamedFramebufferTexture(mId, GL_COLOR_ATTACHMENT0, mTexture->mId, 0);
+//     _check_status();
+// }
 
 

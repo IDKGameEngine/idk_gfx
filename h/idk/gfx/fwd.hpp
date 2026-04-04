@@ -32,18 +32,9 @@ namespace idk::gfx
     class RenderProgram;
     class ComputeProgram;
 
-    using FramebufferPtr    = std::shared_ptr<Framebuffer>;
-    using TexturePtr        = std::shared_ptr<Texture>;
+    using FramebufferPtr = std::shared_ptr<Framebuffer>;
+    using TexturePtr     = std::shared_ptr<Texture>;
 
-    enum class TextureFormat
-    {
-        RED_U8,
-        RGB_U8,
-        RGBA_U8,
-        RGBA_U32,
-        RGBA_F16,
-        RGBA_F32
-    };
 }
 
 
@@ -60,7 +51,7 @@ public:
 };
 
 
-class idk::gfx::GfxResource: idk::NonCopyable
+class idk::gfx::GfxResource: public idk::NonCopyable
 {
 private:
 

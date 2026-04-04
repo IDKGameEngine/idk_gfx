@@ -27,7 +27,6 @@ target_sources(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/renderer.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/underlyingtype.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/window.cpp"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/idk_gfx/mesh.cpp"

@@ -31,7 +31,7 @@ __slang_to_spirv()
             -D__slang__=1 \
             -O3 \
             -matrix-layout-column-major \
-            -fvk-use-gl-layout -fspv-reflect \
+            -fvk-use-gl-layout \
             -emit-spirv-directly \
             -target spirv \
             -profile glsl_460 \

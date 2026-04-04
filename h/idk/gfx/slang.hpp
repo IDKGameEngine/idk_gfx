@@ -1,4 +1,5 @@
 // https://shader-slang.org/slang/user-guide/glsl-target-specific
+// https://docs.shader-slang.org/en/latest/coming-from-glsl.html
 
 #ifndef IDK_GFX_SLANG_HPP
 #define IDK_GFX_SLANG_HPP
@@ -33,6 +34,14 @@ struct StorageBuffer0##Idx_ \
     typedef float3 vec3;
     typedef float4 vec4;
 
+    typedef int2 ivec2;
+    typedef int3 ivec3;
+    typedef int4 ivec4;
+
+    typedef uint2 uvec2;
+    typedef uint3 uvec3;
+    typedef uint4 uvec4;
+
     #define UniformBufferRO(T) [[vk::binding(T::BIND_IDX, 0)]] ConstantBuffer<T, Std140DataLayout>
     #define StorageBufferRO(T) [[vk::binding(T::BIND_IDX, 0)]] StructuredBuffer<T, Std430DataLayout>
     #define StorageBufferRW(T) [[vk::binding(T::BIND_IDX, 0)]] RWStructuredBuffer<T, Std430DataLayout>
@@ -60,8 +69,7 @@ namespace idk
 
 
     SSBO_STRUCT(0,
-        vec4 pos[256];
-        vec4 vel[256];
+        vec4 color[512][512];
     );
 
     SSBO_STRUCT(1,
@@ -77,6 +85,8 @@ namespace idk
         vec4 data0[512];
         vec4 data1[512];
     );
+
+    static constexpr const int AUTOMATA_WIDTH = 512;
 
 
 #ifdef __cplusplus

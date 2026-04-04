@@ -5,12 +5,13 @@
 
 #include "idk/gfx/fwd.hpp"
 #include "idk/gfx/buffer.hpp"
+#include "idk/gfx/shader.hpp"
 #include "idk/gfx/slang.hpp"
+#include "idk/gfx/texture.hpp"
+
+#include "idk/core/raii.hpp"
 #include "idk/core/double_buffer.hpp"
 
-// static     gfxbuffer;
-// static core::DblBufferReader<idk::gfx::CmdData> gfxread(gfxbuffer);
-// static core::DblBufferWriter<idk::gfx::CmdData> gfxwrite(gfxbuffer);
 
 namespace idk::gfx
 {
@@ -53,17 +54,19 @@ public:
     virtual ~RenderEngine();
     virtual void onUpdate(idk::IEngine*) final;
     virtual void onShutdown(idk::IEngine*) final;
-
-    void debugOutputEnable();
-    void debugOutputDisable();
-
     core::DblBufferWriter<GfxCmd> getQueueWriter();
 
 private:
     gfx::WindowSDL3 *win_;
+    core::RaiiFunc<void(bool)> raii_;
     core::DoubleBuffer<GfxCmd> gfxqueue_;
     core::DblBufferReader<GfxCmd> gfxread_;
     UniformBufferWriter<slang::UniformBuffer03> uboWt3;
+
+    gfx::TextureFormatDesc automataFmt;
+    gfx::Texture automataTexA;
+    gfx::Texture automataTexB;
+    gfx::ComputeProgram automataProg;
 
     GLuint mDummyVao;
     gfx__::MeshBuffer *meshbuf_;

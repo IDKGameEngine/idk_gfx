@@ -58,24 +58,23 @@ static void debugmsg_callback( GLenum source, GLenum type, GLuint id, GLenum sev
 
 
 
-void RenderEngine::debugOutputEnable()
+void gfxDebugOutputEnable(bool enable)
 {
-    gl::Enable(GL_DEBUG_OUTPUT);
-    gl::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    gl::DebugMessageCallback(debugmsg_callback, nullptr);
+    using namespace idk;
 
-    gl::DebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_TRUE);
+    if (enable == true)
+    {
+        gl::Enable(GL_DEBUG_OUTPUT);
+        gl::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        gl::DebugMessageCallback(debugmsg_callback, nullptr);
+        gl::DebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_TRUE);
+        VLOG_INFO("Enabled OpenGL debug messages");
+    }
 
-    VLOG_INFO("Enabled OpenGL debug messages");
+    else
+    {
+        gl::DebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+    }
 }
-
-
-void RenderEngine::debugOutputDisable()
-{
-    gl::DebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-}
-
-
-
 
 

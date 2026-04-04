@@ -1,6 +1,5 @@
 #include "idk/gfx/slang.hpp"
 
-layout(binding = 3) RWTexture2D<vec3> inputImage;
 layout(binding = 4) RWTexture2D<vec3> outputImage;
 
 [shader("compute")]
@@ -8,7 +7,5 @@ layout(binding = 4) RWTexture2D<vec3> outputImage;
 void compmain(uvec3 threadId : SV_DispatchThreadID)
 {
     uvec2 texel = uvec2(threadId.xy);
-    vec3 prev = inputImage.Load(texel);
-    vec3 curr = sin(prev);
     outputImage.Store(texel, curr);
 }

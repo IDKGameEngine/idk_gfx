@@ -11,9 +11,8 @@ struct VertexShaderOutput
     float4 sv_position : SV_Position;
 };
 
-
+layout(binding = 3) RWTexture2D<vec3> inputImage;
 UniformBufferRO(idk::UniformBuffer03) ubo3RO;
-
 
 
 [shader("vertex")]
@@ -34,16 +33,21 @@ VertexShaderOutput vertmain(VertexShaderInput vsin)
 [shader("fragment")]
 float4 fragmain(VertexShaderOutput fsin) : SV_Target0
 {
-    float3 rgb = float3(fsin.uv, 0.0);
-    float2 sz = ubo3RO.winsz.xy;
+    uvec2 texel = uvec2(fsin.uv * vec2(idk::AUTOMATA_WIDTH));
+    vec3 rgb = inputImage.Load(texel);
 
-    float d = distance(sz*ubo3RO.gamepos.xy, sz*fsin.uv);
-    if (d < 16.0f)
-    {
-        rgb = float3(1.0f);
-    }
+    return vec4(rgb, 1.0f);
 
-    return float4(rgb, 1.0);
+    // float3 rgb = float3(fsin.uv, 0.0);
+    // float2 sz = ubo3RO.winsz.xy;
+
+    // float d = distance(sz*ubo3RO.gamepos.xy, sz*fsin.uv);
+    // if (d < 16.0f)
+    // {
+    //     rgb = float3(1.0f);
+    // }
+
+    // return float4(rgb, 1.0);
 }
 
 
