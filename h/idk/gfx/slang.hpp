@@ -26,10 +26,14 @@ namespace IDK_SLANG_NAMESPACE
     static constexpr const uint32_t BINDING_UBO_2 = 2;
     static constexpr const uint32_t BINDING_UBO_3 = 3;
 
-    static constexpr const uint32_t BINDING_SSBO_0 = 4;
-    static constexpr const uint32_t BINDING_SSBO_1 = 5;
-    static constexpr const uint32_t BINDING_SSBO_2 = 6;
-    static constexpr const uint32_t BINDING_SSBO_3 = 7;
+    static constexpr const uint32_t BINDING_SSBO_0 = 0;
+    static constexpr const uint32_t BINDING_SSBO_1 = 1;
+    static constexpr const uint32_t BINDING_SSBO_2 = 2;
+    static constexpr const uint32_t BINDING_SSBO_3 = 3;
+    static constexpr const uint32_t BINDING_SSBO_4 = 4;
+    static constexpr const uint32_t BINDING_SSBO_5 = 5;
+    static constexpr const uint32_t BINDING_SSBO_6 = 6;
+    static constexpr const uint32_t BINDING_SSBO_7 = 7;
 
     struct UBO3_t
     {
@@ -43,6 +47,7 @@ namespace IDK_SLANG_NAMESPACE
 
     struct SSBO_0
     {
+        static constexpr const uint32_t BINDING_IDX = BINDING_SSBO_0;
         vec4 pos;
         vec4 vel;
     };
@@ -52,6 +57,65 @@ namespace IDK_SLANG_NAMESPACE
         vec4 pos;
         vec4 vel;
     };
+
+
+#ifdef __cplusplus
+    #define SSBO_TYPE_BEGIN(Idx_) \
+        struct StorageBufferB##Idx_ \
+        { static constexpr const uint32_t BINDING_IDX = Idx_;
+    #define SSBO_TYPE_END };
+
+#else
+    interface IStorageBuffer
+    {
+        static constexpr const uint32_t BINDING_IDX;
+    };
+
+    #define SSBO_TYPE_BEGIN(Idx_) \
+        struct StorageBufferB##Idx_ : IStorageBuffer \
+        { static constexpr const uint32_t BINDING_IDX = Idx_;
+    #define SSBO_TYPE_END };
+
+#endif
+
+
+    SSBO_TYPE_BEGIN(0)
+        vec4 pos;
+        vec4 vel;
+    SSBO_TYPE_END
+
+    SSBO_TYPE_BEGIN(1)
+        vec4 pos;
+        vec4 vel;
+    SSBO_TYPE_END
+
+    SSBO_TYPE_BEGIN(2)
+        vec4 junk[1024];
+    SSBO_TYPE_END
+
+    SSBO_TYPE_BEGIN(3);
+        vec4 data0[512];
+        vec4 data1[512];
+    SSBO_TYPE_END
+
+
+// #ifdef __cplusplus
+
+// #else
+//     struct StorageAccess<T> where T : IStorageBuffer
+//     {
+//         [[vk::binding(T::BINDING_IDX, 0)]]
+//         StructuredBuffer<T, Std430DataLayout> buffer;
+//     };
+
+//     void erarsa()
+//     {
+//         StorageAccess<StorageBufferB0> s0;
+//         s0.buffer[0].
+//     }
+
+// #endif
+
 
 }
 
