@@ -50,7 +50,7 @@ namespace idk
         struct UniformReaderB##Idx_ \
         { \
             [[vk::binding(Idx_, 0)]] \
-            ConstantBuffer<UniformBufferB##Idx_> dataIn; \
+            ConstantBuffer<UniformBufferB##Idx_, Std140DataLayout> dataIn; \
         };
 
     #define SSBO_TYPE_BEGIN(Idx_) \
