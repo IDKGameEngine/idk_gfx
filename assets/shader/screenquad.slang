@@ -11,8 +11,16 @@ struct VertexShaderOutput
     float4 sv_position : SV_Position;
 };
 
-idk::UniformReaderB3 ubo3;
+[[vk::binding(3, 0)]]
+ConstantBuffer<idk::UniformBufferB3> uboIn;
+// idk::UniformReaderB3 uboRd03;
 
+// struct UniformReader03
+// {
+//     [[vk::binding(3, 0)]]
+//     ConstantBuffer<idk::UniformBufferB3> in;
+// };
+// UniformReader03 uboRd03;
 
 
 [shader("vertex")]
@@ -34,9 +42,9 @@ VertexShaderOutput vertmain(VertexShaderInput vsin)
 float4 fragmain(VertexShaderOutput fsin) : SV_Target0
 {
     float3 rgb = float3(fsin.uv, 0.0);
-    float2 sz = ubo3.dataIn.winsz.xy;
+    float2 sz = uboIn.winsz.xy;
 
-    float d = distance(sz*ubo3.dataIn.gamepos.xy, sz*fsin.uv);
+    float d = distance(sz*uboIn.gamepos.xy, sz*fsin.uv);
     if (d < 16.0f)
     {
         rgb = float3(1.0f);

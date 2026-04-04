@@ -23,8 +23,8 @@ namespace idk::gfx
 
         void write(size_t offset, size_t nbytes, const void *data)
         {
-            IDK_ASSERT(nbytes < mSize, "nbytes cannot be larger than mSize");
-            IDK_ASSERT(offset+nbytes < mSize, "out of bounds copy");
+            IDK_ASSERT(nbytes <= mSize, "nbytes cannot be larger than mSize");
+            IDK_ASSERT(offset+nbytes <= mSize, "out of bounds copy");
             gl::NamedBufferSubData(mId, offset, nbytes, data);
         }
 
@@ -43,7 +43,7 @@ namespace idk::gfx
 
     public:
         UniformBufferWriter(): BufferObject<GL_UNIFORM_BUFFER, UboType::BIND_IDX>(sizeof(UboType)) {  }
-        void sendToGpu() { gl::NamedBufferSubData(this->getId(), 0, sizeof(UboType), &object_); }
+        void sendToGpu() { this->write(0, sizeof(UboType), &object_); }
         UboType *operator->() { return &object_; }
 
     };

@@ -89,8 +89,6 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
         gfxread_->pop();
     }
 
-
-
     win_->makeCurrent();
     uboWt3->winsz = glm::vec4(win_->mSizef, 0.0f, 0.0f);
 

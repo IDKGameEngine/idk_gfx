@@ -51,7 +51,7 @@ namespace idk
         { \
             [[vk::binding(Idx_, 0)]] \
             ConstantBuffer<UniformBufferB##Idx_> dataIn; \
-        }; \
+        };
 
     #define SSBO_TYPE_BEGIN(Idx_) \
         struct StorageBufferB##Idx_ \
@@ -63,11 +63,13 @@ namespace idk
         { \
             [[vk::binding(Idx_, 0)]] \
             StructuredBuffer<StorageBufferB##Idx_, Std430DataLayout> dataIn; \
+            StorageBufferB##Idx_ operator()() { return dataIn[0]; } \
         }; \
         struct StorageWriterB##Idx_ \
         { \
             [[vk::binding(Idx_, 0)]] \
             RWStructuredBuffer<StorageBufferB##Idx_, Std430DataLayout> dataOut; \
+            StorageBufferB##Idx_ operator()() { return dataOut[0]; } \
         };
 
 #endif
@@ -86,13 +88,13 @@ namespace idk
 
 
     SSBO_TYPE_BEGIN(0)
-        vec4 pos;
-        vec4 vel;
+        vec4 pos[256];
+        vec4 vel[256];
     SSBO_TYPE_END(0)
 
     SSBO_TYPE_BEGIN(1)
-        vec4 pos;
-        vec4 vel;
+        vec4 pos[256];
+        vec4 vel[256];
     SSBO_TYPE_END(1)
 
     SSBO_TYPE_BEGIN(2)
