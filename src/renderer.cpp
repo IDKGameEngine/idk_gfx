@@ -4,7 +4,6 @@
 #include "idk_gfx/mesh.hpp"
 #include "idk/core/metric.hpp"
 
-
 using namespace idk::gfx;
 
 static RenderProgram *m_winprg;
@@ -13,20 +12,12 @@ static ComputeProgram *m_automata_prg;
 static glm::vec4 bgtint_ = glm::vec4(1.0f);
 static glm::vec4 fgtint_ = glm::vec4(1.0f);
 
-// static UboWrapperT<slang::UniformBufferB3> *ubo3_;
-
 
 RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
 :   win_(new WindowSDL3(windesc)),
     gfxread_(gfxqueue_),
     uboWt3()
 {
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
-        VLOG_FATAL("gladLoadGLLoader failure");
-
-    if (!SDL_GL_MakeCurrent(win_->mSdlWin, win_->mGlCtx))
-        VLOG_ERROR("SDL_GL_MakeCurrent: {}", SDL_GetError());
-
     VLOG_INFO("gfx::Renderer Initialized");
 
     GLint mGlVersionMajor, mGlVersionMinor;

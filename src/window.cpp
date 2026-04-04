@@ -21,29 +21,7 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
     mSizei(desc.width, desc.height),
     mSizef(glm::vec2(mSizei))
 {
-    if (false == SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_CAMERA))
-    {
-        VLOG_FATAL("{}", SDL_GetError());
-    }
-    std::filesystem::current_path(std::filesystem::path(SDL_GetBasePath()));
-
-    if (!SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))
-        VLOG_ERROR("{}", SDL_GetError());
-
-    if (!SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4))
-        VLOG_ERROR("{}", SDL_GetError());
-
-    if (!SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6))
-        VLOG_ERROR("{}", SDL_GetError());
-
-    if (!SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))
-        VLOG_ERROR("{}", SDL_GetError());
-
-    if (!SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,  24))
-        VLOG_ERROR("{}", SDL_GetError());
-
-    if (!SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8))
-        VLOG_ERROR("{}", SDL_GetError());
+    VLOG_INFO("[WindowSDL3::WindowSDL3]");
 
     mSdlWin = SDL_CreateWindow(mTitle, mSizei.x, mSizei.y, SDL_WINDOW_OPENGL);
     if (mSdlWin == NULL)
@@ -61,6 +39,12 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
         VLOG_WARN("SDL_GL_GetSwapInterval: {}", SDL_GetError());
     else
         VLOG_INFO("SDL_GL_GetSwapInterval: interval={}", interval);
+
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
+        VLOG_FATAL("gladLoadGLLoader failure");
+
+    if (!SDL_GL_MakeCurrent(mSdlWin, mGlCtx))
+        VLOG_ERROR("SDL_GL_MakeCurrent: {}", SDL_GetError());
 
     // SDL_ShowOpenFileDialog(file_dialog_callback, nullptr, mSdlWin, NULL, 0, NULL, true);
 }

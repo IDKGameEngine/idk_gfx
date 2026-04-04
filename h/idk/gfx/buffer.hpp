@@ -43,10 +43,7 @@ namespace idk::gfx
 
     public:
         UniformBufferWriter(): BufferObject<GL_UNIFORM_BUFFER, UboType::BIND_IDX>(sizeof(UboType)) {  }
-        void sendToGpu()
-        {
-            gl::NamedBufferSubData(this->getId(), 0, sizeof(UboType), &object_);
-        }
+        void sendToGpu() { gl::NamedBufferSubData(this->getId(), 0, sizeof(UboType), &object_); }
         UboType *operator->() { return &object_; }
 
     };
