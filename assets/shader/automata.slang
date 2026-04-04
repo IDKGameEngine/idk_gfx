@@ -1,16 +1,7 @@
 #include "idk/gfx/slang.hpp"
 
-
-struct YeahBoi
-{
-    [[vk::binding(idk::BINDING_SSBO_0, 0)]]
-    StructuredBuffer<idk::SSBO_0, Std430DataLayout> dataIn;
-
-    [[vk::binding(idk::BINDING_SSBO_1, 0)]]
-    RWStructuredBuffer<idk::SSBO_1, Std430DataLayout> dataOut;
-};
-
-YeahBoi boi;
+idk::StorageReaderB0 ssbo0;
+idk::StorageWriterB1 ssbo1;
 
 
 
@@ -20,10 +11,10 @@ void compmain(uint3 threadId : SV_DispatchThreadID)
 {
     uint i = threadId.x;
 
-    vec4 pos = boi.dataIn[i].pos;
-    vec4 vel = boi.dataIn[i].vel;
+    vec4 pos = ssbo0.dataIn[i].pos;
+    vec4 vel = ssbo0.dataIn[i].vel;
 
-    boi.dataOut[i].pos = vec4((pos+vel).xyz, 0.0);
+    ssbo1.dataOut[i].pos = vec4((pos+vel).xyz, 0.0);
 }
 
 

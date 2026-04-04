@@ -54,6 +54,7 @@ private:
 
 public:
     GLuint mId;
+    GLuint getId() { return mId; }
     GfxResourceBase() { MakeObj(1, &mId); }
     ~GfxResourceBase() { KillObj(1, &mId); }
 };

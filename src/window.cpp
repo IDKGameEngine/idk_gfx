@@ -33,7 +33,7 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
     if (!SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4))
         VLOG_ERROR("{}", SDL_GetError());
 
-    if (!SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5))
+    if (!SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6))
         VLOG_ERROR("{}", SDL_GetError());
 
     if (!SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))
@@ -52,6 +52,15 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
     mGlCtx = SDL_GL_CreateContext(mSdlWin);
     if (mGlCtx == nullptr)
         VLOG_FATAL("SDL_GL_CreateContext: {}", SDL_GetError());
+
+    if (!SDL_GL_SetSwapInterval(1))
+        VLOG_WARN("SDL_GL_SetSwapInterval: {}", SDL_GetError());
+
+    int interval;
+    if (!SDL_GL_GetSwapInterval(&interval))
+        VLOG_WARN("SDL_GL_GetSwapInterval: {}", SDL_GetError());
+    else
+        VLOG_INFO("SDL_GL_GetSwapInterval: interval={}", interval);
 
     // SDL_ShowOpenFileDialog(file_dialog_callback, nullptr, mSdlWin, NULL, 0, NULL, true);
 }

@@ -28,7 +28,29 @@ namespace idk::gfx
             gl::NamedBufferSubData(mId, offset, nbytes, data);
         }
 
+        void bind()
+        {
+            gl::BindBufferBase(Target_, Idx_, mId);
+        }
+
     };
+
+    template <typename UboType>
+    class UniformBufferWriter: public gfx::BufferObject<GL_UNIFORM_BUFFER, UboType::BIND_IDX>
+    {
+    private:
+        UboType object_;
+
+    public:
+        UniformBufferWriter(): BufferObject<GL_UNIFORM_BUFFER, UboType::BIND_IDX>(sizeof(UboType)) {  }
+        void sendToGpu()
+        {
+            gl::NamedBufferSubData(this->getId(), 0, sizeof(UboType), &object_);
+        }
+        UboType *operator->() { return &object_; }
+
+    };
+
 
 
     class UboGpuOnly: public GfxResource
@@ -66,7 +88,7 @@ namespace idk::gfx
         T &mObject;
 
     public:
-        static constexpr auto BINDING_IDX = T::BINDING_IDX;
+        static constexpr auto BIND_IDX = T::BIND_IDX;
         bool mDirty;
 
         UboWrapperT(const char *name = "")

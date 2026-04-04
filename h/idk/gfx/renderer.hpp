@@ -1,14 +1,16 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <SDL3/SDL.h>
+
 #include "idk/gfx/fwd.hpp"
+#include "idk/gfx/buffer.hpp"
+#include "idk/gfx/slang.hpp"
 #include "idk/core/double_buffer.hpp"
 
 // static     gfxbuffer;
 // static core::DblBufferReader<idk::gfx::CmdData> gfxread(gfxbuffer);
 // static core::DblBufferWriter<idk::gfx::CmdData> gfxwrite(gfxbuffer);
-
-#include <glm/glm.hpp>
-#include <SDL3/SDL.h>
 
 namespace idk::gfx
 {
@@ -61,6 +63,7 @@ private:
     gfx::WindowSDL3 *win_;
     core::DoubleBuffer<GfxCmd> gfxqueue_;
     core::DblBufferReader<GfxCmd> gfxread_;
+    UniformBufferWriter<slang::UniformBufferB3> uboWt3;
 
     GLuint mDummyVao;
     gfx__::MeshBuffer *meshbuf_;

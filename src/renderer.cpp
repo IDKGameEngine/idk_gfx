@@ -1,8 +1,6 @@
 #include "idk/gfx/renderer.hpp"
-#include "idk/gfx/buffer.hpp"
 #include "idk/gfx/shader.hpp"
 #include "idk/gfx/window.hpp"
-#include "idk/gfx/slang.hpp"
 #include "idk_gfx/mesh.hpp"
 #include "idk/core/metric.hpp"
 
@@ -15,13 +13,13 @@ static ComputeProgram *m_automata_prg;
 static glm::vec4 bgtint_ = glm::vec4(1.0f);
 static glm::vec4 fgtint_ = glm::vec4(1.0f);
 
-static UboWrapperT<slang::UBO3_t> *ubo3_;
-
+// static UboWrapperT<slang::UniformBufferB3> *ubo3_;
 
 
 RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
 :   win_(new WindowSDL3(windesc)),
-    gfxread_(gfxqueue_)
+    gfxread_(gfxqueue_),
+    uboWt3()
 {
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
         VLOG_FATAL("gladLoadGLLoader failure");
@@ -46,7 +44,8 @@ RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
     m_winprg = new RenderProgram("assets/shader/screenquad.vert", "assets/shader/screenquad.frag");
     m_automata_prg = new ComputeProgram("assets/shader/automata.comp");
 
-    ubo3_ = new UboWrapperT<slang::UBO3_t>();
+    // uboWt3 = new UniformBufferWriter<slang::UniformBufferB3>();
+    // (*uboWt3)->winsz
 }
 
 
@@ -69,8 +68,6 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
     }
 
 
-    auto &ubo3 = *ubo3_;
-
     while (!gfxread_->empty())
     {
         auto &cmd = gfxread_->front();
@@ -78,23 +75,19 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
         switch (cmd.type)
         {
             case GfxCmdType::BgColorSet:
-                ubo3_->mDirty = true;
-                ubo3->gamepos = cmd.as_rgba;
+                uboWt3->gamepos = cmd.as_rgba;
                 break;
 
             case GfxCmdType::BgColorAdd:
-                ubo3_->mDirty = true;
-                ubo3->gamepos += cmd.as_rgba;
+                uboWt3->gamepos += cmd.as_rgba;
                 break;
 
             case GfxCmdType::FgColorSet:
-                ubo3_->mDirty = true;
-                ubo3->fgtint = cmd.as_rgba;
+                uboWt3->fgtint = cmd.as_rgba;
                 break;
 
             case GfxCmdType::FgColorAdd:
-                ubo3_->mDirty = true;
-                ubo3->fgtint += cmd.as_rgba;
+                uboWt3->fgtint += cmd.as_rgba;
                 break;
 
             default:
@@ -108,18 +101,18 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
 
 
     win_->makeCurrent();
-    (*ubo3_)->winsz = glm::vec4(win_->mSizef, 0.0f, 0.0f);
+    uboWt3->winsz = glm::vec4(win_->mSizef, 0.0f, 0.0f);
 
-    if (ubo3_->mDirty)
+    // if (ubo3_->mDirty)
     {
-        ubo3_->sendToGpu();
+        uboWt3.sendToGpu();
     }
 
     // gl::ClearColor(0.0f, 0.75f, 0.25f, 1.0f);
     // gl::Clear(GL_COLOR_BUFFER_BIT);
     gl::UseProgram(m_winprg->mId);
-
-    ubo3_->bindToIndex(ubo3_->BINDING_IDX);
+    uboWt3.bind();
+    // ubo3_->bindToIndex(ubo3_->BIND_IDX);
 
     gl::BindVertexArray(mDummyVao);
     gl::DrawArrays(GL_TRIANGLES, 0, 3);
