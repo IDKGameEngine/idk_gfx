@@ -28,7 +28,7 @@ __slang_to_spirv()
     if grep -q "$entryname" "$srcpath"; then
         slangc "${srcpath}" \
             -I "${IDK_POLY_DIR}/idk_gfx/h" \
-            -D__SLANG__ \
+            -D__slang__=1 \
             -O3 \
             -matrix-layout-column-major \
             -fvk-use-gl-layout -fspv-reflect \

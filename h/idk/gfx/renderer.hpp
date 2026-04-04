@@ -63,7 +63,7 @@ private:
     gfx::WindowSDL3 *win_;
     core::DoubleBuffer<GfxCmd> gfxqueue_;
     core::DblBufferReader<GfxCmd> gfxread_;
-    UniformBufferWriter<slang::UniformBufferB3> uboWt3;
+    UniformBufferWriter<slang::UniformBuffer03> uboWt3;
 
     GLuint mDummyVao;
     gfx__::MeshBuffer *meshbuf_;

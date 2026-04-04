@@ -1,22 +1,20 @@
 #include "idk/gfx/slang.hpp"
 
-idk::StorageReaderB0 ssboRd00;
-idk::StorageWriterB1 ssboWt01;
-
+StorageBufferRO(idk::StorageBuffer00) ssboRO;
+StorageBufferRW(idk::StorageBuffer01) ssboRW;
 
 
 [shader("compute")]
 [numthreads(1,1,1)]
 void compmain(uint3 threadId : SV_DispatchThreadID)
 {
-    let dataIn  = ssboRd00();
-    let dataOut = ssboWt01();
+    let dataIn = ssboRO[0];
     uint i = threadId.x;
 
     vec4 pos = dataIn.pos[i];
     vec4 vel = dataIn.vel[i];
 
-    ssboWt01.dataOut[0].pos[i] = vec4((pos+vel).xyz, 0.0);
+    ssboRW[0].pos[i] = vec4((pos+vel).xyz, 0.0);
     // dataOut.pos[i] = vec4((pos+vel).xyz, 0.0);
 }
 

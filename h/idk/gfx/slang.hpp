@@ -3,10 +3,39 @@
 #ifndef IDK_GFX_SLANG_HPP
 #define IDK_GFX_SLANG_HPP
 
-#ifdef __SLANG__
+#define UBO_STRUCT(Idx_, Content_) \
+struct UniformBuffer0##Idx_ \
+{ \
+    static constexpr const uint32_t BIND_IDX = Idx_; \
+    Content_ \
+}
+
+#define SSBO_STRUCT(Idx_, Content_) \
+struct StorageBuffer0##Idx_ \
+{ \
+    static constexpr const uint32_t BIND_IDX = Idx_; \
+    Content_ \
+}
+
+
+#ifdef __cplusplus
+    #include <cstdint>
+    #include <glm/glm.hpp>
+    namespace idk::gfx::slang
+    {
+        using vec2 = glm::vec2;
+        using vec3 = glm::vec3;
+        using vec4 = glm::vec4;
+    }
+
+#else
     typedef float2 vec2;
     typedef float3 vec3;
     typedef float4 vec4;
+
+    #define UniformBufferRO(T) [[vk::binding(T::BIND_IDX, 0)]] ConstantBuffer<T, Std140DataLayout>
+    #define StorageBufferRO(T) [[vk::binding(T::BIND_IDX, 0)]] StructuredBuffer<T, Std430DataLayout>
+    #define StorageBufferRW(T) [[vk::binding(T::BIND_IDX, 0)]] RWStructuredBuffer<T, Std430DataLayout>
 #endif
 
 
@@ -15,96 +44,39 @@ namespace idk
 #ifdef __cplusplus
     namespace gfx::slang
     {
-        using vec2 = glm::vec2;
-        using vec3 = glm::vec3;
-        using vec4 = glm::vec4;
 #endif
 
-
-#ifdef __cplusplus
-    #define UBO_TYPE_BEGIN(Idx_) \
-        struct UniformBufferB##Idx_ \
-        { \
-            static constexpr const uint32_t BIND_IDX = Idx_;
-    #define UBO_TYPE_END(Idx_) \
-        }; \
-        struct UniformReaderB##Idx_ { UniformBufferB##Idx_ dataIn; }; \
-        struct UniformWriterB##Idx_ { UniformBufferB##Idx_ dataOut; };
-
-    #define SSBO_TYPE_BEGIN(Idx_) \
-        struct StorageBufferB##Idx_ \
-        { \
-            static constexpr const uint32_t BIND_IDX = Idx_;
-    #define SSBO_TYPE_END(Idx_) \
-        }; \
-        struct StorageReaderB##Idx_ { StorageBufferB##Idx_ dataIn; }; \
-        struct StorageWriterB##Idx_ { StorageBufferB##Idx_ dataOut; };
-
-#else
-    #define UBO_TYPE_BEGIN(Idx_) \
-        struct UniformBufferB##Idx_ \
-        { \
-            static constexpr const uint32_t BIND_IDX = Idx_;
-    #define UBO_TYPE_END(Idx_) \
-        }; \
-        struct UniformReaderB##Idx_ \
-        { \
-            [[vk::binding(Idx_, 0)]] \
-            ConstantBuffer<UniformBufferB##Idx_, Std140DataLayout> dataIn; \
-        };
-
-    #define SSBO_TYPE_BEGIN(Idx_) \
-        struct StorageBufferB##Idx_ \
-        { \
-            static constexpr const uint32_t BIND_IDX = Idx_;
-    #define SSBO_TYPE_END(Idx_) \
-        }; \
-        struct StorageReaderB##Idx_ \
-        { \
-            [[vk::binding(Idx_, 0)]] \
-            StructuredBuffer<StorageBufferB##Idx_, Std430DataLayout> dataIn; \
-            StorageBufferB##Idx_ operator()() { return dataIn[0]; } \
-        }; \
-        struct StorageWriterB##Idx_ \
-        { \
-            [[vk::binding(Idx_, 0)]] \
-            RWStructuredBuffer<StorageBufferB##Idx_, Std430DataLayout> dataOut; \
-            StorageBufferB##Idx_ operator()() { return dataOut[0]; } \
-        };
-
-#endif
-
-    UBO_TYPE_BEGIN(0)
+    UBO_STRUCT(0,
         vec4 rgba;
         vec4 xyzw;
-    UBO_TYPE_END(0)
+    );
 
-    UBO_TYPE_BEGIN(3)
+    UBO_STRUCT(3,
         vec4 winsz;
         vec4 bgtint;
         vec4 fgtint;
         vec4 gamepos;
-    UBO_TYPE_END(3)
+    );
 
 
-    SSBO_TYPE_BEGIN(0)
+    SSBO_STRUCT(0,
         vec4 pos[256];
         vec4 vel[256];
-    SSBO_TYPE_END(0)
+    );
 
-    SSBO_TYPE_BEGIN(1)
+    SSBO_STRUCT(1,
         vec4 pos[256];
         vec4 vel[256];
-    SSBO_TYPE_END(1)
+    );
 
-    SSBO_TYPE_BEGIN(2)
+    SSBO_STRUCT(2,
         vec4 junk[1024];
-    SSBO_TYPE_END(2)
+    );
 
-    SSBO_TYPE_BEGIN(3)
+    SSBO_STRUCT(3,
         vec4 data0[512];
         vec4 data1[512];
-    SSBO_TYPE_END(3)
+    );
 
 
 #ifdef __cplusplus
