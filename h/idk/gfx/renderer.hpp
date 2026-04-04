@@ -67,7 +67,8 @@ private:
     gfx::Texture automataTexA;
     gfx::Texture automataTexB;
     gfx::ComputeProgram automataProg;
-
+    gfx::ComputeProgram clearProg;
+    gfx::RenderProgram  winProg;
     GLuint mDummyVao;
     gfx__::MeshBuffer *meshbuf_;
 

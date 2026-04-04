@@ -174,7 +174,7 @@ namespace idk::gl
     { IDK_GLCALL( glBindTextureUnit(unit, texture); ) }
 
     IDK_INLINE void BindImageTexture( GLuint unit, GLuint texture, GLint level, GLboolean layered,
-                            GLint layer, GLenum access, GLenum format )
+                                      GLint layer, GLenum access, GLenum format )
     { IDK_GLCALL( glBindImageTexture(unit, texture, level, layered, layer, access, format); ) }
 
     IDK_INLINE void BindImageTextures( GLuint first, GLsizei count, const GLuint *textures )

@@ -11,7 +11,7 @@ struct VertexShaderOutput
     float4 sv_position : SV_Position;
 };
 
-layout(binding = 3) RWTexture2D<vec3> inputImage;
+layout(binding = 8) RWTexture2D<vec3> inputImage;
 UniformBufferRO(idk::UniformBuffer03) ubo3RO;
 
 
