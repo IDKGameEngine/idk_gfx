@@ -53,7 +53,7 @@ public:
 
 
 
-class idk::gfx::BaseRaiiProgram: public idk::NonCopyable
+class idk::gfx::BaseRaiiProgram // : public idk::NonCopyable
 {
 public:
     const GLuint mId;

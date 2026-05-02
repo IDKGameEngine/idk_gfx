@@ -7,9 +7,9 @@
 using namespace idk::gfx;
 
 #ifdef IDK_GFX_OPENGL_SPIRV
-    #define IDK_GFX_SHADERPATH "assets/shader/spv"
+    #define IDK_GFX_SHADERPATH "asset/shader/spv"
 #else
-    #define IDK_GFX_SHADERPATH "assets/shader/glsl"
+    #define IDK_GFX_SHADERPATH "asset/shader/glsl"
 
 #endif
 
@@ -44,7 +44,7 @@ BaseRaiiShader::BaseRaiiShader(GLuint id, const char *entryname, const char *fil
     if (result == GL_FALSE)
     {
         gl::GetShaderiv(mId, GL_INFO_LOG_LENGTH, &length);
-        std::unique_ptr<char> msg(new char[length]);
+        std::unique_ptr<char> msg = std::make_unique<char>(length);
 
         assert((length > 0));
     
@@ -73,8 +73,8 @@ BaseRaiiProgram::BaseRaiiProgram(): mId(gl::CreateProgram()) {  }
 BaseRaiiProgram::~BaseRaiiProgram() { gl::DeleteProgram(mId); }
 
 RenderProgram::RenderProgram(const char *vertFilePath, const char *fragFilePath)
-:   BaseRaiiProgram(),
-    mVert(vertFilePath),
+// :   BaseRaiiProgram(),
+:   mVert(vertFilePath),
     mFrag(fragFilePath),
     mOkay(mVert.mOkay && mFrag.mOkay)
 {

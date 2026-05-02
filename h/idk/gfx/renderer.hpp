@@ -8,42 +8,23 @@
 #include "idk/gfx/shader.hpp"
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/mesh.hpp"
+#include "idk/gfx/render_interface.hpp"
+
 #include "idk/slang.hpp"
 
 #include "idk/core/raii.hpp"
 #include "idk/core/double_buffer.hpp"
 
+#include <map>
 
-namespace idk::gfx
-{
-    class RenderEngine;
-
-    enum class GfxCmdType: int
-    {
-        Invalid = 0,
-        DebugOutputEnable,
-        BgColorSet,
-        BgColorAdd,
-        FgColorSet,
-        FgColorAdd,
-        SomethingElse
-    };
-
-    struct GfxCmd
-    {
-        GfxCmdType type;
-
-        union
-        {
-            bool as_debugOutputEnable;
-            glm::vec4 as_rgba;
-        };
-    };
-
-}
 
 namespace idk
 {
+    namespace gfx
+    {
+        class RenderEngine;
+    }
+
     class MeshBuffer;
 }
 
@@ -55,13 +36,22 @@ public:
     virtual ~RenderEngine();
     virtual void onUpdate(idk::IEngine*) final;
     virtual void onShutdown(idk::IEngine*) final;
-    core::DblBufferWriter<GfxCmd> getQueueWriter();
+    core::DblBufferWriter<GfxRequest> getGfxRequestWriter();
+
+    static void debugOutputEnable(const DebugOutputEnableRequest&, DebugOutputEnableResponse*);
+    void addComputeProgram(const AddComputeProgramRequest&, AddComputeProgramResponse*);
+    void addRenderProgram(const AddRenderProgramRequest&, AddRenderProgramResponse*);
+    // uint64_t addComputeProgram(const char *comp_path);
+    // uint64_t addRenderProgram(const char *vert_path, const char *frag_path);
+
+    // gfx::ComputeProgram *getComputeProgram(uint64_t key);
+    // gfx::RenderProgram *getRenderProgram(uint64_t key);
 
 private:
-    gfx::WindowSDL3              *win_;
-    core::RaiiFunc<void(bool)>    raii_;
-    core::DoubleBuffer<GfxCmd>    gfxqueue_;
-    core::DblBufferReader<GfxCmd> gfxread_;
+    gfx::WindowSDL3                  *win_;
+    core::RaiiFunc<void(bool)>        raii_;
+    core::DoubleBuffer<GfxRequest>    gfxreqs_;
+    core::DblBufferReader<GfxRequest> gfxread_;
 
     UniformBufferWriter<slang::UniformBuffer03> uboWt3;
 
@@ -74,6 +64,9 @@ private:
     gfx::RenderProgram  winProg;
     GLuint mDummyVao;
     gfx::MeshBuffer *meshbuf_;
+
+    std::vector<gfx::ComputeProgram> computePrograms_;
+    std::vector<gfx::RenderProgram> renderPrograms_;
 
 };
 

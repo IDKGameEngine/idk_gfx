@@ -58,11 +58,11 @@ static void debugmsg_callback( GLenum source, GLenum type, GLuint id, GLenum sev
 
 
 
-void gfxDebugOutputEnable(bool enable)
+void gfxDebugOutputEnable(bool enabled)
 {
     using namespace idk;
 
-    if (enable == true)
+    if (enabled == true)
     {
         gl::Enable(GL_DEBUG_OUTPUT);
         gl::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -77,4 +77,21 @@ void gfxDebugOutputEnable(bool enable)
     }
 }
 
+
+void RenderEngine::debugOutputEnable(const DebugOutputEnableRequest &req, DebugOutputEnableResponse *res)
+{
+    using namespace idk;
+
+    gfxDebugOutputEnable(req.enabled);
+
+    if (req.enabled == true)
+    {
+        res->enabled = true;
+    }
+
+    else
+    {
+        res->enabled = false;
+    }
+}
 

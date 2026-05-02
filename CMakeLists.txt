@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 4.2)
 
 project(idk_gfx CXX)
 
@@ -16,7 +16,7 @@ target_include_directories(
     ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h" "${CMAKE_CURRENT_SOURCE_DIR}/h_"
 )
 target_link_libraries(
-    ${PROJECT_NAME} PUBLIC glad OpenGL::GL OpenGL::GLU SDL3::SDL3-static glm::glm-header-only idk_core
+    ${PROJECT_NAME} PUBLIC glad OpenGL::GL OpenGL::GLU SDL3::SDL3-shared SDL3_image::SDL3_image glm::glm-header-only idk_core
 )
 target_sources(
     ${PROJECT_NAME} PRIVATE
@@ -35,7 +35,7 @@ target_sources(
 add_custom_target(
     idk_gfx_assets
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets ${IDK_OUTPUT_DIR}/assets
+        ${CMAKE_CURRENT_SOURCE_DIR}/asset ${IDK_OUTPUT_DIR}/asset
 )
 add_dependencies(${PROJECT_NAME} idk_gfx_assets)
 

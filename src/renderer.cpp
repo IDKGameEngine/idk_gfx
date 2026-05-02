@@ -5,6 +5,8 @@
 #include "idk/core/file.hpp"
 #include "idk/core/metric.hpp"
 
+#include <SDL3_image/SDL_image.h>
+
 extern void gfxDebugOutputEnable(bool);
 
 using namespace idk::gfx;
@@ -12,22 +14,22 @@ using namespace idk::gfx;
 #include <SDL3_image/SDL_image.h>
 static void image_load_test()
 {
-    SDL_Surface *img = IMG_Load("assets/noise/perlin.jpg");
-    printf("%dx%d*", img->w, img->h)
+    SDL_Surface *img = IMG_Load("asset/noise/perlin.jpg");
+    VLOG_INFO("perlin.jpg: {}x{}", img->w, img->h);
 }
 
 
 RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
 :   win_(new WindowSDL3(windesc)),
     raii_(gfxDebugOutputEnable, true),
-    gfxread_(gfxqueue_),
+    gfxread_(gfxreqs_),
     uboWt3(),
     automataFmt(GL_R8, GL_RGBA, GL_UNSIGNED_BYTE),
     automataTexA(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, nullptr, automataFmt),
     automataTexB(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, nullptr, automataFmt),
-    automataProg("assets/shader/automata.comp"),
-    clearProg("assets/shader/clear.comp"),
-    winProg("assets/shader/screenquad.vert", "assets/shader/screenquad.frag")
+    automataProg("asset/shader/automata.comp"),
+    clearProg("asset/shader/clear.comp"),
+    winProg("asset/shader/screenquad.vert", "asset/shader/screenquad.frag")
 {
     automataTexPtr[0] = &automataTexA;
     automataTexPtr[1] = &automataTexB;
@@ -37,6 +39,8 @@ RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
     gl::GetIntegerv(GL_MAJOR_VERSION, &mGlVersionMajor);
     gl::GetIntegerv(GL_MINOR_VERSION, &mGlVersionMinor);
     VLOG_INFO("Context supports OpenGL {}.{}", mGlVersionMajor, mGlVersionMinor);
+
+    image_load_test();
 
     gl::CreateVertexArrays(1, &mDummyVao);
     meshbuf_ = new gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA);
@@ -71,32 +75,34 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
 
     while (!gfxread_->empty())
     {
-        auto &cmd = gfxread_->front();
+        auto &req = gfxread_->front();
+        auto *res = req.res;
 
-        switch (cmd.type)
+        switch (req.type)
         {
-            case GfxCmdType::DebugOutputEnable:
-                gfxDebugOutputEnable(cmd.as_debugOutputEnable);
+            case GfxReqType::DebugOutputEnable:
+                debugOutputEnable(req.as_DebugOutputEnable, &res->as_DebugOutputEnable);
                 break;
-
-            case GfxCmdType::BgColorSet:
-                uboWt3->gamepos = cmd.as_rgba;
+            case GfxReqType::AddComputeProgram:
+                addComputeProgram(req.as_AddComputeProgram, &res->as_AddComputeProgram);
                 break;
-
-            case GfxCmdType::BgColorAdd:
-                uboWt3->gamepos += cmd.as_rgba;
+            case GfxReqType::AddRenderProgram:
+                addRenderProgram(req.as_AddRenderProgram, &res->as_AddRenderProgram);
                 break;
-
-            case GfxCmdType::FgColorSet:
-                uboWt3->fgtint = cmd.as_rgba;
+            case GfxReqType::BgColorSet:
+                uboWt3->gamepos = req.as_BgColorSet.value;
                 break;
-
-            case GfxCmdType::FgColorAdd:
-                uboWt3->fgtint += cmd.as_rgba;
+            case GfxReqType::BgColorAdd:
+                uboWt3->gamepos += req.as_BgColorAdd.value;
                 break;
-
+            case GfxReqType::FgColorSet:
+                uboWt3->fgtint = req.as_FgColorSet.value;
+                break;
+            case GfxReqType::FgColorAdd:
+                uboWt3->fgtint += req.as_FgColorAdd.value;
+                break;
             default:
-                VLOG_FATAL("gfx::GfxCmdType is Invalid!");
+                VLOG_FATAL("gfx::GfxReqType is Invalid!");
                 break;
         }
 
@@ -127,7 +133,7 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
 
     win_->swapWindow();
 
-    gfxqueue_.swapBuffers();
+    gfxreqs_.swapBuffers();
 }
 
 
@@ -136,9 +142,38 @@ void RenderEngine::onShutdown(idk::IEngine*)
     VLOG_INFO("RenderEngine::onShutdown");
 }
 
-
-idk::core::DblBufferWriter<GfxCmd> RenderEngine::getQueueWriter()
+idk::core::DblBufferWriter<GfxRequest> RenderEngine::getGfxRequestWriter()
 {
-    return idk::core::DblBufferWriter<GfxCmd>(gfxqueue_);
+    return idk::core::DblBufferWriter<GfxRequest>(gfxreqs_);
 }
+
+
+void RenderEngine::addComputeProgram(const AddComputeProgramRequest &req, AddComputeProgramResponse *res)
+{
+    uint64_t key = computePrograms_.size();
+    computePrograms_.emplace_back(gfx::ComputeProgram(req.comp_path));
+    res->id = static_cast<int64_t>(key);
+}
+
+void RenderEngine::addRenderProgram(const AddRenderProgramRequest &req, AddRenderProgramResponse *res)
+{
+    uint64_t key = renderPrograms_.size();
+    renderPrograms_.emplace_back(gfx::RenderProgram(req.vert_path, req.frag_path));
+    res->id = static_cast<int64_t>(key);
+}
+
+// idk::gfx::ComputeProgram *RenderEngine::getComputeProgram(uint64_t key)
+// {
+//     if (computePrograms_.contains(key))
+//         return computePrograms_[key].get();
+//     return nullptr;
+// }
+
+// idk::gfx::RenderProgram *RenderEngine::getRenderProgram(uint64_t key)
+// {
+//     if (renderPrograms_.contains(key))
+//         return renderPrograms_[key].get();
+//     return nullptr;
+// }
+
 
