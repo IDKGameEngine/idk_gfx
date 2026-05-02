@@ -106,6 +106,7 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
                 break;
         }
 
+        res->ready = true;
         gfxread_->pop();
     }
 
