@@ -16,7 +16,6 @@ namespace idk::gfx
     class RenderProgram;
 
     #define IDK_GFXREQ_LIST \
-        IDK_XMACRO(FlushCommandQueue) \
         IDK_XMACRO(DebugOutputEnable) \
         IDK_XMACRO(AddComputeProgram) \
         IDK_XMACRO(AddRenderProgram) \
@@ -38,6 +37,7 @@ namespace idk::gfx
 
 
     struct GfxRequest;
+
     struct GfxResponse
     {
     private:
@@ -47,8 +47,16 @@ namespace idk::gfx
 
     public:
         GfxResponse(): ready_(false) {  };
-        bool is_ready() { return ready_.load(); }
-        void await_ready() { ready_.wait(false); }
+
+        bool is_ready()
+        {
+            return ready_.load();
+        }
+
+        void await_ready()
+        {
+            while (!is_ready()) {  }
+        }
     };
 
 
@@ -60,25 +68,11 @@ namespace idk::gfx
 
 
     template<>
-    struct GfxRequestImpl<GfxReqType::FlushCommandQueue>
-    {
-        GfxRequestImpl() {  }
-    };
-    template<>
-    struct GfxResponseImpl<GfxReqType::FlushCommandQueue>: public GfxResponse
-    {
-        bool enabled;
-        GfxResponseImpl() { }
-    };
-
-
-    template<>
     struct GfxRequestImpl<GfxReqType::DebugOutputEnable>
     {
         bool enabled;
         GfxRequestImpl(bool e): enabled(e) {  }
     };
-
     template<>
     struct GfxResponseImpl<GfxReqType::DebugOutputEnable>: public GfxResponse
     {
@@ -187,7 +181,7 @@ namespace idk::gfx
 struct idk::gfx::GfxRequest
 {
 public:
-    GfxReqType type;
+    GfxReqType  type;
     GfxResponse *res;
 
     union {
@@ -198,12 +192,7 @@ public:
         #undef IDK_XMACRO
     };
 
-    GfxRequest()
-    :   type(GfxReqType::Invalid),
-        res(nullptr)
-    {
-
-    }
+    GfxRequest(): type(GfxReqType::Invalid), res(nullptr) {  }
 
     template <GfxReqType R>
     static GfxRequest makeGfxRequest(const GfxRequestImpl<R> &req_impl, GfxResponseImpl<R> *res_impl)

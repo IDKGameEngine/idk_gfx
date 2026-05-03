@@ -32,26 +32,30 @@ namespace idk
 class idk::gfx::RenderEngine: public idk::core::Service
 {
 public:
+    struct {
+        std::atomic_bool alive;
+        std::atomic_bool flush;
+    } port_;
+
     RenderEngine(const idk::core::WindowDesc&);
     virtual ~RenderEngine();
-    virtual void onUpdate(idk::IEngine*) final;
-    virtual void onShutdown(idk::IEngine*) final;
-    core::DblBufferWriter<GfxRequest> getGfxRequestWriter();
+    virtual void _startup(idk::IEngine*) final;
+    virtual void _update(idk::IEngine*) final;
+    virtual void _shutdown(idk::IEngine*) final;
+
+    std::mutex &getMutex();
+    DblBufferWriter<GfxRequest> getGfxRequestWriter();
 
     static void debugOutputEnable(const DebugOutputEnableRequest&, DebugOutputEnableResponse*);
     void addComputeProgram(const AddComputeProgramRequest&, AddComputeProgramResponse*);
     void addRenderProgram(const AddRenderProgramRequest&, AddRenderProgramResponse*);
-    // uint64_t addComputeProgram(const char *comp_path);
-    // uint64_t addRenderProgram(const char *vert_path, const char *frag_path);
-
-    // gfx::ComputeProgram *getComputeProgram(uint64_t key);
-    // gfx::RenderProgram *getRenderProgram(uint64_t key);
 
 private:
-    gfx::WindowSDL3                  *win_;
-    core::RaiiFunc<void(bool)>        raii_;
-    core::DoubleBuffer<GfxRequest>    gfxreqs_;
-    core::DblBufferReader<GfxRequest> gfxread_;
+    std::mutex                  mutex_;
+    gfx::WindowSDL3            *win_;
+    RaiiFunc<void(bool)>        raii_;
+    DoubleBuffer<GfxRequest>    gfxreqs_;
+    DblBufferReader<GfxRequest> gfxread_;
 
     UniformBufferWriter<slang::UniformBuffer03> uboWt3;
 
@@ -67,6 +71,8 @@ private:
 
     std::vector<gfx::ComputeProgram> computePrograms_;
     std::vector<gfx::RenderProgram> renderPrograms_;
+
+    void _flush();
 
 };
 

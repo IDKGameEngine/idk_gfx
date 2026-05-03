@@ -3,7 +3,33 @@
 
 
 idk::GfxApi::GfxApi(idk::gfx::RenderEngine *ren)
-:   writer_(ren->getGfxRequestWriter())
+:   ren_(ren),
+    writer_(ren->getGfxRequestWriter())
 {
 
+}
+
+
+void idk::GfxApi::FlushCommandQueue()
+{
+    std::atomic_bool &alive = ren_->port_.alive;
+    std::atomic_bool &flush = ren_->port_.flush;
+
+    while (true)
+    {
+        if (alive.load() == false)
+            return;
+        if (flush.load() == false)
+            break;
+    }
+
+    flush.store(true);
+
+    while (true)
+    {
+        if (alive.load() == false)
+            return;
+        if (flush.load() == false)
+            break;
+    }
 }

@@ -17,14 +17,15 @@ namespace idk::gfx::detail
 
 
 
-class idk::gfx::BaseRaiiShader
+class idk::gfx::BaseRaiiShader: public idk::NonCopyable
 {
 public:
-    const GLuint mId;
+    GLuint       mId;
     bool         mOkay;
     const char  *mFilepath;
 
     BaseRaiiShader(GLuint shaderId, const char *entryname, const char *filepath);
+    BaseRaiiShader(BaseRaiiShader&&);
     ~BaseRaiiShader();
 };
 
@@ -53,12 +54,13 @@ public:
 
 
 
-class idk::gfx::BaseRaiiProgram // : public idk::NonCopyable
+class idk::gfx::BaseRaiiProgram: public idk::NonCopyable
 {
 public:
-    const GLuint mId;
+    GLuint mId;
     BaseRaiiProgram();
     ~BaseRaiiProgram();
+    BaseRaiiProgram(BaseRaiiProgram&&);
 };
 
 

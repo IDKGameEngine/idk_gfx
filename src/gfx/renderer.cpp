@@ -32,6 +32,9 @@ RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
     clearProg("asset/shader/clear.comp"),
     winProg("asset/shader/screenquad.vert", "asset/shader/screenquad.frag")
 {
+    port_.alive.store(true);
+    port_.flush.store(false);
+
     automataTexPtr[0] = &automataTexA;
     automataTexPtr[1] = &automataTexB;
     VLOG_INFO("gfx::Renderer Initialized");
@@ -55,14 +58,19 @@ RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
 
 }
 
-
 RenderEngine::~RenderEngine()
 {
     gl::DeleteVertexArrays(1, &mDummyVao);
 }
 
 
-void RenderEngine::onUpdate(idk::IEngine *engine)
+void RenderEngine::_startup(idk::IEngine*)
+{
+    VLOG_INFO("[idk::RenderEngine::_startup]");
+}
+
+
+void RenderEngine::_update(idk::IEngine *E)
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))
@@ -70,42 +78,50 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
         if (e.type == SDL_EVENT_QUIT)
         {
             VLOG_INFO("SDL_EVENT_QUIT");
-            engine->shutdown();
+            E->shutdown();
         }
     }
 
     while (!gfxread_->empty())
     {
-        auto &req = gfxread_->front();
-        auto *res = req.res;
+        GfxRequest req = gfxread_->front();
+                         gfxread_->pop();
+        GfxResponse *res = req.res;
 
         switch (req.type)
         {
             case GfxReqType::DebugOutputEnable:
+                VLOG_INFO("[RenderEngine::_update] DebugOutputEnable");
                 debugOutputEnable(req.as_DebugOutputEnable, static_cast<DebugOutputEnableResponse*>(res));
                 break;
 
             case GfxReqType::AddComputeProgram:
+                VLOG_INFO("[RenderEngine::_update] AddComputeProgram");
                 addComputeProgram(req.as_AddComputeProgram, static_cast<AddComputeProgramResponse*>(res));
                 break;
 
             case GfxReqType::AddRenderProgram:
+                VLOG_INFO("[RenderEngine::_update] AddRenderProgram");
                 addRenderProgram(req.as_AddRenderProgram, static_cast<AddRenderProgramResponse*>(res));
                 break;
 
             case GfxReqType::GetComputeProgram:
+                VLOG_INFO("[RenderEngine::_update] GetComputeProgram");
                 ((GetComputeProgramResponse*)res)->prog = &computePrograms_[req.as_GetComputeProgram.id];
                 break;
 
             case GfxReqType::GetRenderProgram:
+                VLOG_INFO("[RenderEngine::_update] GetRenderProgram");
                 ((GetRenderProgramResponse*)res)->prog = &renderPrograms_[req.as_GetRenderProgram.id];
                 break;
 
             case GfxReqType::BgColorSet:
+                VLOG_INFO("[RenderEngine::_update] BgColorSet");
                 uboWt3->gamepos = req.as_BgColorSet.value;
                 break;
 
             case GfxReqType::BgColorAdd:
+                VLOG_INFO("[RenderEngine::_update] BgColorAdd");
                 uboWt3->gamepos += req.as_BgColorAdd.value;
                 break;
 
@@ -113,14 +129,22 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
                 VLOG_FATAL("gfx::GfxReqType is Invalid!");
                 break;
         }
-        res->make_ready();
 
-        gfxread_->pop();
+        res->make_ready();
     }
 
+    if (port_.flush.load() == true)
+    {
+        _flush();
+        gfxreqs_.swapBuffers();
+        port_.flush.store(false);
+    }
+}
+
+void RenderEngine::_flush()
+{
     win_->makeCurrent();
     uboWt3->winsz = glm::vec4(win_->mSizef, 0.0f, 0.0f);
-
     // if (ubo3_->mDirty)
     {
         uboWt3.sendToGpu();
@@ -133,7 +157,6 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
     gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
     std::swap(automataTexPtr[0], automataTexPtr[1]);
 
-
     gl::UseProgram(winProg.mId);
     automataTexPtr[0]->bindImageTexture(8);
     uboWt3.bind();
@@ -141,33 +164,37 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
     gl::DrawArrays(GL_TRIANGLES, 0, 3);
 
     win_->swapWindow();
-
-    gfxreqs_.swapBuffers();
 }
 
 
-void RenderEngine::onShutdown(idk::IEngine*)
+void RenderEngine::_shutdown(idk::IEngine*)
 {
-    VLOG_INFO("RenderEngine::onShutdown");
+    VLOG_INFO("RenderEngine::_shutdown");
+    port_.alive.store(false);
 }
 
-idk::core::DblBufferWriter<GfxRequest> RenderEngine::getGfxRequestWriter()
+std::mutex &RenderEngine::getMutex()
 {
-    return idk::core::DblBufferWriter<GfxRequest>(gfxreqs_);
+    return mutex_;
+}
+
+idk::DblBufferWriter<GfxRequest> RenderEngine::getGfxRequestWriter()
+{
+    return idk::DblBufferWriter<GfxRequest>(gfxreqs_);
 }
 
 
 void RenderEngine::addComputeProgram(const AddComputeProgramRequest &req, AddComputeProgramResponse *res)
 {
     uint64_t key = computePrograms_.size();
-    computePrograms_.emplace_back(gfx::ComputeProgram(req.comp_path));
+    computePrograms_.emplace_back(req.comp_path);
     res->id = static_cast<int64_t>(key);
 }
 
 void RenderEngine::addRenderProgram(const AddRenderProgramRequest &req, AddRenderProgramResponse *res)
 {
     uint64_t key = renderPrograms_.size();
-    renderPrograms_.emplace_back(gfx::RenderProgram(req.vert_path, req.frag_path));
+    renderPrograms_.emplace_back(req.vert_path, req.frag_path);
     res->id = static_cast<int64_t>(key);
 }
 

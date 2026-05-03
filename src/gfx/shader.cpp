@@ -10,10 +10,7 @@ using namespace idk::gfx;
     #define IDK_GFX_SHADERPATH "asset/shader/spv"
 #else
     #define IDK_GFX_SHADERPATH "asset/shader/glsl"
-
 #endif
-
-static idk::FileReader<128*1024> file_reader_;
 
 
 BaseRaiiShader::BaseRaiiShader(GLuint id, const char *entryname, const char *filepath )
@@ -21,16 +18,12 @@ BaseRaiiShader::BaseRaiiShader(GLuint id, const char *entryname, const char *fil
     mOkay(true),
     mFilepath(filepath)
 {
-    if (!file_reader_.loadFile(filepath))
-    {
-        VLOG_FATAL("Failed to open file: {}", filepath);
-    }
-
-    std::string str = idk::file::loadRaw(std::string(filepath));
-    const char *src = str.c_str();
+    idk::FileLoader loader(filepath);
+    idk::FileReader reader(filepath);
+    const char *src = static_cast<const char *>(reader.getData());
 
 #if 1
-    gl::ShaderBinary(1, &mId, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, src, str.length());
+    gl::ShaderBinary(1, &mId, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, src, reader.getSize());
     gl::SpecializeShader(mId, entryname, 0, 0, 0);
 #else
     (void)entryname;
@@ -55,7 +48,21 @@ BaseRaiiShader::BaseRaiiShader(GLuint id, const char *entryname, const char *fil
     }
 }
 
-BaseRaiiShader::~BaseRaiiShader() { gl::DeleteProgram(mId); }
+BaseRaiiShader::BaseRaiiShader(BaseRaiiShader &&rhs)
+:   mId(rhs.mId), mOkay(rhs.mOkay), mFilepath(rhs.mFilepath)
+{
+    rhs.mId = 0;
+    rhs.mOkay = false;
+    rhs.mFilepath = "RUH ROH: BaseRaiiShader(BaseRaiiShader &&rhs)";
+}
+
+BaseRaiiShader::~BaseRaiiShader()
+{
+    if (mId != 0)
+    {
+        gl::DeleteShader(mId);
+    }
+}
 
 VertexShader::VertexShader(const char *filepath)
 : BaseRaiiShader(gl::CreateShader(GL_VERTEX_SHADER), "main", filepath) {  }
@@ -69,12 +76,25 @@ ComputeShader::ComputeShader(const char *filepath)
 
 
 
-BaseRaiiProgram::BaseRaiiProgram(): mId(gl::CreateProgram()) {  }
-BaseRaiiProgram::~BaseRaiiProgram() { gl::DeleteProgram(mId); }
+BaseRaiiProgram::BaseRaiiProgram()
+: mId(gl::CreateProgram()) {  }
+
+BaseRaiiProgram::BaseRaiiProgram(BaseRaiiProgram &&rhs)
+: mId(rhs.mId) { rhs.mId = 0; }
+
+BaseRaiiProgram::~BaseRaiiProgram()
+{
+    if (mId != 0)
+    {
+        gl::DeleteProgram(mId);
+    }
+}
+
+
 
 RenderProgram::RenderProgram(const char *vertFilePath, const char *fragFilePath)
-// :   BaseRaiiProgram(),
-:   mVert(vertFilePath),
+:   BaseRaiiProgram(),
+    mVert(vertFilePath),
     mFrag(fragFilePath),
     mOkay(mVert.mOkay && mFrag.mOkay)
 {
@@ -90,10 +110,9 @@ RenderProgram::RenderProgram(const char *vertFilePath, const char *fragFilePath)
     gl::AttachShader(mId, mFrag.mId);
     gl::ValidateProgram(mId);
     gl::LinkProgram(mId);
-    gl::DeleteShader(mVert.mId);
-    gl::DeleteShader(mFrag.mId);
+    // gl::DeleteShader(mVert.mId);
+    // gl::DeleteShader(mFrag.mId);
 }
-
 
 
 ComputeProgram::ComputeProgram(const char *filepath)
@@ -108,10 +127,8 @@ ComputeProgram::ComputeProgram(const char *filepath)
     gl::AttachShader(mId, mComp.mId);
     gl::ValidateProgram(mId);
     gl::LinkProgram(mId);
-    gl::DeleteShader(mComp.mId);
+    // gl::DeleteShader(mComp.mId);
 }
-
-
 
 
 
