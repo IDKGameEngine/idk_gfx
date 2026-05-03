@@ -11,29 +11,27 @@ namespace idk
     class GfxApi
     {
     private:
-        using cmdtype = idk::gfx::GfxReqType;
+        using Request = idk::gfx::GfxReqType;
 
         core::DblBufferWriter<gfx::GfxRequest> writer_;
-        idk::gfx::GfxRequest req_;
+        // void *table_[size_t(Request::NumTypes)];
 
-        void _push()
+        template <Request R>
+        void _send_request(const gfx::GfxRequestImpl<R> &req_impl, gfx::GfxResponseImpl<R> *res_impl)
         {
-            req_.res->ready = false;
-            writer_->push(req_);
+            writer_->push( gfx::GfxRequest::makeGfxRequest<R>(req_impl, res_impl) );
         }
 
     public:
         GfxApi(idk::gfx::RenderEngine*);
 
-        void debugOutputEnable(gfx::GfxResponse*, bool);
-
-        void addComputeProgram(gfx::GfxResponse*, const char *compute_filepath);
-        void addRenderProgram(gfx::GfxResponse*, const char *vert_filepath, const char *frag_filepath);
-        // ComputeProgram *getComputeProgram(uint64_t key);
-        // RenderProgram *getRenderProgram(uint64_t key);
-
-        void bgColorAdd(gfx::GfxResponse*, const glm::vec4&);
-        void bgColorSet(gfx::GfxResponse*, const glm::vec4&);
+        #define IDK_XMACRO(Name) \
+        void Name(const gfx::Name ## Request &req, gfx::Name ## Response *res) \
+        { \
+            _send_request<Request::Name>(req, res); \
+        }
+        IDK_GFXREQ_LIST
+        #undef IDK_XMACRO
 
     };
 }

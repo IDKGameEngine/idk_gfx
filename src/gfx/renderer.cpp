@@ -20,7 +20,8 @@ static void image_load_test()
 
 
 RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
-:   win_(new WindowSDL3(windesc)),
+:   Service(idk::PeriodicTimer(1000.0 / 60.0)),
+    win_(new WindowSDL3(windesc)),
     raii_(gfxDebugOutputEnable, true),
     gfxread_(gfxreqs_),
     uboWt3(),
@@ -81,32 +82,39 @@ void RenderEngine::onUpdate(idk::IEngine *engine)
         switch (req.type)
         {
             case GfxReqType::DebugOutputEnable:
-                debugOutputEnable(req.as_DebugOutputEnable, &res->as_DebugOutputEnable);
+                debugOutputEnable(req.as_DebugOutputEnable, static_cast<DebugOutputEnableResponse*>(res));
                 break;
+
             case GfxReqType::AddComputeProgram:
-                addComputeProgram(req.as_AddComputeProgram, &res->as_AddComputeProgram);
+                addComputeProgram(req.as_AddComputeProgram, static_cast<AddComputeProgramResponse*>(res));
                 break;
+
             case GfxReqType::AddRenderProgram:
-                addRenderProgram(req.as_AddRenderProgram, &res->as_AddRenderProgram);
+                addRenderProgram(req.as_AddRenderProgram, static_cast<AddRenderProgramResponse*>(res));
                 break;
+
+            case GfxReqType::GetComputeProgram:
+                ((GetComputeProgramResponse*)res)->prog = &computePrograms_[req.as_GetComputeProgram.id];
+                break;
+
+            case GfxReqType::GetRenderProgram:
+                ((GetRenderProgramResponse*)res)->prog = &renderPrograms_[req.as_GetRenderProgram.id];
+                break;
+
             case GfxReqType::BgColorSet:
                 uboWt3->gamepos = req.as_BgColorSet.value;
                 break;
+
             case GfxReqType::BgColorAdd:
                 uboWt3->gamepos += req.as_BgColorAdd.value;
                 break;
-            case GfxReqType::FgColorSet:
-                uboWt3->fgtint = req.as_FgColorSet.value;
-                break;
-            case GfxReqType::FgColorAdd:
-                uboWt3->fgtint += req.as_FgColorAdd.value;
-                break;
+
             default:
                 VLOG_FATAL("gfx::GfxReqType is Invalid!");
                 break;
         }
+        res->make_ready();
 
-        res->ready = true;
         gfxread_->pop();
     }
 
