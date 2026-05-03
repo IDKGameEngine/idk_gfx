@@ -7,18 +7,24 @@
 
 namespace idk::gfx
 {
-    template <GLenum Target_, uint32_t Idx_>
+    template <GLenum Target_>
     class BufferObject: public GfxResourceBase<gl::CreateBuffers, gl::DeleteBuffers>
     {
     private:
         const size_t mSize;
 
     public:
-        BufferObject(size_t size)
-        :   GfxResourceBase(), mSize(size)
+        BufferObject(size_t sz)
+        : GfxResourceBase(), mSize(sz)
         {
             gl::NamedBufferData(mId, mSize, nullptr, GL_DYNAMIC_DRAW);
-            gl::BindBufferBase(Target_, Idx_, mId);
+        }
+
+        BufferObject(size_t sz, uint32_t idx)
+        : GfxResourceBase(), mSize(sz)
+        {
+            gl::NamedBufferData(mId, mSize, nullptr, GL_DYNAMIC_DRAW);
+            gl::BindBufferBase(Target_, idx, mId);
         }
 
         void write(size_t offset, size_t nbytes, const void *data)
@@ -28,24 +34,32 @@ namespace idk::gfx
             gl::NamedBufferSubData(mId, offset, nbytes, data);
         }
 
-        void bind()
+        void bind(uint32_t idx)
         {
-            gl::BindBufferBase(Target_, Idx_, mId);
+            gl::BindBufferBase(Target_, idx, mId);
         }
-
     };
 
-    template <typename UboType>
-    class UniformBufferWriter: public gfx::BufferObject<GL_UNIFORM_BUFFER, UboType::BIND_IDX>
+    template <typename T>
+    class UboWriter: public gfx::BufferObject<GL_UNIFORM_BUFFER>
     {
     private:
-        UboType object_;
-
+        T object_;
     public:
-        UniformBufferWriter(): BufferObject<GL_UNIFORM_BUFFER, UboType::BIND_IDX>(sizeof(UboType)) {  }
-        void sendToGpu() { this->write(0, sizeof(UboType), &object_); }
-        UboType *operator->() { return &object_; }
+        UboWriter(): BufferObject<GL_UNIFORM_BUFFER>(sizeof(T), T::BIND_IDX) {  }
+        void sendToGpu() { this->write(0, sizeof(T), &object_); }
+        T *operator->() { return &object_; }
+    };
 
+    template <typename T>
+    class SsboWriter: public gfx::BufferObject<GL_SHADER_STORAGE_BUFFER>
+    {
+    private:
+        T object_;
+    public:
+        SsboWriter(): BufferObject<GL_SHADER_STORAGE_BUFFER>(sizeof(T)) {  }
+        void sendToGpu() { this->write(0, sizeof(T), &object_); }
+        T *operator->() { return &object_; }
     };
 
 

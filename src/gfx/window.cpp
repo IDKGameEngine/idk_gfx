@@ -19,7 +19,8 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
     mSdlWin(nullptr),
     mGlCtx(nullptr),
     mSizei(desc.width, desc.height),
-    mSizef(glm::vec2(mSizei))
+    mSizef(glm::vec2(mSizei)),
+    mAspect(mSizef.x / mSizef.y)
 {
     VLOG_INFO("[WindowSDL3::WindowSDL3]");
 

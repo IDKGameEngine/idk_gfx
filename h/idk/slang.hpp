@@ -50,36 +50,33 @@ namespace IDK_SLANG_NAMESPACE
     static constexpr const uint32_t SSBO_BIND_BASE = 16;
     static constexpr const uint32_t IMG_BIND_BASE  = 32;
 
-    UBO_STRUCT(0,
-        vec4 rgba;
-        vec4 xyzw;
-    );
-
-    UBO_STRUCT(3,
+    struct UboWindowData
+    {   static constexpr const uint32_t BIND_IDX = UBO_BIND_BASE + 0;
         vec4 winsz;
         vec4 bgtint;
         vec4 fgtint;
         vec4 gamepos;
-    );
+    };
+
+    struct UboCameraData
+    {   static constexpr const uint32_t BIND_IDX = UBO_BIND_BASE + 1;
+        mat4 T;
+        mat4 V;
+        mat4 P;
+    };
 
 
-    SSBO_STRUCT(0,
-        vec4 color[512][512];
-    );
+    static constexpr const uint32_t SSBO_BIND_NBODY_PREV = SSBO_BIND_BASE + 4;
+    static constexpr const uint32_t SSBO_BIND_NBODY_CURR = SSBO_BIND_BASE + 5;
 
-    SSBO_STRUCT(1,
-        vec4 pos[256];
-        vec4 vel[256];
-    );
-
-    SSBO_STRUCT(2,
-        vec4 junk[1024];
-    );
-
-    SSBO_STRUCT(3,
-        vec4 data0[512];
-        vec4 data1[512];
-    );
+    struct SsboNBody
+    {
+        static constexpr const uint32_t MAX_BODIES = 512;
+        static constexpr const uint32_t GROUP_SIZE = 32;
+        
+        vec4 pos[SsboNBody::MAX_BODIES]; // w is mass
+        vec4 vel[SsboNBody::MAX_BODIES];
+    };
 
     static constexpr const int AUTOMATA_WIDTH = 1024;
 

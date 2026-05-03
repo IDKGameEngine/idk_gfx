@@ -13,6 +13,7 @@ public:
     SDL_GLContext mGlCtx;
     glm::ivec2    mSizei;
     glm::vec2     mSizef;
+    float         mAspect;
 
     WindowSDL3(const idk::core::WindowDesc&);
     ~WindowSDL3();

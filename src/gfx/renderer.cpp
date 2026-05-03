@@ -4,14 +4,17 @@
 #include "idk/gfx/window.hpp"
 #include "idk/core/file.hpp"
 #include "idk/core/metric.hpp"
+#include "idk/core/random.hpp"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <SDL3_image/SDL_image.h>
+
 
 extern void gfxDebugOutputEnable(bool);
 
 using namespace idk::gfx;
 
-#include <SDL3_image/SDL_image.h>
 static void image_load_test()
 {
     SDL_Surface *img = IMG_Load("asset/noise/perlin.jpg");
@@ -47,17 +50,24 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 :   win_(win),
     raii_(gfxDebugOutputEnable, true),
     cmd_read_(cmd_queue_),
-    uboWt3(),
+    uboWindow_(),
+    uboCamera_(),
     automataFmt(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR),
     automataTexA(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
     automataTexB(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
     automataProg("asset/shader/automata.comp"),
     clearProg("asset/shader/clear.comp"),
     winProg("asset/shader/screenquad.vert", "asset/shader/screenquad.frag"),
+    nbodyComputeProg("asset/shader/nbody.comp"),
+    nbodyRenderProg("asset/shader/nbody_render.vert", "asset/shader/nbody_render.frag"),
     meshbuf_(gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA))
 {
     alive_.store(true);
     flush_.store(false);
+
+
+    // uboCamera_->P = glm::perspective(glm::radians(90.0f), win.mAspect, 0.1f, 100.0f);
+    // uboCamera_->V = glm::lookAt()
 
     automataTexPtr[0] = &automataTexA;
     automataTexPtr[1] = &automataTexB;
@@ -68,11 +78,19 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     gl::GetIntegerv(GL_MINOR_VERSION, &mGlVersionMinor);
     VLOG_INFO("Context supports OpenGL {}.{}", mGlVersionMajor, mGlVersionMinor);
 
+    ssboNBodyPrev = new SsboWriter<slang::SsboNBody>();
+    ssboNBodyCurr = new SsboWriter<slang::SsboNBody>();
+
+    for (uint32_t i=0; i<slang::SsboNBody::MAX_BODIES; i++)
+    {
+        idk::randvec4(+0.001f, +2.0f,  &((*ssboNBodyPrev)->pos[i][0]));
+        idk::randvec4(-0.01f,  +0.01f, &((*ssboNBodyPrev)->vel[i][0]));
+    }
+
     image_load_test();
 
+    // gl::CreateVertexArrays(1, &nbodyVao_);
     gl::CreateVertexArrays(1, &mDummyVao);
-
-    mesh_desc = meshbuf_.generateCircle(0.0f, 0.0f, 1.0f, 16);
 
     // gl::UseProgram(clearProg.mId);
     // automataTexPtr[0]->bindImageTexture(8);
@@ -91,8 +109,6 @@ RenderEngine::~RenderEngine()
 
 void RenderEngine::update(idk::IEngine *E)
 {
-    (void)E;
-
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
@@ -131,11 +147,11 @@ void RenderEngine::update(idk::IEngine *E)
                 break;
 
             case GfxReqType::BgColorSet:
-                uboWt3->gamepos = req.as_BgColorSet.value;
+                uboWindow_->gamepos = req.as_BgColorSet.value;
                 break;
 
             case GfxReqType::BgColorAdd:
-                uboWt3->gamepos += req.as_BgColorAdd.value;
+                uboWindow_->gamepos += req.as_BgColorAdd.value;
                 break;
 
             default:
@@ -160,10 +176,10 @@ void RenderEngine::_update_image()
 {
     win_.makeCurrent();
 
-    uboWt3->winsz = glm::vec4(win_.mSizef, 0.0f, 0.0f);
+    uboWindow_->winsz = glm::vec4(win_.mSizef, 0.0f, 0.0f);
     // if (ubo3_->mDirty)
     {
-        uboWt3.sendToGpu();
+        uboWindow_.sendToGpu();
     }
 
     gl::UseProgram(automataProg.mId);
@@ -173,11 +189,29 @@ void RenderEngine::_update_image()
     gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
     std::swap(automataTexPtr[0], automataTexPtr[1]);
 
+
+    // gl::UseProgram(nbodyComputeProg.mId);
+    // ssboNBodyPrev->bind(slang::SSBO_BIND_NBODY_PREV);
+    // ssboNBodyCurr->bind(slang::SSBO_BIND_NBODY_CURR);
+    // gl::DispatchCompute(slang::SsboNBody::MAX_BODIES / slang::SsboNBody::GROUP_SIZE, 1, 1);
+    // gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    // gl::UseProgram(nbodyRenderProg.mId);
+    // gl::Enable(GL_PROGRAM_POINT_SIZE);
+    // gl::Enable(GL_BLEND); // Additive blending looks great for particles
+    // gl::BlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive
+    // gl::BindVertexArray(mDummyVao);
+    // gl::DrawArrays(GL_POINTS, 0, slang::SsboNBody::MAX_BODIES);
+
+    // std::swap(ssboNBodyPrev, ssboNBodyCurr);
+
+
     gl::UseProgram(winProg.mId);
     automataTexPtr[0]->bindImageTexture(8);
-    uboWt3.bind();
+    uboWindow_.bind(uboWindow_->BIND_IDX);
     gl::BindVertexArray(mDummyVao);
     gl::DrawArrays(GL_TRIANGLES, 0, 3);
+
 
     win_.swapWindow();
 }

@@ -49,7 +49,9 @@ private:
     DoubleBuffer<GfxRequest>    cmd_queue_;
     DblBufferReader<GfxRequest> cmd_read_;
 
-    UniformBufferWriter<slang::UniformBuffer03> uboWt3;
+    UboWriter<slang::UboWindowData> uboWindow_;
+    UboWriter<slang::UboCameraData> uboCamera_;
+    SsboWriter<slang::SsboNBody> *ssboNBodyPrev, *ssboNBodyCurr;
 
     gfx::TextureFormatDesc automataFmt;
     gfx::Texture  automataTexA;
@@ -58,7 +60,12 @@ private:
     gfx::ComputeProgram automataProg;
     gfx::ComputeProgram clearProg;
     gfx::RenderProgram  winProg;
+    gfx::ComputeProgram nbodyComputeProg;
+    gfx::RenderProgram  nbodyRenderProg;
+
+    GLuint nbodyVao_;
     GLuint mDummyVao;
+
     gfx::MeshBuffer meshbuf_;
 
     std::vector<gfx::ComputeProgram> computePrograms_;
