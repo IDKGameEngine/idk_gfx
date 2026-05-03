@@ -4,37 +4,59 @@ layout(binding = 8) RWTexture2D<vec4> inputImage;
 layout(binding = 9) RWTexture2D<vec4> outputImage;
 
 
-int countNeighbours(ivec2 texel)
+ivec3 countNeighbours(ivec2 texel)
 {
-    uint count = 0;
-    count += uint(255.0f * inputImage.Load(texel + ivec2(-1, -1)).x);
-    count += uint(255.0f * inputImage.Load(texel + ivec2(-1,  0)).x);
-    count += uint(255.0f * inputImage.Load(texel + ivec2(-1, +1)).x);
-    count += uint(255.0f * inputImage.Load(texel + ivec2( 0, -1)).x);
-    count += uint(255.0f * inputImage.Load(texel + ivec2( 0,  0)).x);
-    count += uint(255.0f * inputImage.Load(texel + ivec2( 0, +1)).x);
-    count += uint(255.0f * inputImage.Load(texel + ivec2(+1, -1)).x);
-    count += uint(255.0f * inputImage.Load(texel + ivec2(+1,  0)).x);
-    count += uint(255.0f * inputImage.Load(texel + ivec2(+1, +1)).x);
-    return count / 255;
+    ivec3 count = ivec3(0, 0, 0);
+
+    count += ivec3(255.0f * inputImage.Load(texel + ivec2(-1, -1)).xyz);
+    count += ivec3(255.0f * inputImage.Load(texel + ivec2(-1,  0)).xyz);
+    count += ivec3(255.0f * inputImage.Load(texel + ivec2(-1, +1)).xyz);
+    count += ivec3(255.0f * inputImage.Load(texel + ivec2( 0, -1)).xyz);
+    count += ivec3(255.0f * inputImage.Load(texel + ivec2( 0, +1)).xyz);
+    count += ivec3(255.0f * inputImage.Load(texel + ivec2(+1, -1)).xyz);
+    count += ivec3(255.0f * inputImage.Load(texel + ivec2(+1,  0)).xyz);
+    count += ivec3(255.0f * inputImage.Load(texel + ivec2(+1, +1)).xyz);
+
+    return (count / 255);
 }
-// Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-// Any live cell with two or three live neighbours lives on to the next generation.
-// Any live cell with more than three live neighbours dies, as if by overpopulation.
-// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+
 
 [shader("compute")]
 [numthreads(8, 8, 1)]
 void compmain(uvec3 threadId : SV_DispatchThreadID)
 {
     ivec2 texel = ivec2(threadId.xy);
-    uint count = countNeighbours(texel);
-    uint value = 0;
 
-    if (count==2 || count==3)
+    ivec3 curr  = ivec3(inputImage.Load(texel).rgb);
+    ivec3 frens = countNeighbours(texel);
+    ivec3 value = ivec3(0, 0, 0);
+
+    if (curr.r==0)
     {
-        value = 1;
+        if (frens.r==3) { value.r = 1; }
+    }
+    else if (frens.r==2 || frens.r==3)
+    {
+        value.r = 1;
     }
 
-    outputImage.Store(texel, vec4(value, 0, 0, 1));
+    // if (curr.g==0)
+    // {
+    //     if (frens.g==3) { value.g = 1; }
+    // }
+    // else if (frens.g==2 || frens.g==3)
+    // {
+    //     value.g = 1;
+    // }
+
+    // if (curr.b==0)
+    // {
+    //     if (frens.b==3) { value.b = 1; }
+    // }
+    // else if (frens.b==2 || frens.b==3)
+    // {
+    //     value.b = 1;
+    // }
+
+    outputImage.Store(texel, vec4(value.r, value.r, value.r, 1));
 }

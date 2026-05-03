@@ -3,6 +3,10 @@
 #include "idk/core/assert.hpp"
 #include "idk/core/metric.hpp"
 
+#include <glm/glm.hpp>
+#include <cmath>
+#include <vector>
+
 using namespace idk;
 
 
@@ -30,7 +34,6 @@ void gfx::VertexBuffer::write_data(void *src, size_t nbytes)
 
 gfx::VertexArrayObject::VertexArrayObject(const VertexDescriptor &desc, VertexBuffer &vbo, VertexBuffer &ibo)
 :   GfxResource(0),
-    desc_(desc),
     vbo_(vbo),
     ibo_(ibo)
 {
@@ -46,15 +49,17 @@ gfx::VertexArrayObject::VertexArrayObject(const VertexDescriptor &desc, VertexBu
 
         gl::VertexArrayAttribFormat(
             mId, i,
-            desc_.attrs[i].size,
-            desc_.attrs[i].datatype,
+            desc.attrs[i].size,
+            desc.attrs[i].datatype,
             GL_FALSE,
-            desc_.attrs[i].offset
+            desc.attrs[i].offset
         );
 
         gl::VertexArrayAttribBinding(mId, i, binding_index);
     }
 }
+
+
 
 
 gfx::MeshBuffer::MeshBuffer(size_t nbytes_vertices, size_t nbytes_indices)
@@ -67,8 +72,6 @@ gfx::MeshBuffer::MeshBuffer(size_t nbytes_vertices, size_t nbytes_indices)
 {
 
 }
-
-
 
 
 gfx::MeshDescriptor gfx::MeshBuffer::loadMesh( size_t nbytes_vertices, size_t nbytes_indices,
@@ -92,6 +95,55 @@ gfx::MeshDescriptor gfx::MeshBuffer::loadMesh( size_t nbytes_vertices, size_t nb
 
     return desc;
 }
+
+
+
+struct VertexTypeA
+{
+    glm::vec3 pos;
+    glm::vec3 nrm;
+    glm::vec2 tex;
+};
+
+
+gfx::MeshDescriptor gfx::MeshBuffer::generateCircle(float x, float y, float r, int n)
+{
+    std::vector<VertexTypeA> vertices;
+    std::vector<uint32_t> indices;
+
+    IDK_ASSERT(sizeof(VertexTypeA) == vdesc_.size, "{} != {}", sizeof(VertexTypeA), vdesc_.size);
+
+    vertices.push_back({
+        glm::vec3(x, y, 0.0f),
+        glm::vec3(0.0f),
+        glm::vec2(0.0f)
+    });
+
+    for (int i=0; i<=n; i++)
+    {
+        float a = 2.0f * M_PI * (i/n);
+        vertices.push_back({
+            glm::vec3(x + r*cos(a), y + r*sin(a), 0.0f),
+            glm::vec3(0.0f),
+            glm::vec2(0.0f)
+        });
+    }
+
+    for (int i=0; i<=n; i++)
+    {
+        indices.push_back(0);       // center
+        indices.push_back(i);       // current perimeter vertex
+        indices.push_back(i%n + 1); // next (wraps around)
+    }
+
+    return loadMesh(
+        vertices.size() * sizeof(vertices[0]),
+        indices.size() * sizeof(indices[0]),
+        vertices.data(),
+        indices.data()
+    );
+}
+
 
 void gfx::MeshBuffer::bind()
 {

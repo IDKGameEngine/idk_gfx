@@ -18,8 +18,8 @@ Texture::Texture(int w, int h, const void *data, const TextureFormatDesc &desc)
     gl::CreateTextures(GL_TEXTURE_2D, 1, &mId);
     gl::TextureParameteri(mId, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     gl::TextureParameteri(mId, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-    gl::TextureParameteri(mId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    gl::TextureParameteri(mId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl::TextureParameteri(mId, GL_TEXTURE_MIN_FILTER, desc.gpuMinFilter);
+    gl::TextureParameteri(mId, GL_TEXTURE_MAG_FILTER, desc.gpuMaxFilter);
 
     gl::TextureStorage2D(mId, 1, texInternalformat, w, h);
     gl::TextureSubImage2D(mId, 0, 0, 0, w, h, texFormat, texType, data);

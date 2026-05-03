@@ -2,20 +2,22 @@
 
 #include "idk/core/log.hpp"
 #include "idk/core/double_buffer.hpp"
+
+#include "idk/gfx/fwd.hpp"
 #include "idk/gfx/render_interface.hpp"
 
-namespace idk::gfx
-{
-    class RenderEngine;
-}
 
 namespace idk
 {
+    class GfxService;
+
+
     class GfxApi
     {
     private:
         using Request = idk::gfx::GfxReqType;
-        idk::gfx::RenderEngine *ren_;
+
+        idk::GfxService                 *srv_;
         DblBufferWriter<gfx::GfxRequest> writer_;
 
         template <Request R>
@@ -25,7 +27,7 @@ namespace idk
         }
 
     public:
-        GfxApi(idk::gfx::RenderEngine*);
+        GfxApi(idk::GfxService*);
 
         #define IDK_XMACRO(Name) \
         void Name(const gfx::Name ## Request &req, gfx::Name ## Response *res) \

@@ -1,17 +1,26 @@
 #pragma once
 
 #include "idk/core/service.hpp"
+#include "idk/gfx/fwd.hpp"
 
-namespace idk::gfx
+namespace idk
 {
-    class GfxService: public idk::core::Service
-    {
-    private:
-    public:
-        GfxService(): Service(0.0) {  }
-        virtual void _update(idk::IEngine*) final;
-        virtual void _shutdown(idk::IEngine*) final;
-
-    };
-
+    class GfxService;
 }
+
+
+class idk::GfxService: public idk::core::Service
+{
+private:
+    idk::gfx::WindowSDL3   *win_;
+    idk::gfx::RenderEngine *ren_;
+
+public:
+    GfxService(const idk::core::WindowDesc&);
+    virtual void _startup(idk::IEngine*) final;
+    virtual void _update(idk::IEngine*) final;
+    virtual void _shutdown(idk::IEngine*) final;
+
+    idk::gfx::RenderEngine &getRenderer() { return *ren_; }
+
+};

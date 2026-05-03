@@ -19,21 +19,45 @@ static void image_load_test()
 }
 
 
-RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
-:   Service(idk::PeriodicTimer(1000.0 / 60.0)),
-    win_(new WindowSDL3(windesc)),
+static void *initAutomataTexture()
+{
+    static uint8_t *base = nullptr;
+    if (base == nullptr)
+    {
+        base = new uint8_t[4*slang::AUTOMATA_WIDTH*slang::AUTOMATA_WIDTH];
+
+        for (size_t i=0; i<4*slang::AUTOMATA_WIDTH*slang::AUTOMATA_WIDTH; i+=4)
+        {
+            if (rand()%100 >= 25)
+            {
+                base[i+0] = rand() % 255;
+                base[i+1] = rand() % 255;
+                base[i+2] = rand() % 255;
+                base[i+3] = rand() % 255;
+            }
+        }
+    }
+    return base;
+}
+
+
+static idk::gfx::MeshDescriptor mesh_desc;
+
+RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
+:   win_(win),
     raii_(gfxDebugOutputEnable, true),
-    gfxread_(gfxreqs_),
+    cmd_read_(cmd_queue_),
     uboWt3(),
-    automataFmt(GL_R8, GL_RGBA, GL_UNSIGNED_BYTE),
-    automataTexA(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, nullptr, automataFmt),
-    automataTexB(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, nullptr, automataFmt),
+    automataFmt(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR),
+    automataTexA(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
+    automataTexB(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
     automataProg("asset/shader/automata.comp"),
     clearProg("asset/shader/clear.comp"),
-    winProg("asset/shader/screenquad.vert", "asset/shader/screenquad.frag")
+    winProg("asset/shader/screenquad.vert", "asset/shader/screenquad.frag"),
+    meshbuf_(gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA))
 {
-    port_.alive.store(true);
-    port_.flush.store(false);
+    alive_.store(true);
+    flush_.store(false);
 
     automataTexPtr[0] = &automataTexA;
     automataTexPtr[1] = &automataTexB;
@@ -47,14 +71,15 @@ RenderEngine::RenderEngine(const idk::core::WindowDesc &windesc)
     image_load_test();
 
     gl::CreateVertexArrays(1, &mDummyVao);
-    meshbuf_ = new gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA);
 
-    gl::UseProgram(clearProg.mId);
-    automataTexPtr[0]->bindImageTexture(8);
-    automataTexPtr[1]->bindImageTexture(9);
-    gl::DispatchCompute(slang::AUTOMATA_WIDTH/8, slang::AUTOMATA_WIDTH/8, 1);
-    gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
-    std::swap(automataTexPtr[0], automataTexPtr[1]);
+    mesh_desc = meshbuf_.generateCircle(0.0f, 0.0f, 1.0f, 16);
+
+    // gl::UseProgram(clearProg.mId);
+    // automataTexPtr[0]->bindImageTexture(8);
+    // automataTexPtr[1]->bindImageTexture(9);
+    // gl::DispatchCompute(slang::AUTOMATA_WIDTH/8, slang::AUTOMATA_WIDTH/8, 1);
+    // gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
+    // std::swap(automataTexPtr[0], automataTexPtr[1]);
 
 }
 
@@ -64,14 +89,10 @@ RenderEngine::~RenderEngine()
 }
 
 
-void RenderEngine::_startup(idk::IEngine*)
+void RenderEngine::update(idk::IEngine *E)
 {
-    VLOG_INFO("[idk::RenderEngine::_startup]");
-}
+    (void)E;
 
-
-void RenderEngine::_update(idk::IEngine *E)
-{
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
@@ -82,46 +103,38 @@ void RenderEngine::_update(idk::IEngine *E)
         }
     }
 
-    while (!gfxread_->empty())
+    while (!cmd_read_->empty())
     {
-        GfxRequest req = gfxread_->front();
-                         gfxread_->pop();
-        GfxResponse *res = req.res;
+        auto &req = cmd_read_->front();
+        auto *res = req.res;
 
         switch (req.type)
         {
             case GfxReqType::DebugOutputEnable:
-                VLOG_INFO("[RenderEngine::_update] DebugOutputEnable");
                 debugOutputEnable(req.as_DebugOutputEnable, static_cast<DebugOutputEnableResponse*>(res));
                 break;
 
             case GfxReqType::AddComputeProgram:
-                VLOG_INFO("[RenderEngine::_update] AddComputeProgram");
                 addComputeProgram(req.as_AddComputeProgram, static_cast<AddComputeProgramResponse*>(res));
                 break;
 
             case GfxReqType::AddRenderProgram:
-                VLOG_INFO("[RenderEngine::_update] AddRenderProgram");
                 addRenderProgram(req.as_AddRenderProgram, static_cast<AddRenderProgramResponse*>(res));
                 break;
 
             case GfxReqType::GetComputeProgram:
-                VLOG_INFO("[RenderEngine::_update] GetComputeProgram");
                 ((GetComputeProgramResponse*)res)->prog = &computePrograms_[req.as_GetComputeProgram.id];
                 break;
 
             case GfxReqType::GetRenderProgram:
-                VLOG_INFO("[RenderEngine::_update] GetRenderProgram");
                 ((GetRenderProgramResponse*)res)->prog = &renderPrograms_[req.as_GetRenderProgram.id];
                 break;
 
             case GfxReqType::BgColorSet:
-                VLOG_INFO("[RenderEngine::_update] BgColorSet");
                 uboWt3->gamepos = req.as_BgColorSet.value;
                 break;
 
             case GfxReqType::BgColorAdd:
-                VLOG_INFO("[RenderEngine::_update] BgColorAdd");
                 uboWt3->gamepos += req.as_BgColorAdd.value;
                 break;
 
@@ -131,20 +144,23 @@ void RenderEngine::_update(idk::IEngine *E)
         }
 
         res->make_ready();
+        cmd_read_->pop();
     }
 
-    if (port_.flush.load() == true)
+    _update_image();
+
+    if (flush_.load() == true)
     {
-        _flush();
-        gfxreqs_.swapBuffers();
-        port_.flush.store(false);
+        cmd_queue_.swapBuffers();
+        flush_.store(false);
     }
 }
 
-void RenderEngine::_flush()
+void RenderEngine::_update_image()
 {
-    win_->makeCurrent();
-    uboWt3->winsz = glm::vec4(win_->mSizef, 0.0f, 0.0f);
+    win_.makeCurrent();
+
+    uboWt3->winsz = glm::vec4(win_.mSizef, 0.0f, 0.0f);
     // if (ubo3_->mDirty)
     {
         uboWt3.sendToGpu();
@@ -163,14 +179,13 @@ void RenderEngine::_flush()
     gl::BindVertexArray(mDummyVao);
     gl::DrawArrays(GL_TRIANGLES, 0, 3);
 
-    win_->swapWindow();
+    win_.swapWindow();
 }
 
 
-void RenderEngine::_shutdown(idk::IEngine*)
+void RenderEngine::shutdown()
 {
-    VLOG_INFO("RenderEngine::_shutdown");
-    port_.alive.store(false);
+    alive_.store(false);
 }
 
 std::mutex &RenderEngine::getMutex()
@@ -180,7 +195,7 @@ std::mutex &RenderEngine::getMutex()
 
 idk::DblBufferWriter<GfxRequest> RenderEngine::getGfxRequestWriter()
 {
-    return idk::DblBufferWriter<GfxRequest>(gfxreqs_);
+    return idk::DblBufferWriter<GfxRequest>(cmd_queue_);
 }
 
 

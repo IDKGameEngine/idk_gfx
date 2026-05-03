@@ -10,9 +10,19 @@ namespace idk::gfx
         uint32_t gpuInternalFormat;
         uint32_t cpuPixelLayout;
         uint32_t cpuPixelDataType;
+        GLint    gpuMinFilter = GL_NEAREST;
+        GLint    gpuMaxFilter = GL_NEAREST;
 
-        TextureFormatDesc(uint32_t gpuFormat, uint32_t cpuFormat, uint32_t dataType)
-        : gpuInternalFormat(gpuFormat), cpuPixelLayout(cpuFormat), cpuPixelDataType(dataType) {  }
+        TextureFormatDesc( uint32_t gpuFormat, uint32_t cpuFormat, uint32_t dataType,
+                           GLint minFilter=GL_NEAREST, GLint maxFilter=GL_NEAREST )
+        :   gpuInternalFormat(gpuFormat),
+            cpuPixelLayout(cpuFormat),
+            cpuPixelDataType(dataType),
+            gpuMinFilter(minFilter),
+            gpuMaxFilter(maxFilter)
+        {
+            
+        }
 
         static TextureFormatDesc DefaultFormat;
     };

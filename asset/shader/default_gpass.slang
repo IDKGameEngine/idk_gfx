@@ -1,15 +1,15 @@
 struct VertexShaderInput
 {
     float3 pos;
-    float3 norm;
+    float3 nrm;
     float2 tex;
 };
 
 struct VertexShaderOutput
 {
-    float3 worldpos;
-    float3 worldnorm;
-    float2 texcoord;
+    float3 wpos;
+    float3 wnrm;
+    float2 tex;
     float4 sv_position: SV_Position;
 };
 
@@ -39,9 +39,9 @@ VertexShaderOutput vertmain(VertexShaderInput vsin)
 
     float3 position = mul(cam.M, float4(vsin.pos, 1.0)).xyz;
 
-    vsout.worldpos    = position;
-    vsout.worldnorm   = normalize(mul(float3x3(cam.M), vsin.norm.xyz));
-    vsout.texcoord    = vsin.tex;
+    vsout.wpos = position;
+    vsout.wnrm = normalize(mul(float3x3(cam.M), vsin.nrm.xyz));
+    vsout.tex  = vsin.tex;
     vsout.sv_position = mul(cam.P * cam.V, float4(position, 1.0));
 
     return vsout;
@@ -53,7 +53,7 @@ FragmentShaderOutput fragmain(VertexShaderOutput fsin): SV_Target
 {
     FragmentShaderOutput fsout;
 
-    fsout.color = float4(fsin.worldnorm, 1.0);
+    fsout.color = float4(fsin.wnrm, 1.0);
 
     return fsout;
 }

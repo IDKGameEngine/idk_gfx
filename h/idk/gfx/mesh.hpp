@@ -31,12 +31,12 @@ public:
     uint32_t  attrcount;
     Attribute attrs[8];
 
-    void pushAttr(GLuint size, GLuint bytesize, GLenum datatype, GLboolean normalized = GL_FALSE)
+    void pushAttr(GLuint sz, GLuint bytesz, GLenum dtype, GLboolean normed = GL_FALSE)
     {
-        attrs[attrcount++] = {size, bytesize, datatype, offset_, normalized};
-        offset_ += bytesize;
-        size    += bytesize;
-        stride  += bytesize;
+        attrs[attrcount++] = {sz, bytesz, dtype, offset_, normed};
+        offset_ += bytesz;
+        size    += bytesz;
+        stride  += bytesz;
     }
 
     void pushAttrf(GLuint n, bool norm=false) { pushAttr(n, n*sizeof(float), GL_FLOAT, norm); }
@@ -59,6 +59,7 @@ struct idk::gfx::MeshDescriptor
     int    material;
     GLuint baseVertex, firstIndex, numVertices, numIndices;
 
+    MeshDescriptor() {  }
     MeshDescriptor(GLuint basevert, GLuint firstidx, GLuint vertcount, GLuint idxcount)
     :   material(0), baseVertex(basevert), firstIndex(firstidx),
         numVertices(vertcount), numIndices(idxcount) {  }
@@ -77,7 +78,6 @@ struct idk::gfx::VertexBuffer: public idk::gfx::GfxResource
 
 struct idk::gfx::VertexArrayObject: public idk::gfx::GfxResource
 {
-    VertexDescriptor desc_;
     VertexBuffer &vbo_;
     VertexBuffer &ibo_;
     VertexArrayObject(const VertexDescriptor&, VertexBuffer &vbo, VertexBuffer &ibo);
@@ -91,6 +91,8 @@ public:
 
     MeshDescriptor loadMesh( size_t nbytes_vertices, size_t nbytes_indices,
                              void *vertices, void *indices );
+
+    MeshDescriptor generateCircle(float x, float y, float r, int n);
 
     void  bind();
     void  clear();
@@ -110,4 +112,5 @@ private:
     void *index_alloc(size_t);
 
 };
+
 

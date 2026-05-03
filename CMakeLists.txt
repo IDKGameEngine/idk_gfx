@@ -20,7 +20,8 @@ target_link_libraries(
 )
 target_sources(
     ${PROJECT_NAME} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/gfxapi.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx_api.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx_service.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx/buffer.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx/debug.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx/framebuffer.cpp"

@@ -1,10 +1,11 @@
-#include "idk/gfxapi.hpp"
+#include "idk/gfx_api.hpp"
+#include "idk/gfx_service.hpp"
 #include "idk/gfx/renderer.hpp"
 
 
-idk::GfxApi::GfxApi(idk::gfx::RenderEngine *ren)
-:   ren_(ren),
-    writer_(ren->getGfxRequestWriter())
+idk::GfxApi::GfxApi(idk::GfxService *srv)
+:   srv_(srv),
+    writer_(srv->getRenderer().getGfxRequestWriter())
 {
 
 }
@@ -12,8 +13,9 @@ idk::GfxApi::GfxApi(idk::gfx::RenderEngine *ren)
 
 void idk::GfxApi::FlushCommandQueue()
 {
-    std::atomic_bool &alive = ren_->port_.alive;
-    std::atomic_bool &flush = ren_->port_.flush;
+    auto &ren = srv_->getRenderer();
+    std::atomic_bool &alive = ren.alive_;
+    std::atomic_bool &flush = ren.flush_;
 
     while (true)
     {

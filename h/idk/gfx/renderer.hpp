@@ -18,31 +18,23 @@
 #include <map>
 
 
-namespace idk
+namespace idk::gfx
 {
-    namespace gfx
-    {
-        class RenderEngine;
-    }
-
-    class MeshBuffer;
+    class RenderEngine;
 }
 
 
-class idk::gfx::RenderEngine: public idk::core::Service
+class idk::gfx::RenderEngine
 {
 public:
-    struct {
-        std::atomic_bool alive;
-        std::atomic_bool flush;
-    } port_;
+    std::atomic_bool alive_;
+    std::atomic_bool flush_;
 
-    RenderEngine(const idk::core::WindowDesc&);
-    virtual ~RenderEngine();
-    virtual void _startup(idk::IEngine*) final;
-    virtual void _update(idk::IEngine*) final;
-    virtual void _shutdown(idk::IEngine*) final;
-
+    RenderEngine(idk::gfx::WindowSDL3&);
+    ~RenderEngine();
+    void update(idk::IEngine*);
+    void shutdown();
+    
     std::mutex &getMutex();
     DblBufferWriter<GfxRequest> getGfxRequestWriter();
 
@@ -52,10 +44,10 @@ public:
 
 private:
     std::mutex                  mutex_;
-    gfx::WindowSDL3            *win_;
+    idk::gfx::WindowSDL3        &win_;
     RaiiFunc<void(bool)>        raii_;
-    DoubleBuffer<GfxRequest>    gfxreqs_;
-    DblBufferReader<GfxRequest> gfxread_;
+    DoubleBuffer<GfxRequest>    cmd_queue_;
+    DblBufferReader<GfxRequest> cmd_read_;
 
     UniformBufferWriter<slang::UniformBuffer03> uboWt3;
 
@@ -67,12 +59,11 @@ private:
     gfx::ComputeProgram clearProg;
     gfx::RenderProgram  winProg;
     GLuint mDummyVao;
-    gfx::MeshBuffer *meshbuf_;
+    gfx::MeshBuffer meshbuf_;
 
     std::vector<gfx::ComputeProgram> computePrograms_;
     std::vector<gfx::RenderProgram> renderPrograms_;
 
-    void _flush();
-
+    void _update_image();
 };
 

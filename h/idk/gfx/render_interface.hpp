@@ -43,20 +43,12 @@ namespace idk::gfx
     private:
         friend class idk::gfx::RenderEngine;
         std::atomic_bool ready_;
-        void make_ready() { ready_.notify_all(); }        
+        void make_ready() { ready_.store(true); }        
 
     public:
         GfxResponse(): ready_(false) {  };
-
-        bool is_ready()
-        {
-            return ready_.load();
-        }
-
-        void await_ready()
-        {
-            while (!is_ready()) {  }
-        }
+        bool is_ready() { return ready_.load(); }
+        void await_ready() { while (!is_ready()) {  } }
     };
 
 
