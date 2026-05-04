@@ -5,6 +5,7 @@
 
 #include "idk/gfx/fwd.hpp"
 #include "idk/gfx/buffer.hpp"
+#include "idk/gfx/camera.hpp"
 #include "idk/gfx/shader.hpp"
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/mesh.hpp"
@@ -45,13 +46,16 @@ public:
 private:
     std::mutex                  mutex_;
     idk::gfx::WindowSDL3        &win_;
+    idk::gfx::Camera            cam_;
     RaiiFunc<void(bool)>        raii_;
     DoubleBuffer<GfxRequest>    cmd_queue_;
     DblBufferReader<GfxRequest> cmd_read_;
 
     UboWriter<slang::UboWindowData> uboWindow_;
     UboWriter<slang::UboCameraData> uboCamera_;
-    SsboWriter<slang::SsboNBody> *ssboNBodyPrev, *ssboNBodyCurr;
+
+    SsboWriter<slang::NBodyVertex[slang::NBodyVertex::MAX_BODIES]> ssboNBody0, ssboNBody1;
+    SsboWriter<slang::NBodyVertex[slang::NBodyVertex::MAX_BODIES]> *ssboNBodyPrev, *ssboNBodyCurr;
 
     gfx::TextureFormatDesc automataFmt;
     gfx::Texture  automataTexA;

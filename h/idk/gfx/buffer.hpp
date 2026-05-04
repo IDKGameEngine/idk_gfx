@@ -59,6 +59,7 @@ namespace idk::gfx
     public:
         SsboWriter(): BufferObject<GL_SHADER_STORAGE_BUFFER>(sizeof(T)) {  }
         void sendToGpu() { this->write(0, sizeof(T), &object_); }
+        T &get() { return object_; }
         T *operator->() { return &object_; }
     };
 

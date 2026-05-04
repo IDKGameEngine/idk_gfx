@@ -32,9 +32,7 @@ namespace idk
         #define IDK_XMACRO(Name) \
         void Name(const gfx::Name ## Request &req, gfx::Name ## Response *res) \
         { \
-            VLOG_INFO("[GfxApi::" #Name "] A"); \
             _send_request<Request::Name>(req, res); \
-            VLOG_INFO("[GfxApi::" #Name "] B"); \
         }
         IDK_GFXREQ_LIST
         #undef IDK_XMACRO

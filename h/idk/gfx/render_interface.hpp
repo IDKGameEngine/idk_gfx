@@ -21,6 +21,8 @@ namespace idk::gfx
         IDK_XMACRO(AddRenderProgram) \
         IDK_XMACRO(GetComputeProgram) \
         IDK_XMACRO(GetRenderProgram) \
+        IDK_XMACRO(GetCamera) \
+        IDK_XMACRO(SetCamera) \
         IDK_XMACRO(BgColorSet) \
         IDK_XMACRO(BgColorAdd)
 
@@ -128,6 +130,25 @@ namespace idk::gfx
         gfx::RenderProgram *prog;
         GfxResponseImpl(): prog(nullptr) {  }
     };
+
+
+    template<>
+    struct GfxRequestImpl<GfxReqType::GetCamera>
+    {
+        gfx::Camera &dst;
+        GfxRequestImpl(gfx::Camera &c): dst(c) {  }
+    };
+    template<>
+    struct GfxResponseImpl<GfxReqType::GetCamera>: public GfxResponse { };
+
+    template<>
+    struct GfxRequestImpl<GfxReqType::SetCamera>
+    {
+        const gfx::Camera &src;
+        GfxRequestImpl(const gfx::Camera &c): src(c) {  }
+    };
+    template<>
+    struct GfxResponseImpl<GfxReqType::SetCamera>: public GfxResponse {  };
 
 
     template<>

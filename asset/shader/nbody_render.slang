@@ -3,12 +3,8 @@
 [[vk::binding(idk::UboCameraData::BIND_IDX, 0)]]
 ConstantBuffer<idk::UboCameraData, Std140DataLayout> uboCamera_;
 
-struct VertexInput
-{
-    vec4 pos;
-    vec4 nrm;
-    uint vertexId : SV_VertexID;
-};
+[[vk::binding(idk::BIND_NBODY_IN, 0)]]
+StructuredBuffer<idk::NBodyVertex, Std430DataLayout> vertIn;
 
 struct VertexOutput
 {
@@ -18,12 +14,12 @@ struct VertexOutput
 
 
 [shader("vertex")]
-VertexOutput vertmain(VertexInput vsin, out float sv_pointsize : SV_PointSize)
+VertexOutput vertmain(uint vertId : SV_VertexID, out float sv_pointsize : SV_PointSize)
 {
     VertexOutput vsout;
 
-    float3 pos  = vsin.pos.xyz;
-    float  mass = vsin.pos.w;
+    float3 pos  = vertIn[vertId].pos.xyz;
+    float  mass = vertIn[vertId].pos.w;
     float  size = 0.2; // world-space radius
 
     // // Billboard: offset in view space, then project

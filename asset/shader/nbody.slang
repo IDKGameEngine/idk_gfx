@@ -2,24 +2,18 @@
 
 #define dt_ 0.001f
 #define softening_ 0.1f // prevents singularity when distance → 0
-#define num_bodies_ idk::SsboNBody::MAX_BODIES
+#define num_bodies_ idk::NBodyVertex::MAX_BODIES
 
 
-[[vk::binding(idk::BIND_NBODY_INPOS, 0)]]
-StructuredBuffer<vec4, Std430DataLayout> inPos;
+[[vk::binding(idk::BIND_NBODY_IN, 0)]]
+StructuredBuffer<idk::NBodyVertex, Std430DataLayout> dataIn;
 
-[[vk::binding(idk::BIND_NBODY_INVEL, 0)]]
-StructuredBuffer<vec4, Std430DataLayout> inVel;
-
-[[vk::binding(idk::BIND_NBODY_OUTPOS, 0)]]
-RWStructuredBuffer<vec4, Std430DataLayout> outPos;
-
-[[vk::binding(idk::BIND_NBODY_OUTVEL, 0)]]
-RWStructuredBuffer<vec4, Std430DataLayout> outVel;
+[[vk::binding(idk::BIND_NBODY_OUT, 0)]]
+RWStructuredBuffer<idk::NBodyVertex, Std430DataLayout> dataOut;
 
 
 [shader("compute")]
-[numthreads(idk::SsboNBody::GROUP_SIZE, 1, 1)]
+[numthreads(idk::NBodyVertex::GROUP_SIZE, 1, 1)]
 void compmain(uvec3 threadId : SV_DispatchThreadID)
 {
     uint i = threadId.x;
@@ -27,6 +21,9 @@ void compmain(uvec3 threadId : SV_DispatchThreadID)
     {
         return;
     }
+
+    vec4 inPos = dataIn[i].pos;
+    vec4 inVel = dataIn[i].vel;
 
     // vec3  pos_i  = prev_[0].pos[i].xyz;
     // float mass_i = prev_[0].pos[i].w;
@@ -55,8 +52,8 @@ void compmain(uvec3 threadId : SV_DispatchThreadID)
     // curr_[0].vel[i].xyz = newVel;
     // curr_[0].pos[i].xyz = newPos;
 
-    outPos[i].xyz  = inPos[i].xyz + inVel[i].xyz;
-    outPos[i].w    = inPos[i].w;
-    outVel[i]      = inVel[i];
+    dataOut[i].pos.xyz = inPos.xyz + inVel.xyz;
+    dataOut[i].pos.w   = inPos.w;
+    dataOut[i].vel     = inVel;
 }
 

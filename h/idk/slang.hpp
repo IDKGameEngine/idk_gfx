@@ -66,19 +66,22 @@ namespace IDK_SLANG_NAMESPACE
     };
 
 
-    static constexpr const uint32_t BIND_NBODY_INPOS  = SSBO_BIND_BASE + 4;
-    static constexpr const uint32_t BIND_NBODY_INVEL  = SSBO_BIND_BASE + 5;
-    static constexpr const uint32_t BIND_NBODY_OUTPOS = SSBO_BIND_BASE + 6;
-    static constexpr const uint32_t BIND_NBODY_OUTVEL = SSBO_BIND_BASE + 7;
+    static constexpr const uint32_t BIND_NBODY_IN  = SSBO_BIND_BASE + 4;
+    static constexpr const uint32_t BIND_NBODY_OUT = SSBO_BIND_BASE + 5;
 
-    struct SsboNBody
+    struct NBodyVertex
     {
         static constexpr const uint32_t MAX_BODIES = 512;
         static constexpr const uint32_t GROUP_SIZE = 32;
         
-        vec4 pos[SsboNBody::MAX_BODIES]; // w is mass
-        vec4 vel[SsboNBody::MAX_BODIES];
+        vec4 pos;
+        vec4 vel;
     };
+
+    // struct NBodyVertexArray
+    // {
+    //     NBodyVertex verts[NBodyVertex::MAX_BODIES];
+    // };
 
     static constexpr const int AUTOMATA_WIDTH = 1024;
 

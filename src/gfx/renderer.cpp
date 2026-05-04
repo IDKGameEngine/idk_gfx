@@ -1,4 +1,5 @@
 #include "idk/gfx/renderer.hpp"
+#include "idk/gfx/camera.hpp"
 #include "idk/gfx/framebuffer.hpp"
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/window.hpp"
@@ -6,14 +7,12 @@
 #include "idk/core/metric.hpp"
 #include "idk/core/random.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <SDL3_image/SDL_image.h>
+
+using namespace idk::gfx;
 
 
 extern void gfxDebugOutputEnable(bool);
-
-using namespace idk::gfx;
 
 static void image_load_test()
 {
@@ -45,15 +44,18 @@ static void *initAutomataTexture()
 
 
 static idk::gfx::MeshDescriptor mesh_desc;
-static glm::vec3 cam_pos_;
-static glm::vec3 cam_dir_;
 
 RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 :   win_(win),
+    cam_(90.0f, win.mAspect, 0.01f, 100.0f),
     raii_(gfxDebugOutputEnable, true),
     cmd_read_(cmd_queue_),
     uboWindow_(),
     uboCamera_(),
+    ssboNBody0(),
+    ssboNBody1(),
+    ssboNBodyPrev(&ssboNBody0),
+    ssboNBodyCurr(&ssboNBody1),
     automataFmt(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR),
     automataTexA(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
     automataTexB(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
@@ -67,21 +69,6 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     alive_.store(true);
     flush_.store(false);
 
-
-    cam_pos_ = glm::vec3(0.0f);
-    cam_dir_ = glm::vec3(0.0f, 0.0f, -1.0f);
-    uboCamera_->V = glm::lookAt(
-        cam_pos_,
-        cam_pos_ + cam_dir_,
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-    uboCamera_->P = glm::perspective(
-        glm::radians(90.0f),
-        win.mAspect,
-        0.1f,
-        100.0f
-    );
-
     automataTexPtr[0] = &automataTexA;
     automataTexPtr[1] = &automataTexB;
     VLOG_INFO("gfx::Renderer Initialized");
@@ -91,14 +78,12 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     gl::GetIntegerv(GL_MINOR_VERSION, &mGlVersionMinor);
     VLOG_INFO("Context supports OpenGL {}.{}", mGlVersionMajor, mGlVersionMinor);
 
-    ssboNBodyPrev = new SsboWriter<slang::SsboNBody>();
-    ssboNBodyCurr = new SsboWriter<slang::SsboNBody>();
-
-    for (uint32_t i=0; i<slang::SsboNBody::MAX_BODIES; i++)
+    for (uint32_t i=0; i<slang::NBodyVertex::MAX_BODIES; i++)
     {
-        idk::randvec3(-4.0f, +4.0f, &((*ssboNBodyPrev)->pos[i][0]));
-        (*ssboNBodyPrev)->pos[i][3] = idk::randf(0.5f, +4.0f);
-        idk::randvec4(-0.5f, +0.5f, &((*ssboNBodyPrev)->vel[i][0]));
+        auto &vert = ssboNBody0.get()[i];
+        idk::randvec3(-4.0f, +4.0f, &(vert.pos[0]));
+        vert.pos.w = idk::randf(1.0f, +4.0f);
+        idk::randvec4(-0.15f, +0.15f, &(vert.vel[0]));
     }
 
     image_load_test();
@@ -121,25 +106,8 @@ RenderEngine::~RenderEngine()
 }
 
 
-void RenderEngine::update(idk::IEngine *E)
+void RenderEngine::update(idk::IEngine*)
 {
-    SDL_Event e;
-    while (SDL_PollEvent(&e))
-    {
-        if (e.type == SDL_EVENT_QUIT)
-        {
-            VLOG_INFO("SDL_EVENT_QUIT");
-            E->shutdown();
-        }
-    }
-
-    // cam_pos_.x += 0.0001f;
-    // uboCamera_->V = glm::lookAt(
-    //     cam_pos_,
-    //     cam_pos_ + cam_dir_,
-    //     glm::vec3(0.0f, 1.0f, 0.0f)
-    // );
-
     while (!cmd_read_->empty())
     {
         auto &req = cmd_read_->front();
@@ -165,6 +133,18 @@ void RenderEngine::update(idk::IEngine *E)
 
             case GfxReqType::GetRenderProgram:
                 ((GetRenderProgramResponse*)res)->prog = &renderPrograms_[req.as_GetRenderProgram.id];
+                break;
+
+            case GfxReqType::GetCamera:
+                req.as_GetCamera.dst = cam_;
+                break;
+
+            case GfxReqType::SetCamera:
+                cam_ = req.as_SetCamera.src;
+                {
+                    auto p = cam_.getTransform().getPos();
+                    VLOG_INFO("pos: {}, {}, {}", p.x, p.y, p.z);
+                }
                 break;
 
             case GfxReqType::BgColorSet:
@@ -204,6 +184,16 @@ void RenderEngine::_update_image()
         uboWindow_.sendToGpu();
     }
 
+    if (cam_.isDirty())
+    {
+        uboCamera_->T = glm::mat4(1.0f);
+        uboCamera_->V = cam_.getView();
+        uboCamera_->P = cam_.getProj();
+        uboCamera_.sendToGpu();
+
+        cam_.unDirty();
+    }
+
     gl::UseProgram(automataProg.mId);
     automataTexPtr[0]->bindImageTexture(8);
     automataTexPtr[1]->bindImageTexture(9);
@@ -213,22 +203,23 @@ void RenderEngine::_update_image()
 
 
     gl::UseProgram(nbodyComputeProg.mId);
-    ssboNBodyPrev->bind(slang::SSBO_BIND_NBODY_PREV);
-    ssboNBodyCurr->bind(slang::SSBO_BIND_NBODY_CURR);
-    gl::DispatchCompute(slang::SsboNBody::MAX_BODIES / slang::SsboNBody::GROUP_SIZE, 1, 1);
+    ssboNBodyPrev->bind(slang::BIND_NBODY_IN);
+    ssboNBodyCurr->bind(slang::BIND_NBODY_OUT);
+    gl::DispatchCompute(slang::NBodyVertex::MAX_BODIES / slang::NBodyVertex::GROUP_SIZE, 1, 1);
     gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
 
+    std::swap(ssboNBodyPrev, ssboNBodyCurr);
+
     gl::UseProgram(nbodyRenderProg.mId);
+    ssboNBodyPrev->bind(slang::BIND_NBODY_IN);
     uboCamera_.bind(uboCamera_->BIND_IDX);
-    uboCamera_.sendToGpu();
 
     gl::Enable(GL_PROGRAM_POINT_SIZE);
     gl::Enable(GL_BLEND); // Additive blending looks great for particles
     gl::BlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive
     gl::BindVertexArray(mDummyVao);
-    gl::DrawArrays(GL_POINTS, 0, slang::SsboNBody::MAX_BODIES);
+    gl::DrawArrays(GL_POINTS, 0, slang::NBodyVertex::MAX_BODIES);
 
-    std::swap(ssboNBodyPrev, ssboNBodyCurr);
 
 
     // gl::UseProgram(winProg.mId);
