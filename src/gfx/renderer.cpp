@@ -95,7 +95,7 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     {
         auto &vert = ssboNBody0.get()[i];
 
-        float radius = 264.0f;
+        float radius = 128.0f;
         glm::vec3 pos = radius * glm::vec3(idk::randf(-1, +1), idk::randf(-1, +1), idk::randf(-1, +1));
                   pos = glm::clamp(pos, -radius, +radius);
         // while (glm::dot(pos, pos) > radius)
