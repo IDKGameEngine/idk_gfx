@@ -95,12 +95,15 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     {
         auto &vert = ssboNBody0.get()[i];
 
-        vert.pos = glm::vec4(
-            idk::randf(-1.0f, +1.0f) * 30.0f,
-            idk::randf(-1.0f, +1.0f) * 2.0f,
-            idk::randf(-1.0f, +1.0f) * 30.0f,
-            idk::randf(+1.0f, slang::NBodyVertex::MAX_MASS_LO)
-        );
+        float radius = 12.0f;
+        glm::vec3 pos = radius * glm::vec3(idk::randf(-1, +1), idk::randf(-1, +1), idk::randf(-1, +1));
+
+        while (glm::dot(pos, pos) > radius)
+        {
+            pos = radius * glm::vec3(idk::randf(-1, +1), idk::randf(-1, +1), idk::randf(-1, +1));
+        }
+
+        vert.pos = glm::vec4(pos, idk::randf(+1.0f, slang::NBodyVertex::MAX_MASS_LO));
     
         // glm::vec3 disp  = centerPos - glm::vec3(vert.pos);
         // glm::vec3 dir   = glm::normalize(disp);
