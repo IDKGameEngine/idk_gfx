@@ -36,8 +36,10 @@ public:
     void update(idk::IEngine*);
     void shutdown();
     
+
     std::mutex &getMutex();
     DblBufferWriter<GfxRequest> getGfxRequestWriter();
+    idk::ThreadSafeAccess<idk::gfx::Camera> getCameraLock();
 
     static void debugOutputEnable(const DebugOutputEnableRequest&, DebugOutputEnableResponse*);
     void addComputeProgram(const AddComputeProgramRequest&, AddComputeProgramResponse*);
@@ -64,7 +66,9 @@ private:
     gfx::ComputeProgram automataProg;
     gfx::ComputeProgram clearProg;
     gfx::RenderProgram  winProg;
-    gfx::ComputeProgram nbodyComputeProg;
+    gfx::ComputeProgram nbodyPositionProg;
+    gfx::ComputeProgram nbodyExpansionProg;
+    gfx::ComputeProgram nbodyGravityProg;
     gfx::RenderProgram  nbodyRenderProg;
 
     GLuint nbodyVao_;

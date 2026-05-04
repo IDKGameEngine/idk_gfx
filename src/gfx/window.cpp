@@ -46,7 +46,8 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
 
     if (!SDL_GL_MakeCurrent(mSdlWin, mGlCtx))
         VLOG_ERROR("SDL_GL_MakeCurrent: {}", SDL_GetError());
-
+    
+    SDL_SetWindowRelativeMouseMode(mSdlWin, true);
     // SDL_ShowOpenFileDialog(file_dialog_callback, nullptr, mSdlWin, NULL, 0, NULL, true);
 }
 

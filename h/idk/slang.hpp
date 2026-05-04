@@ -71,11 +71,15 @@ namespace IDK_SLANG_NAMESPACE
 
     struct NBodyVertex
     {
-        static constexpr const uint32_t MAX_BODIES = 8*1024;
+        static constexpr const float MAX_MASS_HI = 32.0f * 4096.0f;
+        static constexpr const float MAX_MASS_LO = 256.0f;
+
+        static constexpr const uint32_t MAX_BODIES = 128*1024;
         static constexpr const uint32_t GROUP_SIZE = 32;
         
         vec4 pos;
         vec4 vel;
+        vec4 acc;
     };
 
     // struct NBodyVertexArray

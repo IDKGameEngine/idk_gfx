@@ -14,11 +14,11 @@ using namespace idk::gfx;
 
 extern void gfxDebugOutputEnable(bool);
 
-static void image_load_test()
-{
-    SDL_Surface *img = IMG_Load("asset/noise/perlin.jpg");
-    VLOG_INFO("perlin.jpg: {}x{}", img->w, img->h);
-}
+// static void image_load_test()
+// {
+//     SDL_Surface *img = IMG_Load("asset/noise/perlin.jpg");
+//     VLOG_INFO("perlin.jpg: {}x{}", img->w, img->h);
+// }
 
 
 static void *initAutomataTexture()
@@ -62,7 +62,9 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     automataProg("asset/shader/automata.comp"),
     clearProg("asset/shader/clear.comp"),
     winProg("asset/shader/screenquad.vert", "asset/shader/screenquad.frag"),
-    nbodyComputeProg("asset/shader/nbody.comp"),
+    nbodyPositionProg("asset/shader/nbody_position.comp"),
+    nbodyExpansionProg("asset/shader/nbody_expansion.comp"),
+    nbodyGravityProg("asset/shader/nbody_gravity.comp"),
     nbodyRenderProg("asset/shader/nbody_render.vert", "asset/shader/nbody_render.frag"),
     meshbuf_(gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA))
 {
@@ -78,41 +80,45 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     gl::GetIntegerv(GL_MINOR_VERSION, &mGlVersionMinor);
     VLOG_INFO("Context supports OpenGL {}.{}", mGlVersionMajor, mGlVersionMinor);
 
-    for (uint32_t i=0; i<slang::NBodyVertex::MAX_BODIES; i++)
+    gl::CreateVertexArrays(1, &mDummyVao);
+    gl::Enable(GL_MULTISAMPLE);
+
+
+    glm::vec3 centerPos  = glm::vec3(0.0f);
+    float     centerMass = 512.0f; // slang::NBodyVertex::MAX_MASS_HI;
+
+    ssboNBody0.get()[0].pos = glm::vec4(centerPos, centerMass);
+    ssboNBody0.get()[0].vel = glm::vec4(0.0f);
+    ssboNBody0.get()[0].acc = glm::vec4(0.0f);
+
+    for (uint32_t i=1; i<slang::NBodyVertex::MAX_BODIES; i++)
     {
         auto &vert = ssboNBody0.get()[i];
 
         vert.pos = glm::vec4(
-            idk::randf(-1.0f, +1.0f) * 160.0f,
-            idk::randf(-1.0f, +1.0f) * 15.0f,
-            idk::randf(-1.0f, +1.0f) * 160.0f,
-            idk::randf(+1.0f, +34.0f)
+            idk::randf(-1.0f, +1.0f) * 30.0f,
+            idk::randf(-1.0f, +1.0f) * 2.0f,
+            idk::randf(-1.0f, +1.0f) * 30.0f,
+            idk::randf(+1.0f, slang::NBodyVertex::MAX_MASS_LO)
         );
-
-        // vert.vel = glm::vec4(
-        //     idk::randf(-1.0f, +1.0f) * 44.8f,
-        //     idk::randf(-1.0f, +1.0f) * 23.8f,
-        //     idk::randf(-1.0f, +1.0f) * 44.8f,
-        //     0.0f
-        // );
     
-        glm::vec3 dir = glm::normalize(glm::vec4(0.0) - vert.pos);
-        vert.vel = glm::vec4(148.0f * glm::cross(dir, coordinate_system::UP), 0.0f);
+        // glm::vec3 disp  = centerPos - glm::vec3(vert.pos);
+        // glm::vec3 dir   = glm::normalize(disp);
+        // float     dist  = glm::length(disp);
+
+        // // glm::vec3 noise = 0.1f * glm::vec3(0.0f, idk::randf(-1, +1), 0.0f);
+        // glm::vec3 odir  = glm::normalize(glm::cross(dir, coordinate_system::UP));
+        // float     omag  = (0.5f * centerMass) / (dist*dist*dist);
+
+        // vert.vel = glm::vec4(omag*odir, 0.0f);
+        // vert.vel = glm::vec4(0.0f);
+        idk::randvec4(-4.0f, +4.0f, &(vert.vel[0]));
+        vert.acc = glm::vec4(0.0f);
     }
+
     ssboNBody0.sendToGpu();
 
-    image_load_test();
-
-    // gl::CreateVertexArrays(1, &nbodyVao_);
-    gl::CreateVertexArrays(1, &mDummyVao);
-
-    // gl::UseProgram(clearProg.mId);
-    // automataTexPtr[0]->bindImageTexture(8);
-    // automataTexPtr[1]->bindImageTexture(9);
-    // gl::DispatchCompute(slang::AUTOMATA_WIDTH/8, slang::AUTOMATA_WIDTH/8, 1);
-    // gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
-    // std::swap(automataTexPtr[0], automataTexPtr[1]);
-
+    // image_load_test();
 }
 
 RenderEngine::~RenderEngine()
@@ -120,10 +126,11 @@ RenderEngine::~RenderEngine()
     gl::DeleteVertexArrays(1, &mDummyVao);
 }
 
-#include "idk/gfx/controller.hpp"
 
 void RenderEngine::update(idk::IEngine *E)
 {
+    (void)E;
+
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
@@ -132,21 +139,15 @@ void RenderEngine::update(idk::IEngine *E)
             VLOG_INFO("SDL_EVENT_QUIT");
             E->shutdown();
         }
+
+        if (e.type == SDL_EVENT_KEY_UP)
+        {
+            if (e.key.scancode == SDL_SCANCODE_ESCAPE)
+            {
+                SDL_SetWindowRelativeMouseMode(win_.mSdlWin, false);
+            }
+        }
     }
-
-
-    static idk::TestCharacterController ctl;
-    ctl.update();
-
-    glm::vec3 move, look;
-    ctl.getMotion(move, look);
-
-    auto &T = cam_.getTransform();
-    T.translate(move.x * T.getRight());
-    T.translate(move.y * T.getUp());
-    T.translate(move.z * T.getFront());
-    T.rotate(look.x, T.getUp()); 
-    T.rotate(look.y, T.getRight()); 
 
     while (!cmd_read_->empty())
     {
@@ -173,18 +174,6 @@ void RenderEngine::update(idk::IEngine *E)
 
             case GfxReqType::GetRenderProgram:
                 ((GetRenderProgramResponse*)res)->prog = &renderPrograms_[req.as_GetRenderProgram.id];
-                break;
-
-            case GfxReqType::GetCamera:
-                req.as_GetCamera.dst = cam_;
-                break;
-
-            case GfxReqType::SetCamera:
-                cam_ = req.as_SetCamera.src;
-                // {
-                //     auto p = cam_.getTransform().getPos();
-                //     VLOG_INFO("pos: {}, {}, {}", p.x, p.y, p.z);
-                // }
                 break;
 
             case GfxReqType::BgColorSet:
@@ -224,17 +213,19 @@ void RenderEngine::_update_image()
         uboWindow_.sendToGpu();
     }
 
-    if (cam_.isDirty())
     {
-        // auto p = cam_.getTransform().to_mat4() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        // VLOG_INFO("cam_.isDirty() == true, pos == {}, {}, {}", p.x, p.y, p.z);
+        auto getter = getCameraLock();
+        auto &cam = getter();
 
-        uboCamera_->V = cam_.getView();
-        uboCamera_->P = cam_.getProj();
-        uboCamera_->PV = cam_.getProjView();
-        uboCamera_.sendToGpu();
+        if (cam.isDirty())
+        {
+            uboCamera_->V = cam.getView();
+            uboCamera_->P = cam.getProj();
+            uboCamera_->PV = cam.getProjView();
+            uboCamera_.sendToGpu();
 
-        cam_.unDirty();
+            cam.unDirty();
+        }
     }
 
     gl::UseProgram(automataProg.mId);
@@ -245,7 +236,22 @@ void RenderEngine::_update_image()
     std::swap(automataTexPtr[0], automataTexPtr[1]);
 
 
-    gl::UseProgram(nbodyComputeProg.mId);
+    gl::UseProgram(nbodyPositionProg.mId);
+    ssboNBodyIn->bind(slang::BIND_NBODY_IN);
+    ssboNBodyOut->bind(slang::BIND_NBODY_OUT);
+    gl::DispatchCompute(slang::NBodyVertex::MAX_BODIES / slang::NBodyVertex::GROUP_SIZE, 1, 1);
+    gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
+    std::swap(ssboNBodyIn, ssboNBodyOut);
+
+
+    static uint64_t count = 0;
+    count += 1;
+
+    if (count < 156)
+        gl::UseProgram(nbodyExpansionProg.mId);
+    else
+        gl::UseProgram(nbodyGravityProg.mId);
+
     ssboNBodyIn->bind(slang::BIND_NBODY_IN);
     ssboNBodyOut->bind(slang::BIND_NBODY_OUT);
     gl::DispatchCompute(slang::NBodyVertex::MAX_BODIES / slang::NBodyVertex::GROUP_SIZE, 1, 1);
@@ -253,12 +259,12 @@ void RenderEngine::_update_image()
 
 
     gl::UseProgram(nbodyRenderProg.mId);
-    ssboNBodyOut->bind(slang::BIND_NBODY_IN);
+    ssboNBodyIn->bind(slang::BIND_NBODY_IN);
+    ssboNBodyOut->bind(slang::BIND_NBODY_OUT);
     uboCamera_.bind(uboCamera_->BIND_IDX);
-
     gl::Enable(GL_PROGRAM_POINT_SIZE);
-    gl::Enable(GL_BLEND); // Additive blending looks great for particles
-    gl::BlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive
+    gl::Enable(GL_BLEND);
+    gl::BlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     gl::BindVertexArray(mDummyVao);
     gl::DrawArrays(GL_POINTS, 0, slang::NBodyVertex::MAX_BODIES);
@@ -291,6 +297,10 @@ idk::DblBufferWriter<GfxRequest> RenderEngine::getGfxRequestWriter()
     return idk::DblBufferWriter<GfxRequest>(cmd_queue_);
 }
 
+idk::ThreadSafeAccess<idk::gfx::Camera> RenderEngine::getCameraLock()
+{
+    return idk::ThreadSafeAccess<gfx::Camera>(cam_);
+}
 
 void RenderEngine::addComputeProgram(const AddComputeProgramRequest &req, AddComputeProgramResponse *res)
 {

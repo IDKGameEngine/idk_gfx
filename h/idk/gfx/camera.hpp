@@ -15,6 +15,7 @@ namespace idk::gfx
 
         glm::mat4 _compute_view()
         {
+            mT.to_mat4();
             return glm::lookAt(mT.getPos(), mT.getPos() + mT.getFront(), coordinate_system::UP);
         }
     

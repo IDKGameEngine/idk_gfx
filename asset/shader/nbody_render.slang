@@ -15,6 +15,7 @@ StructuredBuffer<idk::NBodyVertex, Std430DataLayout> vertOut;
 struct VertexOutput
 {
     uint    vertId;
+    float4  position;
     float4  sv_position  : SV_Position;
     float2  screenCenter : TEXCOORD0;   // point centre in pixels
     float   pointSize    : TEXCOORD1;
@@ -29,9 +30,12 @@ VertexOutput vertmain(uint vertId : SV_VertexID, out float sv_pointsize : SV_Poi
     float  mass = vertIn[vertId].pos.w;
 
     vsout.vertId = vertId;
+    vsout.position = pos;
     vsout.sv_position = mul(uboCamera_.P, mul(uboCamera_.V, pos));
-    sv_pointsize = 1.5f;
 
+    float maxMassHi = idk::NBodyVertex::MAX_MASS_HI;
+    float maxMassLo = idk::NBodyVertex::MAX_MASS_LO;
+    sv_pointsize = (mass <= maxMassLo) ? 1.25 + (mass/maxMassLo) : 8.5*(mass/maxMassHi);
     vsout.pointSize = sv_pointsize;
 
     // convert NDC → pixels using viewport dimensions from your UBO
@@ -45,17 +49,22 @@ VertexOutput vertmain(uint vertId : SV_VertexID, out float sv_pointsize : SV_Poi
 [shader("fragment")]
 float4 fragmain(VertexOutput fsin) : SV_Target0
 {
-    // vec2 uv = 2.0 * g_PointCoord - 1.0;
+    // vec2 centerNDC = fsin.sv_position.xy / fsin.sv_position.w;
+    // vec2 centerWindow = centerNDC * 0.5 + 0.5;
+    // vec2 centerPixel  = centerWindow * UboWindow_.winsz.xy;
+    // vec2 myPointCoord = (fsin.position.xy - centerPixel) / fsin.pointSize + 0.5;
 
-    // if (dot(uv, uv) > 1.0)
+    // return vec4(distance(myPointCoord, centerPixel, 0.0, 1.0));
+
+    // if (dot(myPointCoord, myPointCoord) > 1.0)
     // {
     //     discard;
     // }
 
-    float3 vel = vertIn[fsin.vertId].vel.xyz;
+    float maxMassHi = idk::NBodyVertex::MAX_MASS_HI;
 
-    float a = clamp(length(vel), 0.0, 256.0) / 256.0;
-    vec3 rgb = vec3(a, 1.0-a, 0.0);
+    float mass  = vertIn[fsin.vertId].pos.w;
+    float alpha = clamp(mass*mass*mass, 0.0, maxMassHi) / maxMassHi;
 
-    return float4(1.0);
+    return float4(0.95, 0.7, 0.96, 0.75*alpha);
 }

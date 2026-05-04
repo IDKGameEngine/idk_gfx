@@ -11,6 +11,12 @@ idk::GfxApi::GfxApi(idk::GfxService *srv)
 }
 
 
+idk::ThreadSafeAccess<idk::gfx::Camera> idk::GfxApi::GetCameraLock()
+{
+    return srv_->getRenderer().getCameraLock();
+}
+
+
 void idk::GfxApi::FlushCommandQueue()
 {
     auto &ren = srv_->getRenderer();

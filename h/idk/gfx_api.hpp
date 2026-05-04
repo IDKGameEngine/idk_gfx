@@ -37,6 +37,8 @@ namespace idk
         IDK_GFXREQ_LIST
         #undef IDK_XMACRO
 
+    
+        idk::ThreadSafeAccess<idk::gfx::Camera> GetCameraLock();
         void FlushCommandQueue();
 
     };

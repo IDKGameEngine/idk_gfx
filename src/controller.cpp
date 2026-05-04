@@ -15,9 +15,10 @@ void idk::TestCharacterController::update()
     this->move(dm);
 
 
-    glm::vec3 dl(0.0f);
-    SDL_GetRelativeMouseState(&dl.x, &dl.y);
-    this->look(dl);
+    float dx, dy;
+    SDL_GetRelativeMouseState(&dx, &dy);
+    this->pitch(dy);
+    this->yaw(-dx);
 
     mButtonA = kbstate[SDL_SCANCODE_1];
     mButtonB = kbstate[SDL_SCANCODE_2];
