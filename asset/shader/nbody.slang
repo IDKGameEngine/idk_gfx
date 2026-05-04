@@ -25,35 +25,35 @@ void compmain(uvec3 threadId : SV_DispatchThreadID)
     vec4 inPos = dataIn[i].pos;
     vec4 inVel = dataIn[i].vel;
 
-    // vec3  pos_i  = prev_[0].pos[i].xyz;
-    // float mass_i = prev_[0].pos[i].w;
-    // vec3  acc    = vec3(0.0);
+    vec3  pos_i  = inPos.xyz;
+    float mass_i = inPos.w;
+    vec3  acc    = vec3(0.0);
 
-    // // O(N²) all-pairs gravity
-    // for (uint j=0; j<idk::SsboNBody::MAX_BODIES; j++)
-    // {
-    //     if (i == j)
-    //     {
-    //         continue;
-    //     }
+    // O(N²) all-pairs gravity
+    for (uint j=0; j<idk::NBodyVertex::MAX_BODIES; j++)
+    {
+        if (i == j)
+        {
+            continue;
+        }
 
-    //     vec3  diff     = prev_[0].pos[j].xyz - pos_i;
-    //     float distSq   = dot(diff, diff) + softening_*softening_;
-    //     float invDist3 = rsqrt(distSq * distSq * distSq); // 1/dist³
-    //     float mass_j   = prev_[0].pos[j].w;
+        vec3  diff     = dataIn[j].pos.xyz - pos_i;
+        float distSq   = dot(diff, diff) + softening_*softening_;
+        float invDist3 = rsqrt(distSq * distSq); // 1/dist³
+        float mass_j   = dataIn[j].pos.w;
 
-    //     acc += mass_j * diff * invDist3; // G=1 for simplicity
-    // }
+        acc += mass_j * diff * invDist3; // G=1 for simplicity
+    }
 
-    // // Leapfrog / symplectic Euler integration
-    // vec3 newVel = prev_[0].vel[i].xyz + acc * dt_;
-    // vec3 newPos = pos_i + newVel * dt_;
+    // Leapfrog / symplectic Euler integration
+    vec3 newVel = inVel.xyz + acc * dt_;
+    vec3 newPos = pos_i + newVel * dt_;
 
-    // curr_[0].vel[i].xyz = newVel;
-    // curr_[0].pos[i].xyz = newPos;
+    dataOut[i].vel.xyz = newVel;
+    dataOut[i].pos.xyz = newPos;
 
-    dataOut[i].pos.xyz = inPos.xyz + inVel.xyz;
-    dataOut[i].pos.w   = inPos.w;
-    dataOut[i].vel     = inVel;
+    // dataOut[i].pos.xyz = inPos.xyz + dt_*inVel.xyz;
+    // dataOut[i].pos.w   = inPos.w;
+    // dataOut[i].vel     = inVel;
 }
 

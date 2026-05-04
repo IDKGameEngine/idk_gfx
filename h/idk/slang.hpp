@@ -60,9 +60,9 @@ namespace IDK_SLANG_NAMESPACE
 
     struct UboCameraData
     {   static constexpr const uint32_t BIND_IDX = UBO_BIND_BASE + 1;
-        mat4 T;
         mat4 V;
         mat4 P;
+        mat4 PV;
     };
 
 
@@ -71,7 +71,7 @@ namespace IDK_SLANG_NAMESPACE
 
     struct NBodyVertex
     {
-        static constexpr const uint32_t MAX_BODIES = 512;
+        static constexpr const uint32_t MAX_BODIES = 2048;
         static constexpr const uint32_t GROUP_SIZE = 32;
         
         vec4 pos;

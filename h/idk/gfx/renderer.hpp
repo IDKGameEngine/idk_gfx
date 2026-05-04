@@ -55,7 +55,7 @@ private:
     UboWriter<slang::UboCameraData> uboCamera_;
 
     SsboWriter<slang::NBodyVertex[slang::NBodyVertex::MAX_BODIES]> ssboNBody0, ssboNBody1;
-    SsboWriter<slang::NBodyVertex[slang::NBodyVertex::MAX_BODIES]> *ssboNBodyPrev, *ssboNBodyCurr;
+    SsboWriter<slang::NBodyVertex[slang::NBodyVertex::MAX_BODIES]> *ssboNBodyIn, *ssboNBodyOut;
 
     gfx::TextureFormatDesc automataFmt;
     gfx::Texture  automataTexA;

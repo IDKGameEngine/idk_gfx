@@ -26,7 +26,7 @@ namespace idk::gfx
 
     public:
         Camera(float vfov, float aspect, float znear, float zfar)
-        :   mT(glm::vec3(0.0f)),
+        :   mT(glm::vec3(0.0f, 0.0f, -10.0f)),
             mV(glm::mat4(1.0f)), mP(glm::mat4(1.0f)), mPV(glm::mat4(1.0f)),
             mVfov(vfov), mAspect(aspect), mZnear(znear), mZfar(zfar),
             mDirty(false)
@@ -36,7 +36,7 @@ namespace idk::gfx
             mPV = mP * mV;
         }
 
-        bool isDirty() { return mDirty; }
+        bool isDirty() { return mDirty || mT.isDirty(); }
         void unDirty() { mDirty = false; }
 
         void setVerticalFov(float vfov)   { mDirty=true; mVfov=vfov; }
@@ -51,19 +51,19 @@ namespace idk::gfx
 
         const glm::mat4 &getView()
         {
-            if (mDirty) { mV = _compute_view(); }
+            if (isDirty()) { mV = _compute_view(); }
             return mV;
         }
 
         const glm::mat4 &getProj()
         {
-            if (mDirty) { mP = _compute_proj(); }
+            if (isDirty()) { mP = _compute_proj(); }
             return mP;
         }
 
         const glm::mat4 &getProjView()
         {
-            if (mDirty) { mPV = getProj() * getView(); }
+            if (isDirty()) { mPV = getProj() * getView(); }
             return mPV;
         }
 

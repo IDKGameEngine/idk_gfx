@@ -47,15 +47,15 @@ static idk::gfx::MeshDescriptor mesh_desc;
 
 RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 :   win_(win),
-    cam_(90.0f, win.mAspect, 0.01f, 100.0f),
+    cam_(90.0f, win.mAspect, 0.01f, 1000.0f),
     raii_(gfxDebugOutputEnable, true),
     cmd_read_(cmd_queue_),
     uboWindow_(),
     uboCamera_(),
     ssboNBody0(),
     ssboNBody1(),
-    ssboNBodyPrev(&ssboNBody0),
-    ssboNBodyCurr(&ssboNBody1),
+    ssboNBodyIn(&ssboNBody0),
+    ssboNBodyOut(&ssboNBody1),
     automataFmt(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR),
     automataTexA(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
     automataTexB(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
@@ -81,10 +81,22 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     for (uint32_t i=0; i<slang::NBodyVertex::MAX_BODIES; i++)
     {
         auto &vert = ssboNBody0.get()[i];
-        idk::randvec3(-4.0f, +4.0f, &(vert.pos[0]));
-        vert.pos.w = idk::randf(1.0f, +4.0f);
-        idk::randvec4(-0.15f, +0.15f, &(vert.vel[0]));
+
+        vert.pos = glm::vec4(
+            idk::randf(-1.0f, +1.0f) * 4.0f,
+            idk::randf(-1.0f, +1.0f) * 4.0f,
+            idk::randf(-1.0f, +1.0f) * 4.0f,
+            idk::randf(+1.0f, +32.0f)
+        );
+
+        vert.vel = glm::vec4(
+            idk::randf(-1.0f, +1.0f) * 0.5f,
+            idk::randf(-1.0f, +1.0f) * 0.5f,
+            idk::randf(-1.0f, +1.0f) * 0.5f,
+            0.0f
+        );
     }
+    ssboNBody0.sendToGpu();
 
     image_load_test();
 
@@ -105,9 +117,34 @@ RenderEngine::~RenderEngine()
     gl::DeleteVertexArrays(1, &mDummyVao);
 }
 
+#include "idk/gfx/controller.hpp"
 
-void RenderEngine::update(idk::IEngine*)
+void RenderEngine::update(idk::IEngine *E)
 {
+    SDL_Event e;
+    while (SDL_PollEvent(&e))
+    {
+        if (e.type == SDL_EVENT_QUIT)
+        {
+            VLOG_INFO("SDL_EVENT_QUIT");
+            E->shutdown();
+        }
+    }
+
+
+    static idk::TestCharacterController ctl;
+    ctl.update();
+
+    glm::vec3 move, look;
+    ctl.getMotion(move, look);
+
+    auto &T = cam_.getTransform();
+    T.translate(move.x * T.getRight());
+    T.translate(move.y * T.getUp());
+    T.translate(move.z * T.getFront());
+    T.rotate(look.x, T.getUp()); 
+    T.rotate(look.y, T.getRight()); 
+
     while (!cmd_read_->empty())
     {
         auto &req = cmd_read_->front();
@@ -141,10 +178,10 @@ void RenderEngine::update(idk::IEngine*)
 
             case GfxReqType::SetCamera:
                 cam_ = req.as_SetCamera.src;
-                {
-                    auto p = cam_.getTransform().getPos();
-                    VLOG_INFO("pos: {}, {}, {}", p.x, p.y, p.z);
-                }
+                // {
+                //     auto p = cam_.getTransform().getPos();
+                //     VLOG_INFO("pos: {}, {}, {}", p.x, p.y, p.z);
+                // }
                 break;
 
             case GfxReqType::BgColorSet:
@@ -186,9 +223,12 @@ void RenderEngine::_update_image()
 
     if (cam_.isDirty())
     {
-        uboCamera_->T = glm::mat4(1.0f);
+        // auto p = cam_.getTransform().to_mat4() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        // VLOG_INFO("cam_.isDirty() == true, pos == {}, {}, {}", p.x, p.y, p.z);
+
         uboCamera_->V = cam_.getView();
         uboCamera_->P = cam_.getProj();
+        uboCamera_->PV = cam_.getProjView();
         uboCamera_.sendToGpu();
 
         cam_.unDirty();
@@ -203,24 +243,24 @@ void RenderEngine::_update_image()
 
 
     gl::UseProgram(nbodyComputeProg.mId);
-    ssboNBodyPrev->bind(slang::BIND_NBODY_IN);
-    ssboNBodyCurr->bind(slang::BIND_NBODY_OUT);
+    ssboNBodyIn->bind(slang::BIND_NBODY_IN);
+    ssboNBodyOut->bind(slang::BIND_NBODY_OUT);
     gl::DispatchCompute(slang::NBodyVertex::MAX_BODIES / slang::NBodyVertex::GROUP_SIZE, 1, 1);
     gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
 
-    std::swap(ssboNBodyPrev, ssboNBodyCurr);
 
     gl::UseProgram(nbodyRenderProg.mId);
-    ssboNBodyPrev->bind(slang::BIND_NBODY_IN);
+    ssboNBodyOut->bind(slang::BIND_NBODY_IN);
     uboCamera_.bind(uboCamera_->BIND_IDX);
 
     gl::Enable(GL_PROGRAM_POINT_SIZE);
     gl::Enable(GL_BLEND); // Additive blending looks great for particles
     gl::BlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive
+
     gl::BindVertexArray(mDummyVao);
     gl::DrawArrays(GL_POINTS, 0, slang::NBodyVertex::MAX_BODIES);
 
-
+    std::swap(ssboNBodyIn, ssboNBodyOut);
 
     // gl::UseProgram(winProg.mId);
     // automataTexPtr[0]->bindImageTexture(8);
