@@ -35,7 +35,7 @@ VertexOutput vertmain(uint vertId : SV_VertexID, out float sv_pointsize : SV_Poi
 
     float maxMassHi = idk::NBodyVertex::MAX_MASS_HI;
     float maxMassLo = idk::NBodyVertex::MAX_MASS_LO;
-    sv_pointsize = (mass <= maxMassLo) ? 1.25 + (mass/maxMassLo) : 8.5*(mass/maxMassHi);
+    sv_pointsize = (mass <= maxMassLo) ? 1.25 + (mass/maxMassLo) : 4.5*(mass/maxMassHi);
     vsout.pointSize = sv_pointsize;
 
     // convert NDC → pixels using viewport dimensions from your UBO
@@ -64,7 +64,7 @@ float4 fragmain(VertexOutput fsin) : SV_Target0
     float maxMassHi = idk::NBodyVertex::MAX_MASS_HI;
 
     float mass  = vertIn[fsin.vertId].pos.w;
-    float alpha = clamp(mass*mass*mass, 0.0, maxMassHi) / maxMassHi;
+    float alpha = clamp(mass*mass*mass*mass, 0.0, maxMassHi) / maxMassHi;
 
-    return float4(0.95, 0.7, 0.96, 0.75*alpha);
+    return float4(0.95, 0.7, 0.96, alpha);
 }

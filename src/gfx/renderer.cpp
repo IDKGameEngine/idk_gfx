@@ -95,13 +95,13 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     {
         auto &vert = ssboNBody0.get()[i];
 
-        float radius = 12.0f;
+        float radius = 264.0f;
         glm::vec3 pos = radius * glm::vec3(idk::randf(-1, +1), idk::randf(-1, +1), idk::randf(-1, +1));
-
-        while (glm::dot(pos, pos) > radius)
-        {
-            pos = radius * glm::vec3(idk::randf(-1, +1), idk::randf(-1, +1), idk::randf(-1, +1));
-        }
+                  pos = glm::clamp(pos, -radius, +radius);
+        // while (glm::dot(pos, pos) > radius)
+        // {
+        //     pos = radius * glm::vec3(idk::randf(-1, +1), idk::randf(-1, +1), idk::randf(-1, +1));
+        // }
 
         vert.pos = glm::vec4(pos, idk::randf(+1.0f, slang::NBodyVertex::MAX_MASS_LO));
     
@@ -115,7 +115,7 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 
         // vert.vel = glm::vec4(omag*odir, 0.0f);
         // vert.vel = glm::vec4(0.0f);
-        idk::randvec4(-4.0f, +4.0f, &(vert.vel[0]));
+        idk::randvec4(-32.0f, +32.0f, &(vert.vel[0]));
         vert.acc = glm::vec4(0.0f);
     }
 
@@ -250,7 +250,7 @@ void RenderEngine::_update_image()
     static uint64_t count = 0;
     count += 1;
 
-    if (count < 156)
+    if (count < 99)
         gl::UseProgram(nbodyExpansionProg.mId);
     else
         gl::UseProgram(nbodyGravityProg.mId);
