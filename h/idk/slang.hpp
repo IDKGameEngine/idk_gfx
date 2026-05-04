@@ -66,8 +66,10 @@ namespace IDK_SLANG_NAMESPACE
     };
 
 
-    static constexpr const uint32_t SSBO_BIND_NBODY_PREV = SSBO_BIND_BASE + 4;
-    static constexpr const uint32_t SSBO_BIND_NBODY_CURR = SSBO_BIND_BASE + 5;
+    static constexpr const uint32_t BIND_NBODY_INPOS  = SSBO_BIND_BASE + 4;
+    static constexpr const uint32_t BIND_NBODY_INVEL  = SSBO_BIND_BASE + 5;
+    static constexpr const uint32_t BIND_NBODY_OUTPOS = SSBO_BIND_BASE + 6;
+    static constexpr const uint32_t BIND_NBODY_OUTVEL = SSBO_BIND_BASE + 7;
 
     struct SsboNBody
     {
