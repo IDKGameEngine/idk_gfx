@@ -83,18 +83,21 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
         auto &vert = ssboNBody0.get()[i];
 
         vert.pos = glm::vec4(
-            idk::randf(-1.0f, +1.0f) * 4.0f,
-            idk::randf(-1.0f, +1.0f) * 4.0f,
-            idk::randf(-1.0f, +1.0f) * 4.0f,
-            idk::randf(+1.0f, +32.0f)
+            idk::randf(-1.0f, +1.0f) * 160.0f,
+            idk::randf(-1.0f, +1.0f) * 15.0f,
+            idk::randf(-1.0f, +1.0f) * 160.0f,
+            idk::randf(+1.0f, +34.0f)
         );
 
-        vert.vel = glm::vec4(
-            idk::randf(-1.0f, +1.0f) * 0.5f,
-            idk::randf(-1.0f, +1.0f) * 0.5f,
-            idk::randf(-1.0f, +1.0f) * 0.5f,
-            0.0f
-        );
+        // vert.vel = glm::vec4(
+        //     idk::randf(-1.0f, +1.0f) * 44.8f,
+        //     idk::randf(-1.0f, +1.0f) * 23.8f,
+        //     idk::randf(-1.0f, +1.0f) * 44.8f,
+        //     0.0f
+        // );
+    
+        glm::vec3 dir = glm::normalize(glm::vec4(0.0) - vert.pos);
+        vert.vel = glm::vec4(148.0f * glm::cross(dir, coordinate_system::UP), 0.0f);
     }
     ssboNBody0.sendToGpu();
 

@@ -30,11 +30,9 @@ VertexOutput vertmain(uint vertId : SV_VertexID, out float sv_pointsize : SV_Poi
 
     vsout.vertId = vertId;
     vsout.sv_position = mul(uboCamera_.P, mul(uboCamera_.V, pos));
-    sv_pointsize = sqrt(0.25f * mass);
+    sv_pointsize = 1.5f;
 
-    float ps = sqrt(0.25f * mass);
-    sv_pointsize    = ps;
-    vsout.pointSize = ps;
+    vsout.pointSize = sv_pointsize;
 
     // convert NDC → pixels using viewport dimensions from your UBO
     float2 ndc = vsout.sv_position.xy / vsout.sv_position.w;
@@ -55,8 +53,9 @@ float4 fragmain(VertexOutput fsin) : SV_Target0
     // }
 
     float3 vel = vertIn[fsin.vertId].vel.xyz;
-    float3 acc = vel - vertOut[fsin.vertId].vel.xyz;
-           acc += float3(0.15);
+
+    float a = clamp(length(vel), 0.0, 256.0) / 256.0;
+    vec3 rgb = vec3(a, 1.0-a, 0.0);
 
     return float4(1.0);
 }
