@@ -12,13 +12,12 @@ namespace idk
 {
     class GfxService;
 
-
     class GfxApi
     {
     private:
         using Request = idk::gfx::GfxReqType;
 
-        idk::GfxService                 *srv_;
+        idk::GfxService *srv_;
         DblBufferWriter<gfx::GfxRequest> writer_;
 
         template <Request R>

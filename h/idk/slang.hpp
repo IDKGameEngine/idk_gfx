@@ -81,7 +81,7 @@ namespace IDK_SLANG_NAMESPACE
     {
         static constexpr const float    MIN_MASS   = 16.0f;
         static constexpr const float    MAX_MASS   = 512.0f;
-        static constexpr const uint32_t MAX_BODIES = 64*1024;
+        static constexpr const uint32_t MAX_BODIES = 32*1024;
         static constexpr const uint32_t GROUP_SIZE = 32;
         
         vec4 pos;
