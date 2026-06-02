@@ -1,5 +1,6 @@
 #pragma once
 
+#include "idk/core/camera.hpp"
 #include "idk/core/log.hpp"
 #include "idk/core/double_buffer.hpp"
 
@@ -38,7 +39,7 @@ namespace idk
         #undef IDK_XMACRO
 
     
-        idk::ThreadSafeAccess<idk::gfx::Camera> GetCameraLock();
+        idk::ThreadSafeAccess<idk::Camera> GetCameraLock();
         void FlushCommandQueue();
 
     };

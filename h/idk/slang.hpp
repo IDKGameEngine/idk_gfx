@@ -46,23 +46,31 @@ struct StorageBuffer0##Idx_ \
 
 namespace IDK_SLANG_NAMESPACE
 {
-    static constexpr const uint32_t UBO_BIND_BASE  = 0;
+    static constexpr const uint32_t UBO_BIND_BASE  = 8;
     static constexpr const uint32_t SSBO_BIND_BASE = 16;
     static constexpr const uint32_t IMG_BIND_BASE  = 32;
 
-    struct UboWindowData
-    {   static constexpr const uint32_t BIND_IDX = UBO_BIND_BASE + 0;
-        vec4 winsz;
-        vec4 bgtint;
-        vec4 fgtint;
-        vec4 gamepos;
+    struct GlobalData
+    {
+        static constexpr const uint32_t BIND_IDX = UBO_BIND_BASE + 0;
     };
 
-    struct UboCameraData
-    {   static constexpr const uint32_t BIND_IDX = UBO_BIND_BASE + 1;
-        mat4 V;
-        mat4 P;
-        mat4 PV;
+    struct PerFrameData
+    {
+        static constexpr const uint32_t BIND_IDX = UBO_BIND_BASE + 1;
+        float prevTime;
+        float currTime;
+        float deltaTime;
+        float timescale;
+        vec2  winSize;
+        vec2  padding1;
+    };
+
+    struct PerCameraData
+    {
+        static constexpr const uint32_t BIND_IDX = UBO_BIND_BASE + 2;
+        mat4 View;
+        mat4 Proj;
     };
 
 
@@ -71,10 +79,9 @@ namespace IDK_SLANG_NAMESPACE
 
     struct NBodyVertex
     {
-        static constexpr const float MAX_MASS_HI = 32.0f * 4096.0f;
-        static constexpr const float MAX_MASS_LO = 256.0f;
-
-        static constexpr const uint32_t MAX_BODIES = 32*1024;
+        static constexpr const float    MIN_MASS   = 16.0f;
+        static constexpr const float    MAX_MASS   = 512.0f;
+        static constexpr const uint32_t MAX_BODIES = 64*1024;
         static constexpr const uint32_t GROUP_SIZE = 32;
         
         vec4 pos;

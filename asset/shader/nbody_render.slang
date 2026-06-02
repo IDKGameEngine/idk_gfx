@@ -1,10 +1,13 @@
 #include "idk/slang.hpp"
 
-[[vk::binding(idk::UboWindowData::BIND_IDX, 0)]]
-ConstantBuffer<idk::UboWindowData, Std140DataLayout> UboWindow_;
+#define M_PI 3.14159265359
 
-[[vk::binding(idk::UboCameraData::BIND_IDX, 0)]]
-ConstantBuffer<idk::UboCameraData, Std140DataLayout> uboCamera_;
+
+[[vk::binding(idk::PerFrameData::BIND_IDX, 0)]]
+ConstantBuffer<idk::PerFrameData, Std140DataLayout> UboWindow_;
+
+[[vk::binding(idk::PerCameraData::BIND_IDX, 0)]]
+ConstantBuffer<idk::PerCameraData, Std140DataLayout> uboCamera_;
 
 [[vk::binding(idk::BIND_NBODY_IN, 0)]]
 StructuredBuffer<idk::NBodyVertex, Std430DataLayout> vertIn;
@@ -21,6 +24,7 @@ struct VertexOutput
     float2  screenCenter; // : TEXCOORD0;   // point centre in pixels
 };
 
+
 [shader("vertex")]
 VertexOutput vertmain(uint vertId: SV_VertexID, out float sv_pointsize: SV_PointSize)
 {
@@ -28,14 +32,20 @@ VertexOutput vertmain(uint vertId: SV_VertexID, out float sv_pointsize: SV_Point
 
     float4 wpos = float4(vertIn[vertId].pos.xyz, 1.0);
     float  mass = vertIn[vertId].pos.w;
+    float  rad3 = (3*mass) / (4.0*M_PI);
+    float  rad  = pow(rad3, 1.0/3.0);
+           rad *= 512.0;
 
-    vsout.vertId   = vertId;
-    vsout.worldpos = wpos;
-    vsout.sv_position = mul(uboCamera_.P, mul(uboCamera_.V, wpos));
-    vsout.pointSize = 64.0 / vsout.sv_position.w;
+    vsout.vertId      = vertId;
+    vsout.worldpos    = wpos;
+    vsout.sv_position = mul(uboCamera_.Proj, mul(uboCamera_.View, wpos));
+    vsout.pointSize   = max(2.0, rad / vsout.sv_position.w);
+
     float2 ndc = vsout.sv_position.xy / vsout.sv_position.w;
-    vsout.screenCenter = (ndc * 0.5 + 0.5) * UboWindow_.winsz.xy;
-
+    vsout.screenCenter = float2(
+        (ndc.x *  0.5 + 0.5) * UboWindow_.winSize.x,
+        (ndc.y * -0.5 + 0.5) * UboWindow_.winSize.y  // <-- negated
+    );
     sv_pointsize = vsout.pointSize;
 
     return vsout;
@@ -45,22 +55,24 @@ VertexOutput vertmain(uint vertId: SV_VertexID, out float sv_pointsize: SV_Point
 [shader("fragment")]
 float4 fragmain(VertexOutput fsin) : SV_Target0
 {
-    vec2 centerNDC = fsin.sv_position.xy / fsin.sv_position.w;
-    vec2 centerWindow = centerNDC * 0.5 + 0.5;
-    vec2 centerPixel  = centerWindow * UboWindow_.winsz.xy;
-    vec2 myPointCoord = (fsin.screenCenter.xy - centerPixel) / fsin.pointSize + 0.5;
+    float2 offset = (fsin.sv_position.xy - fsin.screenCenter) / fsin.pointSize;
+    if (dot(offset, offset) > 0.25)
+    {
+        discard;
+    }
 
-    return vec4(myPointCoord, 0.0, 1.0);
+    float minMass = idk::NBodyVertex::MIN_MASS;
+    float maxMass = idk::NBodyVertex::MAX_MASS;
 
-    // if (dot(myPointCoord, myPointCoord) > 1.0)
-    // {
-    //     discard;
-    // }
+    float mass    = vertIn[fsin.vertId].pos.w;
+    float mass4   = mass*mass*mass*mass;
 
-    // float maxMassHi = idk::NBodyVertex::MAX_MASS_HI;
+    float alpha   = (mass / maxMass);
+    // float alpha4  = clamp(mass4, 0.0, maxMass) / maxMass;
 
-    // float mass  = vertIn[fsin.vertId].pos.w;
-    // float alpha = clamp(mass*mass*mass*mass, 0.0, maxMassHi) / maxMassHi;
+    // vec3 rgb = vec3(alpha, 0.75*alpha, 0.5);
+    // vec3 rgb = vec3(alpha);
+    vec3 rgb = 2.5*vec3(0.22f, 0.13f, 0.37f);
 
-    // return float4(0.95, 0.7, 0.96, alpha);
+    return vec4(rgb, 0.95);
 }

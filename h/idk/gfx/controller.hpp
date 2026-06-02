@@ -10,7 +10,7 @@ namespace idk
     {
     public:
         float moveSpeed = 1.0f;
-        float lookSpeed = 0.001f;
+        float lookSpeed = 0.025f;
 
         glm::vec3 totalMove;
         float totalPitch, totalYaw;

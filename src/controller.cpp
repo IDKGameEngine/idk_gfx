@@ -17,7 +17,7 @@ void idk::TestCharacterController::update()
 
     float dx, dy;
     SDL_GetRelativeMouseState(&dx, &dy);
-    this->pitch(dy);
+    this->pitch(-dy);
     this->yaw(-dx);
 
     mButtonA = kbstate[SDL_SCANCODE_1];

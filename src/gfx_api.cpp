@@ -11,7 +11,7 @@ idk::GfxApi::GfxApi(idk::GfxService *srv)
 }
 
 
-idk::ThreadSafeAccess<idk::gfx::Camera> idk::GfxApi::GetCameraLock()
+idk::ThreadSafeAccess<idk::Camera> idk::GfxApi::GetCameraLock()
 {
     return srv_->getRenderer().getCameraLock();
 }

@@ -20,9 +20,7 @@ namespace idk::gfx
         IDK_XMACRO(AddComputeProgram) \
         IDK_XMACRO(AddRenderProgram) \
         IDK_XMACRO(GetComputeProgram) \
-        IDK_XMACRO(GetRenderProgram) \
-        IDK_XMACRO(BgColorSet) \
-        IDK_XMACRO(BgColorAdd)
+        IDK_XMACRO(GetRenderProgram)
 
     enum class GfxReqType: uint64_t
     {
@@ -127,34 +125,6 @@ namespace idk::gfx
     {
         gfx::RenderProgram *prog;
         GfxResponseImpl(): prog(nullptr) {  }
-    };
-
-
-    template<>
-    struct GfxRequestImpl<GfxReqType::BgColorSet>
-    {
-        glm::vec4 value;
-        GfxRequestImpl(const glm::vec4 &v): value(v) {  }
-    };
-    template<>
-    struct GfxResponseImpl<GfxReqType::BgColorSet>: public GfxResponse
-    {
-        glm::vec4 value;
-        GfxResponseImpl(): value(0.0f) {  }
-    };
-
-
-    template<>
-    struct GfxRequestImpl<GfxReqType::BgColorAdd>
-    {
-        glm::vec4 value;
-        GfxRequestImpl(const glm::vec4 &v): value(v) {  }
-    };
-    template<>
-    struct GfxResponseImpl<GfxReqType::BgColorAdd>: public GfxResponse
-    {
-        glm::vec4 value;
-        GfxResponseImpl(): value(0.0f) {  }
     };
 
 

@@ -5,7 +5,6 @@
 
 #include "idk/gfx/fwd.hpp"
 #include "idk/gfx/buffer.hpp"
-#include "idk/gfx/camera.hpp"
 #include "idk/gfx/shader.hpp"
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/mesh.hpp"
@@ -13,8 +12,9 @@
 
 #include "idk/slang.hpp"
 
-#include "idk/core/raii.hpp"
+#include "idk/core/camera.hpp"
 #include "idk/core/double_buffer.hpp"
+#include "idk/core/raii.hpp"
 
 #include <map>
 
@@ -39,7 +39,7 @@ public:
 
     std::mutex &getMutex();
     DblBufferWriter<GfxRequest> getGfxRequestWriter();
-    idk::ThreadSafeAccess<idk::gfx::Camera> getCameraLock();
+    idk::ThreadSafeAccess<idk::Camera> getCameraLock();
 
     static void debugOutputEnable(const DebugOutputEnableRequest&, DebugOutputEnableResponse*);
     void addComputeProgram(const AddComputeProgramRequest&, AddComputeProgramResponse*);
@@ -48,22 +48,17 @@ public:
 private:
     std::mutex                  mutex_;
     idk::gfx::WindowSDL3        &win_;
-    idk::gfx::Camera            cam_;
+    idk::Camera                 cam_;
     RaiiFunc<void(bool)>        raii_;
     DoubleBuffer<GfxRequest>    cmd_queue_;
     DblBufferReader<GfxRequest> cmd_read_;
 
-    UboWriter<slang::UboWindowData> uboWindow_;
-    UboWriter<slang::UboCameraData> uboCamera_;
+    UboWriter<slang::PerFrameData>  perFrame_;
+    UboWriter<slang::PerCameraData> perCamera_;
 
     SsboWriter<slang::NBodyVertex[slang::NBodyVertex::MAX_BODIES]> ssboNBody0, ssboNBody1;
     SsboWriter<slang::NBodyVertex[slang::NBodyVertex::MAX_BODIES]> *ssboNBodyIn, *ssboNBodyOut;
 
-    gfx::TextureFormatDesc automataFmt;
-    gfx::Texture  automataTexA;
-    gfx::Texture  automataTexB;
-    gfx::Texture *automataTexPtr[2];
-    gfx::ComputeProgram automataProg;
     gfx::ComputeProgram clearProg;
     gfx::RenderProgram  winProg;
     gfx::ComputeProgram nbodyPositionProg;

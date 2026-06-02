@@ -1,8 +1,10 @@
 #include "idk/gfx/renderer.hpp"
-#include "idk/gfx/camera.hpp"
 #include "idk/gfx/framebuffer.hpp"
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/window.hpp"
+
+#include "idk/core/basis.hpp"
+#include "idk/core/camera.hpp"
 #include "idk/core/file.hpp"
 #include "idk/core/metric.hpp"
 #include "idk/core/random.hpp"
@@ -10,7 +12,6 @@
 #include <SDL3_image/SDL_image.h>
 
 using namespace idk::gfx;
-
 
 extern void gfxDebugOutputEnable(bool);
 
@@ -21,45 +22,29 @@ extern void gfxDebugOutputEnable(bool);
 // }
 
 
-static void *initAutomataTexture()
+static glm::vec3 rand_vec3(float lo, float hi)
 {
-    static uint8_t *base = nullptr;
-    if (base == nullptr)
-    {
-        base = new uint8_t[4*slang::AUTOMATA_WIDTH*slang::AUTOMATA_WIDTH];
+    return glm::vec3(idk::randf(lo, hi), idk::randf(lo, hi), idk::randf(lo, hi));
+}
 
-        for (size_t i=0; i<4*slang::AUTOMATA_WIDTH*slang::AUTOMATA_WIDTH; i+=4)
-        {
-            if (rand()%100 >= 25)
-            {
-                base[i+0] = rand() % 255;
-                base[i+1] = rand() % 255;
-                base[i+2] = rand() % 255;
-                base[i+3] = rand() % 255;
-            }
-        }
-    }
-    return base;
+static glm::vec3 rand_vec3(float m)
+{
+    return rand_vec3(-m, +m);
 }
 
 
-static idk::gfx::MeshDescriptor mesh_desc;
 
 RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 :   win_(win),
-    cam_(90.0f, win.mAspect, 0.01f, 1000.0f),
+    cam_(win.mAspect, 80.0f, 0.1f, 8000.0f),
     raii_(gfxDebugOutputEnable, true),
     cmd_read_(cmd_queue_),
-    uboWindow_(),
-    uboCamera_(),
+    perFrame_(),
+    perCamera_(),
     ssboNBody0(),
     ssboNBody1(),
     ssboNBodyIn(&ssboNBody0),
     ssboNBodyOut(&ssboNBody1),
-    automataFmt(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR),
-    automataTexA(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
-    automataTexB(slang::AUTOMATA_WIDTH, slang::AUTOMATA_WIDTH, initAutomataTexture(), automataFmt),
-    automataProg("asset/shader/automata.comp"),
     clearProg("asset/shader/clear.comp"),
     winProg("asset/shader/screenquad.vert", "asset/shader/screenquad.frag"),
     nbodyPositionProg("asset/shader/nbody_position.comp"),
@@ -70,9 +55,8 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 {
     alive_.store(true);
     flush_.store(false);
+    cam_.getTransform().SetPosition(glm::vec3(0.0f, 16.0f, 32.0f));
 
-    automataTexPtr[0] = &automataTexA;
-    automataTexPtr[1] = &automataTexB;
     VLOG_INFO("gfx::Renderer Initialized");
 
     GLint mGlVersionMajor, mGlVersionMinor;
@@ -83,39 +67,42 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     gl::CreateVertexArrays(1, &mDummyVao);
     gl::Enable(GL_MULTISAMPLE);
 
+    perFrame_->prevTime  = float(OsAdapter::GetSysTimeMs()) / 1000.0;
+    perFrame_->currTime  = perFrame_->currTime;
+    perFrame_->timescale = 1.0f;
 
-    glm::vec3 centerPos  = glm::vec3(0.0f);
-    float     centerMass = 512.0f; // slang::NBodyVertex::MAX_MASS_HI;
 
-    ssboNBody0.get()[0].pos = glm::vec4(centerPos, centerMass);
-    ssboNBody0.get()[0].vel = glm::vec4(0.0f);
-    ssboNBody0.get()[0].acc = glm::vec4(0.0f);
 
-    for (uint32_t i=1; i<slang::NBodyVertex::MAX_BODIES; i++)
+    static constexpr float radius = 1024.0f;
+
+    // glm::vec3 centerPos  = glm::vec3(0.0f);
+    // float     centerMass = 128.0f*1024.0f; // slang::NBodyVertex::MAX_MASS;
+
+    // ssboNBody0.get()[0].pos = glm::vec4(centerPos, centerMass);
+    // ssboNBody0.get()[0].vel = glm::vec4(0.0f);
+    // ssboNBody0.get()[0].acc = glm::vec4(0.0f);
+
+    for (uint32_t i=0; i<slang::NBodyVertex::MAX_BODIES; i++)
     {
         auto &vert = ssboNBody0.get()[i];
-
-        float radius = 128.0f;
-        glm::vec3 pos = radius * glm::vec3(idk::randf(-1, +1), idk::randf(-1, +1), idk::randf(-1, +1));
-                  pos = glm::clamp(pos, -radius, +radius);
-        // while (glm::dot(pos, pos) > radius)
+    
+        glm::vec3 pos = rand_vec3(radius) * glm::vec3(1.0, 0.25, 1.0);
+        // glm::vec3 pos_disp = (centerPos - pos);
+        // if (glm::length(pos_disp) > radius)
         // {
-        //     pos = radius * glm::vec3(idk::randf(-1, +1), idk::randf(-1, +1), idk::randf(-1, +1));
+        //     pos += rand_vec3(0.0f, 0.25f) * pos_disp;
         // }
 
-        vert.pos = glm::vec4(pos, idk::randf(+1.0f, slang::NBodyVertex::MAX_MASS_LO));
-    
-        // glm::vec3 disp  = centerPos - glm::vec3(vert.pos);
+        // glm::vec3 disp  = centerPos - glm::vec3(pos);
         // glm::vec3 dir   = glm::normalize(disp);
         // float     dist  = glm::length(disp);
+        // float     omag  = sqrt(centerMass / dist);
+        // glm::vec3 ovel  = omag*glm::normalize(glm::cross(dir, world_axis::UP));
 
-        // // glm::vec3 noise = 0.1f * glm::vec3(0.0f, idk::randf(-1, +1), 0.0f);
-        // glm::vec3 odir  = glm::normalize(glm::cross(dir, coordinate_system::UP));
-        // float     omag  = (0.5f * centerMass) / (dist*dist*dist);
 
-        // vert.vel = glm::vec4(omag*odir, 0.0f);
+        vert.pos = glm::vec4(pos, idk::randf(slang::NBodyVertex::MIN_MASS, slang::NBodyVertex::MAX_MASS));
         // vert.vel = glm::vec4(0.0f);
-        idk::randvec4(-32.0f, +32.0f, &(vert.vel[0]));
+        vert.vel = glm::vec4(rand_vec3(16.0f), 0.0f);
         vert.acc = glm::vec4(0.0f);
     }
 
@@ -179,14 +166,6 @@ void RenderEngine::update(idk::IEngine *E)
                 ((GetRenderProgramResponse*)res)->prog = &renderPrograms_[req.as_GetRenderProgram.id];
                 break;
 
-            case GfxReqType::BgColorSet:
-                uboWindow_->gamepos = req.as_BgColorSet.value;
-                break;
-
-            case GfxReqType::BgColorAdd:
-                uboWindow_->gamepos += req.as_BgColorAdd.value;
-                break;
-
             default:
                 VLOG_FATAL("gfx::GfxReqType is Invalid!");
                 break;
@@ -210,64 +189,50 @@ void RenderEngine::_update_image()
     win_.makeCurrent();
     gl::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    uboWindow_->winsz = glm::vec4(win_.mSizef, 0.0f, 0.0f);
-    // if (ubo3_->mDirty)
     {
-        uboWindow_.sendToGpu();
+        perFrame_->prevTime  = perFrame_->currTime;
+        perFrame_->currTime  = float(OsAdapter::GetSysTimeMs()) / 1000.0f;
+        perFrame_->deltaTime = (perFrame_->currTime - perFrame_->prevTime);
+        perFrame_->winSize   = glm::vec4(win_.mSizef, 0.0f, 0.0f);
+        perFrame_.sendToGpu();
     }
-
     {
         auto getter = getCameraLock();
         auto &cam = getter();
 
-        if (cam.isDirty())
-        {
-            uboCamera_->V = cam.getView();
-            uboCamera_->P = cam.getProj();
-            uboCamera_->PV = cam.getProjView();
-            uboCamera_.sendToGpu();
-
-            cam.unDirty();
-        }
+        perCamera_->View = cam.getView();
+        perCamera_->Proj = cam.getProj();
+        perCamera_.sendToGpu();
     }
-
-    gl::UseProgram(automataProg.mId);
-    automataTexPtr[0]->bindImageTexture(8);
-    automataTexPtr[1]->bindImageTexture(9);
-    gl::DispatchCompute(slang::AUTOMATA_WIDTH/8, slang::AUTOMATA_WIDTH/8, 1);
-    gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
-    std::swap(automataTexPtr[0], automataTexPtr[1]);
-
 
     gl::UseProgram(nbodyPositionProg.mId);
     ssboNBodyIn->bind(slang::BIND_NBODY_IN);
     ssboNBodyOut->bind(slang::BIND_NBODY_OUT);
     gl::DispatchCompute(slang::NBodyVertex::MAX_BODIES / slang::NBodyVertex::GROUP_SIZE, 1, 1);
-    gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
-    std::swap(ssboNBodyIn, ssboNBodyOut);
-
+    gl::MemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     static uint64_t count = 0;
     count += 1;
 
-    if (count < 99)
-        gl::UseProgram(nbodyExpansionProg.mId);
-    else
-        gl::UseProgram(nbodyGravityProg.mId);
+    // if (count < 25)
+    //     gl::UseProgram(nbodyExpansionProg.mId);
+    // else
+        // gl::UseProgram(nbodyGravityProg.mId);
 
-    ssboNBodyIn->bind(slang::BIND_NBODY_IN);
-    ssboNBodyOut->bind(slang::BIND_NBODY_OUT);
+    gl::UseProgram(nbodyGravityProg.mId);
+    ssboNBodyOut->bind(slang::BIND_NBODY_IN);
+    ssboNBodyIn->bind(slang::BIND_NBODY_OUT);
     gl::DispatchCompute(slang::NBodyVertex::MAX_BODIES / slang::NBodyVertex::GROUP_SIZE, 1, 1);
-    gl::MemoryBarrier(GL_ALL_BARRIER_BITS);
-
+    gl::MemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    std::swap(ssboNBodyIn, ssboNBodyOut);
 
     gl::UseProgram(nbodyRenderProg.mId);
     ssboNBodyIn->bind(slang::BIND_NBODY_IN);
     ssboNBodyOut->bind(slang::BIND_NBODY_OUT);
-    uboCamera_.bind(uboCamera_->BIND_IDX);
+    perCamera_.bind(perCamera_->BIND_IDX);
     gl::Enable(GL_PROGRAM_POINT_SIZE);
     gl::Enable(GL_BLEND);
-    gl::BlendFunc(GL_SRC_ALPHA, GL_ONE);
+    gl::BlendFunc(GL_ONE, GL_ONE);
 
     gl::BindVertexArray(mDummyVao);
     gl::DrawArrays(GL_POINTS, 0, slang::NBodyVertex::MAX_BODIES);
@@ -275,11 +240,8 @@ void RenderEngine::_update_image()
     std::swap(ssboNBodyIn, ssboNBodyOut);
 
     // gl::UseProgram(winProg.mId);
-    // automataTexPtr[0]->bindImageTexture(8);
-    // uboWindow_.bind(uboWindow_->BIND_IDX);
     // gl::BindVertexArray(mDummyVao);
     // gl::DrawArrays(GL_TRIANGLES, 0, 3);
-
 
     win_.swapWindow();
 }
@@ -300,9 +262,9 @@ idk::DblBufferWriter<GfxRequest> RenderEngine::getGfxRequestWriter()
     return idk::DblBufferWriter<GfxRequest>(cmd_queue_);
 }
 
-idk::ThreadSafeAccess<idk::gfx::Camera> RenderEngine::getCameraLock()
+idk::ThreadSafeAccess<idk::Camera> RenderEngine::getCameraLock()
 {
-    return idk::ThreadSafeAccess<gfx::Camera>(cam_);
+    return idk::ThreadSafeAccess<idk::Camera>(cam_);
 }
 
 void RenderEngine::addComputeProgram(const AddComputeProgramRequest &req, AddComputeProgramResponse *res)
