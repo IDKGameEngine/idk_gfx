@@ -38,7 +38,6 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 :   win_(win),
     cam_(win.mAspect, 80.0f, 0.1f, 8000.0f),
     raii_(gfxDebugOutputEnable, true),
-    cmd_read_(cmd_queue_),
     perFrame_(),
     perCamera_(),
     ssboNBody0(),
@@ -54,7 +53,6 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     meshbuf_(gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA))
 {
     alive_.store(true);
-    flush_.store(false);
     cam_.getTransform().SetPosition(glm::vec3(0.0f, 16.0f, 32.0f));
 
     VLOG_INFO("gfx::Renderer Initialized");
@@ -67,11 +65,9 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     gl::CreateVertexArrays(1, &mDummyVao);
     gl::Enable(GL_MULTISAMPLE);
 
-    perFrame_->prevTime  = float(OsAdapter::GetSysTimeMs()) / 1000.0;
+    perFrame_->prevTime  = float(platform::GetSysTimeMs()) / 1000.0;
     perFrame_->currTime  = perFrame_->currTime;
     perFrame_->timescale = 1.0f;
-
-
 
     static constexpr float radius = 1024.0f;
 
@@ -121,66 +117,10 @@ void RenderEngine::update(idk::IEngine *E)
 {
     (void)E;
 
-    SDL_Event e;
-    while (SDL_PollEvent(&e))
+    if (timer_.expired())
     {
-        if (e.type == SDL_EVENT_QUIT)
-        {
-            VLOG_INFO("SDL_EVENT_QUIT");
-            E->shutdown();
-        }
-
-        if (e.type == SDL_EVENT_KEY_UP)
-        {
-            if (e.key.scancode == SDL_SCANCODE_ESCAPE)
-            {
-                SDL_SetWindowRelativeMouseMode(win_.mSdlWin, false);
-            }
-        }
-    }
-
-    while (!cmd_read_->empty())
-    {
-        auto &req = cmd_read_->front();
-        auto *res = req.res;
-
-        switch (req.type)
-        {
-            case GfxReqType::DebugOutputEnable:
-                debugOutputEnable(req.as_DebugOutputEnable, static_cast<DebugOutputEnableResponse*>(res));
-                break;
-
-            case GfxReqType::AddComputeProgram:
-                addComputeProgram(req.as_AddComputeProgram, static_cast<AddComputeProgramResponse*>(res));
-                break;
-
-            case GfxReqType::AddRenderProgram:
-                addRenderProgram(req.as_AddRenderProgram, static_cast<AddRenderProgramResponse*>(res));
-                break;
-
-            case GfxReqType::GetComputeProgram:
-                ((GetComputeProgramResponse*)res)->prog = &computePrograms_[req.as_GetComputeProgram.id];
-                break;
-
-            case GfxReqType::GetRenderProgram:
-                ((GetRenderProgramResponse*)res)->prog = &renderPrograms_[req.as_GetRenderProgram.id];
-                break;
-
-            default:
-                VLOG_FATAL("gfx::GfxReqType is Invalid!");
-                break;
-        }
-
-        res->make_ready();
-        cmd_read_->pop();
-    }
-
-    _update_image();
-
-    if (flush_.load() == true)
-    {
-        cmd_queue_.swapBuffers();
-        flush_.store(false);
+        timer_.reset();
+        _update_image();
     }
 }
 
@@ -191,15 +131,13 @@ void RenderEngine::_update_image()
 
     {
         perFrame_->prevTime  = perFrame_->currTime;
-        perFrame_->currTime  = float(OsAdapter::GetSysTimeMs()) / 1000.0f;
+        perFrame_->currTime  = float(platform::GetSysTimeMs()) / 1000.0f;
         perFrame_->deltaTime = (perFrame_->currTime - perFrame_->prevTime);
         perFrame_->winSize   = glm::vec4(win_.mSizef, 0.0f, 0.0f);
         perFrame_.sendToGpu();
     }
     {
-        auto getter = getCameraLock();
-        auto &cam = getter();
-
+        auto &cam = getCamera();
         perCamera_->View = cam.getView();
         perCamera_->Proj = cam.getProj();
         perCamera_.sendToGpu();
@@ -211,10 +149,8 @@ void RenderEngine::_update_image()
     gl::DispatchCompute(slang::NBodyVertex::MAX_BODIES / slang::NBodyVertex::GROUP_SIZE, 1, 1);
     gl::MemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-    static uint64_t count = 0;
-    count += 1;
-
-    // if (count < 25)
+    // static uint64_t count = 0;
+    // if (count++ < 25)
     //     gl::UseProgram(nbodyExpansionProg.mId);
     // else
         // gl::UseProgram(nbodyGravityProg.mId);
@@ -252,19 +188,20 @@ void RenderEngine::shutdown()
     alive_.store(false);
 }
 
+void RenderEngine::setRefreshRateHz(uint64_t hz)
+{
+    timer_.setRateHz(hz);
+}
+
 std::mutex &RenderEngine::getMutex()
 {
     return mutex_;
 }
 
-idk::DblBufferWriter<GfxRequest> RenderEngine::getGfxRequestWriter()
-{
-    return idk::DblBufferWriter<GfxRequest>(cmd_queue_);
-}
 
-idk::ThreadSafeAccess<idk::Camera> RenderEngine::getCameraLock()
+idk::Camera &RenderEngine::getCamera()
 {
-    return idk::ThreadSafeAccess<idk::Camera>(cam_);
+    return cam_;
 }
 
 void RenderEngine::addComputeProgram(const AddComputeProgramRequest &req, AddComputeProgramResponse *res)

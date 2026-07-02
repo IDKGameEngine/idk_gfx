@@ -30,13 +30,16 @@ namespace idk
         void move(const glm::vec3 &v) { totalMove += moveSpeed*v; }
         void pitch(float r) { totalPitch += lookSpeed*r; }
         void yaw(float r) { totalYaw += lookSpeed*r; }
-    
+
         void getMotion(glm::vec3 &moveDelta, float &pitchDelta, float &yawDelta)
         {
             moveDelta  = totalMove;
             pitchDelta = totalPitch;
             yawDelta   = totalYaw;
+        }
 
+        void clearMotion()
+        {
             totalMove  *= 0.0f;
             totalPitch *= 0.0f;
             totalYaw   *= 0.0f;

@@ -2,7 +2,6 @@
 
 #include "idk/core/log.hpp"
 #include "idk/core/window.hpp"
-#include "idk/core/service.hpp"
 #include "idk/gfx/gl_bindings.hpp"
 
 #include <memory>

@@ -1,35 +1,35 @@
 #include "idk/gfx_service.hpp"
-
 #include "idk/gfx/renderer.hpp"
 #include "idk/gfx/window.hpp"
 
 
-idk::GfxService::GfxService(const idk::core::WindowDesc &windesc)
-:   Service(idk::PeriodicTimer(1000.0 / 60.0)),
-    win_(new gfx::WindowSDL3(windesc)),
-    ren_(new gfx::RenderEngine(*win_))
+idk::GfxService::GfxService()
+:   Service(idk_typeid<GfxService>()),
+    mCfg("asset/GfxService.cfg")
 {
+    const char *winName = mCfg["WINDOW_NAME"].getValue();
+    int32_t winWidth = mCfg["WINDOW_WIDTH"].getValueI32();
+    int32_t winHeight = mCfg["WINDOW_HEIGHT"].getValueI32();
+    mWin = new gfx::WindowSDL3(core::WindowDesc(winName, winWidth, winHeight));
+    mRen = new gfx::RenderEngine(*mWin);
 
+    uint64_t refreshRateHz = mCfg["REFRESH_RATE"].getValueU64();
+    mRen->setRefreshRateHz(refreshRateHz);
+    VLOG_INFO("[GfxService::GfxService] refreshRateHz={}", refreshRateHz);
 }
 
-
-void idk::GfxService::_startup(idk::IEngine*)
+void idk::GfxService::startup(idk::IEngine*)
 {
-    VLOG_INFO("[idk::GfxService::_startup]");
+    VLOG_INFO("[GfxService::startup]");
 }
 
-void idk::GfxService::_update(idk::IEngine *E)
+void idk::GfxService::update(idk::IEngine *E)
 {
-    // win_.makeCurrent();
-    // ren_.renderToWindow(win_);
-    // win_.swapWindow();
-
-    ren_->update(E);
+    mRen->update(E);
 }
 
-void idk::GfxService::_shutdown(idk::IEngine*)
+void idk::GfxService::shutdown(idk::IEngine*)
 {
-    VLOG_INFO("[idk::GfxService::_shutdown]");
-    ren_->shutdown();
+    VLOG_INFO("[GfxService::shutdown]");
+    mRen->shutdown();
 }
-

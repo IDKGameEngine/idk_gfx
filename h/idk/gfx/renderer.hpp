@@ -15,6 +15,7 @@
 #include "idk/core/camera.hpp"
 #include "idk/core/double_buffer.hpp"
 #include "idk/core/raii.hpp"
+#include "idk/core/periodic_timer.hpp"
 
 #include <map>
 
@@ -29,29 +30,26 @@ class idk::gfx::RenderEngine
 {
 public:
     std::atomic_bool alive_;
-    std::atomic_bool flush_;
 
     RenderEngine(idk::gfx::WindowSDL3&);
     ~RenderEngine();
     void update(idk::IEngine*);
     void shutdown();
-    
 
+    void setRefreshRateHz(uint64_t hz);
     std::mutex &getMutex();
-    DblBufferWriter<GfxRequest> getGfxRequestWriter();
-    idk::ThreadSafeAccess<idk::Camera> getCameraLock();
+    idk::Camera &getCamera();
 
     static void debugOutputEnable(const DebugOutputEnableRequest&, DebugOutputEnableResponse*);
     void addComputeProgram(const AddComputeProgramRequest&, AddComputeProgramResponse*);
     void addRenderProgram(const AddRenderProgramRequest&, AddRenderProgramResponse*);
 
 private:
+    idk::PeriodicTimer          timer_;
     std::mutex                  mutex_;
     idk::gfx::WindowSDL3        &win_;
     idk::Camera                 cam_;
     RaiiFunc<void(bool)>        raii_;
-    DoubleBuffer<GfxRequest>    cmd_queue_;
-    DblBufferReader<GfxRequest> cmd_read_;
 
     UboWriter<slang::PerFrameData>  perFrame_;
     UboWriter<slang::PerCameraData> perCamera_;
