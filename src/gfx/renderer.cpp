@@ -32,7 +32,7 @@ static glm::vec3 rand_vec3(float m)
     return rand_vec3(-m, +m);
 }
 
-
+#define GFX_ASSETS_PATH = IDK_ASSETS_DIRNAME "/gfx/"
 
 RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 :   win_(win),
@@ -46,12 +46,12 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     ssboNBody1(),
     ssboNBodyIn(&ssboNBody0),
     ssboNBodyOut(&ssboNBody1),
-    clearProg("data/gfx/shader/clear.comp"),
-    winProg("data/gfx/shader/screenquad.vert", "data/gfx/shader/screenquad.frag"),
-    nbodyPositionProg("data/gfx/shader/nbody_position.comp"),
-    nbodyExpansionProg("data/gfx/shader/nbody_expansion.comp"),
-    nbodyGravityProg("data/gfx/shader/nbody_gravity.comp"),
-    nbodyRenderProg("data/gfx/shader/nbody_render.vert", "data/gfx/shader/nbody_render.frag"),
+    clearProg("gfx/shader/clear.comp"),
+    winProg("gfx/shader/screenquad.vert", "gfx/shader/screenquad.frag"),
+    nbodyPositionProg("gfx/shader/nbody_position.comp"),
+    nbodyExpansionProg("gfx/shader/nbody_expansion.comp"),
+    nbodyGravityProg("gfx/shader/nbody_gravity.comp"),
+    nbodyRenderProg("gfx/shader/nbody_render.vert", "gfx/shader/nbody_render.frag"),
     meshbuf_(gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA))
 {
     alive_.store(true);

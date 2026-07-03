@@ -18,7 +18,6 @@ BaseRaiiShader::BaseRaiiShader(GLuint id, const char *entryname, const char *fil
     mOkay(true),
     mFilepath(filepath)
 {
-    idk::FileLoader loader(filepath);
     idk::FileReader reader(filepath);
     const char *src = static_cast<const char *>(reader.getData());
 

@@ -50,6 +50,6 @@ slang_to_spirv()
     done
 }
 
-cd "$IDK_OUTPUT_DIR/data/gfx/shader"
+cd "$IDK_OUTPUT_DIR/$IDK_ASSETS_DIRNAME/gfx/shader"
 slang_to_spirv *.slang && rm *.slang
 
