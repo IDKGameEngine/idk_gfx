@@ -17,7 +17,7 @@ extern void gfxDebugOutputEnable(bool);
 
 // static void image_load_test()
 // {
-//     SDL_Surface *img = IMG_Load("asset/noise/perlin.jpg");
+//     SDL_Surface *img = IMG_Load("data/noise/perlin.jpg");
 //     VLOG_INFO("perlin.jpg: {}x{}", img->w, img->h);
 // }
 
@@ -36,7 +36,9 @@ static glm::vec3 rand_vec3(float m)
 
 RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
 :   win_(win),
-    cam_(win.mAspect, 80.0f, 0.1f, 8000.0f),
+    camPrev_(win.mAspect, 80.0f, 0.1f, 8000.0f),
+    camCurr_(camPrev_),
+    camNext_(camPrev_),
     raii_(gfxDebugOutputEnable, true),
     perFrame_(),
     perCamera_(),
@@ -44,16 +46,18 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     ssboNBody1(),
     ssboNBodyIn(&ssboNBody0),
     ssboNBodyOut(&ssboNBody1),
-    clearProg("asset/shader/clear.comp"),
-    winProg("asset/shader/screenquad.vert", "asset/shader/screenquad.frag"),
-    nbodyPositionProg("asset/shader/nbody_position.comp"),
-    nbodyExpansionProg("asset/shader/nbody_expansion.comp"),
-    nbodyGravityProg("asset/shader/nbody_gravity.comp"),
-    nbodyRenderProg("asset/shader/nbody_render.vert", "asset/shader/nbody_render.frag"),
+    clearProg("data/gfx/shader/clear.comp"),
+    winProg("data/gfx/shader/screenquad.vert", "data/gfx/shader/screenquad.frag"),
+    nbodyPositionProg("data/gfx/shader/nbody_position.comp"),
+    nbodyExpansionProg("data/gfx/shader/nbody_expansion.comp"),
+    nbodyGravityProg("data/gfx/shader/nbody_gravity.comp"),
+    nbodyRenderProg("data/gfx/shader/nbody_render.vert", "data/gfx/shader/nbody_render.frag"),
     meshbuf_(gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA))
 {
     alive_.store(true);
-    cam_.getTransform().SetPosition(glm::vec3(0.0f, 16.0f, 32.0f));
+    camPrev_.getTransform().SetPosition(glm::vec3(0.0f, 16.0f, 32.0f));
+    camCurr_ = camPrev_;
+    camNext_ = camPrev_;
 
     VLOG_INFO("gfx::Renderer Initialized");
 
@@ -124,6 +128,13 @@ void RenderEngine::update(idk::IEngine *E)
     }
 }
 
+void RenderEngine::swapCamera()
+{
+    camPrev_ = camCurr_;
+    camCurr_ = camNext_;
+}
+
+
 void RenderEngine::_update_image()
 {
     win_.makeCurrent();
@@ -137,7 +148,7 @@ void RenderEngine::_update_image()
         perFrame_.sendToGpu();
     }
     {
-        auto &cam = getCamera();
+        idk::Camera cam = idk::Camera::getMixed(camPrev_, camCurr_, lerpAlpha_);
         perCamera_->View = cam.getView();
         perCamera_->Proj = cam.getProj();
         perCamera_.sendToGpu();
@@ -201,7 +212,7 @@ std::mutex &RenderEngine::getMutex()
 
 idk::Camera &RenderEngine::getCamera()
 {
-    return cam_;
+    return camNext_;
 }
 
 void RenderEngine::addComputeProgram(const AddComputeProgramRequest &req, AddComputeProgramResponse *res)

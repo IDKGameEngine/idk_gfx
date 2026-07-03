@@ -12,7 +12,6 @@ namespace idk
 class idk::GfxService: public idk::core::Service
 {
 private:
-    idk::CfgParser mCfg;
     idk::gfx::WindowSDL3 *mWin;
     idk::gfx::RenderEngine *mRen;
 

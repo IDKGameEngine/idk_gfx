@@ -7,9 +7,9 @@
 using namespace idk::gfx;
 
 #ifdef IDK_GFX_OPENGL_SPIRV
-    #define IDK_GFX_SHADERPATH "asset/shader/spv"
+    #define IDK_GFX_SHADERPATH "data/gfx/shader/spv"
 #else
-    #define IDK_GFX_SHADERPATH "asset/shader/glsl"
+    #define IDK_GFX_SHADERPATH "data/gfx/shader/glsl"
 #endif
 
 

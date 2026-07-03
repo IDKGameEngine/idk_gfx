@@ -21,7 +21,7 @@ target_link_libraries(
 target_sources(
     ${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/controller.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx_service.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/GfxService.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx/buffer.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx/debug.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/gfx/framebuffer.cpp"
@@ -34,10 +34,10 @@ target_sources(
 
 
 add_custom_target(
-    idk_gfx_assets
+    idk_gfx_data
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/asset ${IDK_OUTPUT_DIR}/asset
+        ${CMAKE_CURRENT_SOURCE_DIR}/data ${IDK_OUTPUT_DIR}/data
 )
-add_dependencies(${PROJECT_NAME} idk_gfx_assets)
+add_dependencies(${PROJECT_NAME} idk_gfx_data)
 
 install(CODE "execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/slangc.sh)")

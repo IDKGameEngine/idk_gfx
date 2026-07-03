@@ -39,6 +39,8 @@ public:
     void setRefreshRateHz(uint64_t hz);
     std::mutex &getMutex();
     idk::Camera &getCamera();
+    void setLerpAlpha(float alpha) { lerpAlpha_ = alpha; }
+    void swapCamera();
 
     static void debugOutputEnable(const DebugOutputEnableRequest&, DebugOutputEnableResponse*);
     void addComputeProgram(const AddComputeProgramRequest&, AddComputeProgramResponse*);
@@ -48,7 +50,9 @@ private:
     idk::PeriodicTimer          timer_;
     std::mutex                  mutex_;
     idk::gfx::WindowSDL3        &win_;
-    idk::Camera                 cam_;
+    idk::Camera                 camPrev_;
+    idk::Camera                 camCurr_;
+    idk::Camera                 camNext_;
     RaiiFunc<void(bool)>        raii_;
 
     UboWriter<slang::PerFrameData>  perFrame_;
@@ -71,6 +75,8 @@ private:
 
     std::vector<gfx::ComputeProgram> computePrograms_;
     std::vector<gfx::RenderProgram> renderPrograms_;
+
+    float lerpAlpha_ = 0.0f;
 
     void _update_image();
 };
