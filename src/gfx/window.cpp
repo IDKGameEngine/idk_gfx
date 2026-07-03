@@ -4,7 +4,6 @@
 
 using namespace idk::gfx;
 
-
 // static void file_dialog_callback(void *userdata, const char *const *filelist, int filter)
 // {
 //     (void)userdata;
@@ -53,6 +52,7 @@ WindowSDL3::WindowSDL3(const idk::core::WindowDesc& desc)
 
 WindowSDL3::~WindowSDL3()
 {
+    SDL_GL_DestroyContext(mGlCtx);
     SDL_DestroyWindow(mSdlWin);
     SDL_Quit();
 }
@@ -67,31 +67,3 @@ void WindowSDL3::swapWindow()
 {
     SDL_GL_SwapWindow(mSdlWin);
 }
-
-
-// int WindowSDL3::getWidth() const
-// {
-//     return mWidth;
-// }
-
-// int WindowSDL3::getHeight() const
-// {
-//     return mHeight;
-// }
-
-// void *WindowSDL3::getNativeHandle() const
-// {
-//     return mSdlWin;
-// }
-
-// void *WindowSDL3::getGpuContext() const
-// {
-//     return mGlCtx;
-// }
-
-// void WindowSDL3::pollEvents()
-// {
-
-// }
-
-

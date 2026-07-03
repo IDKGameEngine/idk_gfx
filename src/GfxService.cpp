@@ -17,6 +17,12 @@ idk::GfxService::GfxService()
     VLOG_INFO("[GfxService::GfxService] tickRateHz={}", tickRateHz);
 }
 
+idk::GfxService::~GfxService()
+{
+    delete mWin;
+    delete mRen;
+}
+
 void idk::GfxService::startup(idk::IEngine*)
 {
     VLOG_INFO("[GfxService::startup]");
