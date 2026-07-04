@@ -5,7 +5,6 @@ project(idk_gfx CXX)
 find_package(OpenGL REQUIRED)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/external/glad")
 
-
 add_library(
     ${PROJECT_NAME} STATIC
 )
