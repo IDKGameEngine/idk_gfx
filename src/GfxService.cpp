@@ -4,7 +4,7 @@
 
 
 idk::GfxService::GfxService()
-:   Service("GfxService", idk_typeid<GfxService>())
+:   IDK_SERVICE_CTOR(GfxService)
 {
     const char *winName = mCfg["WINDOW_NAME"].getValue();
     int32_t winWidth = mCfg["WINDOW_WIDTH"].getValueI32();
