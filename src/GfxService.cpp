@@ -23,11 +23,6 @@ idk::GfxService::~GfxService()
     delete mRen;
 }
 
-void idk::GfxService::startup(idk::IEngine*)
-{
-    VLOG_INFO("[GfxService::startup]");
-}
-
 void idk::GfxService::update(idk::IEngine *E)
 {
     mRen->update(E);
