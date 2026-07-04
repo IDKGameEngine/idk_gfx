@@ -1,7 +1,7 @@
 #pragma once
 
-#include "idk/core/engine.hpp"
-#include "idk/core/cfgparser.hpp"
+#include "idk/core/Engine.hpp"
+#include "idk/core/Service.hpp"
 #include "idk/gfx/renderer.hpp"
 
 namespace idk
@@ -12,11 +12,10 @@ namespace idk
 class idk::GfxService: public idk::core::Service
 {
 private:
-    idk::gfx::WindowSDL3 *mWin;
     idk::gfx::RenderEngine *mRen;
 
 public:
-    GfxService();
+    GfxService(idk::core::IPlatformService*);
     ~GfxService();
     virtual void update(idk::IEngine*) final;
     virtual void shutdown(idk::IEngine*) final;

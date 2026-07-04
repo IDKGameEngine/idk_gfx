@@ -34,11 +34,8 @@ static glm::vec3 rand_vec3(float m)
 
 #define GFX_ASSETS_PATH = IDK_ASSETS_DIRNAME "/gfx/"
 
-RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
-:   win_(win),
-    camPrev_(win.mAspect, 80.0f, 0.1f, 8000.0f),
-    camCurr_(camPrev_),
-    camNext_(camPrev_),
+RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
+:   mPlat(plat),
     raii_(gfxDebugOutputEnable, true),
     perFrame_(),
     perCamera_(),
@@ -55,6 +52,10 @@ RenderEngine::RenderEngine(idk::gfx::WindowSDL3 &win)
     meshbuf_(gfx::MeshBuffer(64*idk::MEGA, 64*idk::MEGA))
 {
     alive_.store(true);
+
+    int winWidth, winHeight;
+    mPlat->getWindowSize(winWidth, winHeight);
+    camPrev_ = idk::Camera(float(winWidth)/winHeight, 80.0f, 0.1f, 8000.0f),
     camPrev_.getTransform().SetPosition(glm::vec3(0.0f, 16.0f, 32.0f));
     camCurr_ = camPrev_;
     camNext_ = camPrev_;
@@ -137,14 +138,17 @@ void RenderEngine::swapCamera()
 
 void RenderEngine::_update_image()
 {
-    win_.makeCurrent();
+    // win_.makeCurrent();
+    int winWidth, winHeight;
+    mPlat->getWindowSize(winWidth, winHeight);
+
     gl::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     {
         perFrame_->prevTime  = perFrame_->currTime;
         perFrame_->currTime  = float(platform::GetSysTimeMs()) / 1000.0f;
         perFrame_->deltaTime = (perFrame_->currTime - perFrame_->prevTime);
-        perFrame_->winSize   = glm::vec4(win_.mSizef, 0.0f, 0.0f);
+        perFrame_->winSize   = glm::vec4(winWidth, winHeight, 0.0f, 0.0f);
         perFrame_.sendToGpu();
     }
     {
@@ -190,7 +194,7 @@ void RenderEngine::_update_image()
     // gl::BindVertexArray(mDummyVao);
     // gl::DrawArrays(GL_TRIANGLES, 0, 3);
 
-    win_.swapWindow();
+    mPlat->swapWindow();
 }
 
 

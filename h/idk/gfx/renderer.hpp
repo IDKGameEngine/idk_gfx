@@ -16,6 +16,7 @@
 #include "idk/core/double_buffer.hpp"
 #include "idk/core/raii.hpp"
 #include "idk/core/periodic_timer.hpp"
+#include "idk/core/Service.hpp"
 
 #include <map>
 
@@ -31,7 +32,7 @@ class idk::gfx::RenderEngine
 public:
     std::atomic_bool alive_;
 
-    RenderEngine(idk::gfx::WindowSDL3&);
+    RenderEngine(idk::core::IPlatformService*);
     ~RenderEngine();
     void update(idk::IEngine*);
     void shutdown();
@@ -49,10 +50,8 @@ public:
 private:
     idk::PeriodicTimer          timer_;
     std::mutex                  mutex_;
-    idk::gfx::WindowSDL3        &win_;
-    idk::Camera                 camPrev_;
-    idk::Camera                 camCurr_;
-    idk::Camera                 camNext_;
+    core::IPlatformService     *mPlat;
+    idk::Camera                 camPrev_, camCurr_, camNext_;
     RaiiFunc<void(bool)>        raii_;
 
     UboWriter<slang::PerFrameData>  perFrame_;

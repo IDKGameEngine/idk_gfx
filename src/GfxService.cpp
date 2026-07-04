@@ -3,23 +3,17 @@
 #include "idk/gfx/window.hpp"
 
 
-idk::GfxService::GfxService()
-:   IDK_SERVICE_CTOR(GfxService)
+idk::GfxService::GfxService(idk::core::IPlatformService *plat)
+:   IDK_SERVICE_CTOR(GfxService),
+    mRen(new gfx::RenderEngine(plat))
 {
-    const char *winName = mCfg["WINDOW_NAME"].getValue();
-    int32_t winWidth = mCfg["WINDOW_WIDTH"].getValueI32();
-    int32_t winHeight = mCfg["WINDOW_HEIGHT"].getValueI32();
-    mWin = new gfx::WindowSDL3(core::WindowDesc(winName, winWidth, winHeight));
-    mRen = new gfx::RenderEngine(*mWin);
-
-    uint64_t tickRateHz = mCfg["TICKRATE_HZ"].getValueU64();
+    uint64_t tickRateHz = mCfg["TICKRATE_HZ"].toU64();
     mRen->setRefreshRateHz(tickRateHz);
     VLOG_INFO("[GfxService::GfxService] tickRateHz={}", tickRateHz);
 }
 
 idk::GfxService::~GfxService()
 {
-    delete mWin;
     delete mRen;
 }
 
