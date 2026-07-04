@@ -70,7 +70,7 @@ RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
     gl::CreateVertexArrays(1, &mDummyVao);
     gl::Enable(GL_MULTISAMPLE);
 
-    perFrame_->prevTime  = float(platform::GetSysTimeMs()) / 1000.0;
+    perFrame_->prevTime  = float(Platform::getSysTimeMs()) / 1000.0;
     perFrame_->currTime  = perFrame_->currTime;
     perFrame_->timescale = 1.0f;
 
@@ -146,7 +146,7 @@ void RenderEngine::_update_image()
 
     {
         perFrame_->prevTime  = perFrame_->currTime;
-        perFrame_->currTime  = float(platform::GetSysTimeMs()) / 1000.0f;
+        perFrame_->currTime  = float(Platform::getSysTimeMs()) / 1000.0f;
         perFrame_->deltaTime = (perFrame_->currTime - perFrame_->prevTime);
         perFrame_->winSize   = glm::vec4(winWidth, winHeight, 0.0f, 0.0f);
         perFrame_.sendToGpu();
