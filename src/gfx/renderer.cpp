@@ -100,7 +100,6 @@ RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
         // float     omag  = sqrt(centerMass / dist);
         // glm::vec3 ovel  = omag*glm::normalize(glm::cross(dir, world_axis::UP));
 
-
         vert.pos = glm::vec4(pos, idk::randf(slang::NBodyVertex::MIN_MASS, slang::NBodyVertex::MAX_MASS));
         // vert.vel = glm::vec4(0.0f);
         vert.vel = glm::vec4(rand_vec3(16.0f), 0.0f);
@@ -121,12 +120,7 @@ RenderEngine::~RenderEngine()
 void RenderEngine::update(idk::IEngine *E)
 {
     (void)E;
-
-    if (timer_.expired())
-    {
-        timer_.reset();
-        _update_image();
-    }
+    _update_image();
 }
 
 void RenderEngine::swapCamera()

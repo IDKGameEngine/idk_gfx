@@ -20,6 +20,26 @@ idk::GfxService::~GfxService()
 void idk::GfxService::update(idk::IEngine *E)
 {
     mRen->update(E);
+
+    // static constexpr uint64_t TIMESTEP_MS = 16;
+    // static uint64_t accum = 0;
+    // static uint64_t prevTime = Platform::getSysTimeMs();
+
+    // uint64_t currTime = Platform::getSysTimeMs();
+    // uint64_t frameTime = currTime - prevTime;
+    // if (frameTime > maxFrameTime) { frameTime = maxFrameTime; }
+    // accum += frameTime;
+
+    // while (accum >= TIMESTEP_MS)
+    // {
+    //     prevState = currState;
+    //     doStuff(currState);
+    //     accum -= TIMESTEP_MS;
+    // }
+
+    // double alpha = double(accum) / double(TIMESTEP_MS);
+    // lerpState = mix(prevState, currState, alpha);
+    // render(lerpState);
 }
 
 void idk::GfxService::shutdown(idk::IEngine*)
