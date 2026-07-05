@@ -1,4 +1,4 @@
-#include "idk/slang.hpp"
+#include "idk_gfx/slang.hpp"
 
 #define num_bodies_ idk::NBodyVertex::MAX_BODIES
 

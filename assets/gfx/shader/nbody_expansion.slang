@@ -1,4 +1,4 @@
-#include "idk/slang.hpp"
+#include "idk_gfx/slang.hpp"
 
 #define dt_ 0.0001f
 #define softening_ 0.1f // prevents singularity when distance → 0

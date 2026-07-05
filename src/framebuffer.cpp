@@ -1,5 +1,5 @@
-#include "idk/gfx/framebuffer.hpp"
-#include "idk/gfx/texture.hpp"
+#include "idk_gfx/framebuffer.hpp"
+#include "idk_gfx/texture.hpp"
 
 using namespace idk::gfx;
 

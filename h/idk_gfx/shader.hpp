@@ -1,6 +1,6 @@
 #pragma once
 
-#include "idk/gfx/fwd.hpp"
+#include "idk_gfx/fwd.hpp"
 
 
 namespace idk::gfx::detail

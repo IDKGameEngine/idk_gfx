@@ -2,7 +2,7 @@
 
 #include "idk_core/Engine.hpp"
 #include "idk_core/Service.hpp"
-#include "idk/gfx/renderer.hpp"
+#include "idk_gfx/renderer.hpp"
 
 namespace idk
 {

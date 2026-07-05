@@ -1,4 +1,4 @@
-#include "idk/gfx/window.hpp"
+#include "idk_gfx/window.hpp"
 #include "idk_core/log.hpp"
 #include <filesystem>
 

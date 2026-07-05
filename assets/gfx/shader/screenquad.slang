@@ -1,4 +1,4 @@
-#include "idk/slang.hpp"
+#include "idk_gfx/slang.hpp"
 
 [[vk::binding(idk::PerFrameData::BIND_IDX, 0)]]
 ConstantBuffer<idk::PerFrameData, Std140DataLayout> uboWindow_;

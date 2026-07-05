@@ -158,7 +158,7 @@ namespace idk
 
 /*
     Slang usage:
-        #include "idk/gfx/slang.hpp"
+        #include "idk_gfx/slang.hpp"
 
         // UBO at binding 0
         UniformBufferRO(UniformBuffer0) uFrame;

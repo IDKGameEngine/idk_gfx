@@ -1,4 +1,4 @@
-#include "idk/gfx/renderer.hpp"
+#include "idk_gfx/renderer.hpp"
 #include <iostream>
 
 using namespace idk::gfx;

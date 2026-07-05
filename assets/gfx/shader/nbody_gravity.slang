@@ -1,4 +1,4 @@
-#include "idk/slang.hpp"
+#include "idk_gfx/slang.hpp"
 
 #define softening_ 0.01f // prevents singularity when distance → 0
 #define num_bodies_ idk::NBodyVertex::MAX_BODIES

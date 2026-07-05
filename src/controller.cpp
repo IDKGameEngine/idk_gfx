@@ -1,4 +1,4 @@
-#include "idk/gfx/controller.hpp"
+#include "idk_gfx/controller.hpp"
 #include "idk_core/log.hpp"
 
 void idk::TestCharacterController::update()

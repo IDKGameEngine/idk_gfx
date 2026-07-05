@@ -1,4 +1,4 @@
-#include "idk/gfx/shader.hpp"
+#include "idk_gfx/shader.hpp"
 #include "idk_core/file.hpp"
 
 #include <fstream>

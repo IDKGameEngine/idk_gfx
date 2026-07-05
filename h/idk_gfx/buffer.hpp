@@ -1,6 +1,6 @@
 #pragma once
 
-#include "idk/gfx/fwd.hpp"
+#include "idk_gfx/fwd.hpp"
 #include "idk_core/assert.hpp"
 // #include "gfx/gl_storage.hpp"
 

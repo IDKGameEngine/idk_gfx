@@ -2,7 +2,7 @@
 
 #include "idk_core/log.hpp"
 #include "idk_core/window.hpp"
-#include "idk/gfx/gl_bindings.hpp"
+#include "idk_gfx/gl_bindings.hpp"
 
 #include <memory>
 #include <vector>
