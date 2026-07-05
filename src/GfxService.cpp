@@ -1,11 +1,11 @@
 #include "idk/GfxService.hpp"
 #include "idk/gfx/renderer.hpp"
 #include "idk/gfx/window.hpp"
-
+#include "idk_config/Memory.hpp"
 
 idk::GfxService::GfxService(idk::core::IPlatformService *plat)
 :   IDK_SERVICE_CTOR(GfxService),
-    mRen(new gfx::RenderEngine(plat))
+    mRen(idk::New<gfx::RenderEngine>(plat))
 {
     uint64_t tickRateHz = mCfg["TICKRATE_HZ"].toU64();
     mRen->setRefreshRateHz(tickRateHz);
@@ -14,7 +14,7 @@ idk::GfxService::GfxService(idk::core::IPlatformService *plat)
 
 idk::GfxService::~GfxService()
 {
-    delete mRen;
+
 }
 
 void idk::GfxService::update(idk::IEngine *E)

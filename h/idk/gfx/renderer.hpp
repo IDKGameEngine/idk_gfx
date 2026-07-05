@@ -15,7 +15,7 @@
 #include "idk/core/camera.hpp"
 #include "idk/core/double_buffer.hpp"
 #include "idk/core/raii.hpp"
-#include "idk/core/periodic_timer.hpp"
+#include "idk/core/Timer.hpp"
 #include "idk/core/Service.hpp"
 
 #include <map>
