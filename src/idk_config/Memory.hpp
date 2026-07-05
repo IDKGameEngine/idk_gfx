@@ -1,7 +1,7 @@
 #pragma once
 
-#include "idk/core/metric.hpp"
-#include "idk/core/Allocator.hpp"
+#include "idk_core/metric.hpp"
+#include "idk_core/Allocator.hpp"
 
 namespace idk::config::memory
 {
@@ -15,4 +15,4 @@ namespace idk::config::memory
     }
 }
 
-#include "idk/core/New.hpp"
+#include "idk_core/New.hpp"

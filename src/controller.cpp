@@ -1,5 +1,5 @@
 #include "idk/gfx/controller.hpp"
-#include "idk/core/log.hpp"
+#include "idk_core/log.hpp"
 
 void idk::TestCharacterController::update()
 {

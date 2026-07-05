@@ -3,11 +3,11 @@
 #include "idk/gfx/texture.hpp"
 #include "idk/gfx/window.hpp"
 
-#include "idk/core/basis.hpp"
-#include "idk/core/camera.hpp"
-#include "idk/core/file.hpp"
-#include "idk/core/metric.hpp"
-#include "idk/core/random.hpp"
+#include "idk_core/basis.hpp"
+#include "idk_core/camera.hpp"
+#include "idk_core/file.hpp"
+#include "idk_core/metric.hpp"
+#include "idk_core/random.hpp"
 
 #include <SDL3_image/SDL_image.h>
 

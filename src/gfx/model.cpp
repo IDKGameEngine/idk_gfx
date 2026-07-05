@@ -1,7 +1,7 @@
 #include "idk/gfx/mesh.hpp"
 #include "idk/gfx/gl_bindings.hpp"
-#include "idk/core/assert.hpp"
-#include "idk/core/metric.hpp"
+#include "idk_core/assert.hpp"
+#include "idk_core/metric.hpp"
 
 #include <glm/glm.hpp>
 #include <cmath>

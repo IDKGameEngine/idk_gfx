@@ -12,11 +12,11 @@
 
 #include "idk/slang.hpp"
 
-#include "idk/core/camera.hpp"
-#include "idk/core/double_buffer.hpp"
-#include "idk/core/raii.hpp"
-#include "idk/core/Timer.hpp"
-#include "idk/core/Service.hpp"
+#include "idk_core/camera.hpp"
+#include "idk_core/double_buffer.hpp"
+#include "idk_core/raii.hpp"
+#include "idk_core/Timer.hpp"
+#include "idk_core/Service.hpp"
 
 #include <map>
 
