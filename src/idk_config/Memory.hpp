@@ -5,7 +5,7 @@
 
 namespace idk::config::memory
 {
-    static constexpr size_t IDK_GFX_ALLOCATOR_SIZE = 1 * idk::MEGA;
+    static constexpr size_t IDK_GFX_ALLOCATOR_SIZE = 256 * idk::KILO;
     using AllocatorType = idk::core::BumpAllocator<IDK_GFX_ALLOCATOR_SIZE>;
 
     static inline AllocatorType &getAllocator()
