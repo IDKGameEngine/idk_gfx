@@ -18,22 +18,21 @@ target_link_libraries(
     ${PROJECT_NAME} PUBLIC glad OpenGL::GL OpenGL::GLU SDL3::SDL3-shared SDL3_image::SDL3_image libidk
 )
 
-target_sources(
-    ${PROJECT_NAME} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/Controller.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/GfxService.cpp"
-)
-
 if(IDK_GFX_MODEL STREQUAL "2D")
-    message(STATUS "IDK_GFX_MODEL=2D")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC IDK_GFX_MODEL_2D)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gfx2d")
-elseif(IDK_GFX_MODEL STREQUAL "2D")
-    message(STATUS "IDK_GFX_MODEL=3D")
+elseif(IDK_GFX_MODEL STREQUAL "3D")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC IDK_GFX_MODEL_3D)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gfx3d")
 else()
     message(FATAL_ERROR "Must set IDK_GFX_MODEL=\"2D|3D\"")
 endif()
 
+target_sources(
+    ${PROJECT_NAME} PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Controller.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/GfxService.cpp"
+)
 
 
 add_custom_target(

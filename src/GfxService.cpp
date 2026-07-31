@@ -5,7 +5,7 @@
 #include "libidk/New.hpp"
 
 
-idk::GfxService::GfxService(idk::core::IPlatformService *plat)
+idk::GfxService::GfxService()
 :   IDK_SERVICE_CTOR(GfxService),
     mRen(idk::New<gfx::RenderEngine>(plat))
 {

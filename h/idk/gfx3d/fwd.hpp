@@ -11,7 +11,6 @@
 namespace idk::gfx
 {
     class Camera;
-    class WindowSDL3;
     class RenderEngine;
 
     using MakeObjFunc_ = void(*)(int32_t n, uint32_t *buf);

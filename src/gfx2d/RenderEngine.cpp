@@ -1,7 +1,7 @@
 #include "idk/gfx2d/RenderEngine.hpp"
 
 
-idk::gfx2d::RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
+idk::gfx::RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
 {
     int winWidth, winHeight;
     plat->getWindowSize(winWidth, winHeight);
@@ -11,35 +11,52 @@ idk::gfx2d::RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
 }
 
 
-idk::gfx2d::RenderEngine::~RenderEngine()
+idk::gfx::RenderEngine::~RenderEngine()
 {
 
 }
 
 
-void idk::gfx2d::RenderEngine::update()
+void idk::gfx::RenderEngine::update(idk::IEngine *E)
+{
+    (void)E;
+
+}
+
+
+void idk::gfx::RenderEngine::shutdown()
 {
 
 }
 
 
-void idk::gfx2d::RenderEngine::shutdown()
-{
-
-}
-
-
-void idk::gfx2d::RenderEngine::drawRect(const glm::vec2 &xy, const glm::vec2 &wh)
-{
-    (void)xy;
-    (void)wh;
-}
-
-
-void idk::gfx2d::RenderEngine::drawEllipse(const glm::vec2 &xy, const glm::vec2 &wh)
+void idk::gfx::RenderEngine::drawRect(const glm::vec2 &xy, const glm::vec2 &wh)
 {
     (void)xy;
     (void)wh;
 }
 
 
+void idk::gfx::RenderEngine::drawEllipse(const glm::vec2 &xy, const glm::vec2 &wh)
+{
+    (void)xy;
+    (void)wh;
+}
+
+
+void idk::gfx::RenderEngine::setRefreshRateHz(uint64_t hz)
+{
+    (void)hz;
+}
+
+
+idk::Camera &idk::gfx::RenderEngine::getCamera()
+{
+    return mCamera;
+}
+
+
+void idk::gfx::RenderEngine::swapCamera()
+{
+
+}
