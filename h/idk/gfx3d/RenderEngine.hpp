@@ -3,12 +3,12 @@
 #include <glm/glm.hpp>
 #include <SDL3/SDL.h>
 
-#include "idk/gfx/fwd.hpp"
-#include "idk/gfx/buffer.hpp"
-#include "idk/gfx/shader.hpp"
-#include "idk/gfx/texture.hpp"
-#include "idk/gfx/mesh.hpp"
-#include "idk/gfx/render_interface.hpp"
+#include "idk/gfx3d/fwd.hpp"
+#include "idk/gfx3d/buffer.hpp"
+#include "idk/gfx3d/shader.hpp"
+#include "idk/gfx3d/texture.hpp"
+#include "idk/gfx3d/mesh.hpp"
+#include "idk/gfx3d/render_interface.hpp"
 
 #include "idk/slang.hpp"
 

@@ -1,7 +1,7 @@
-#include "idk/gfx/renderer.hpp"
-#include "idk/gfx/framebuffer.hpp"
-#include "idk/gfx/texture.hpp"
-#include "idk/gfx/window.hpp"
+#include "idk/gfx3d/RenderEngine.hpp"
+#include "idk/gfx3d/framebuffer.hpp"
+#include "idk/gfx3d/texture.hpp"
+#include "libidk/platform/WindowSDL3.hpp"
 
 #include "libidk/basis.hpp"
 #include "libidk/camera.hpp"

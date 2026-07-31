@@ -1,5 +1,5 @@
-#include "idk/gfx/buffer.hpp"
-#include "idk/gfx/shader.hpp"
+#include "idk/gfx3d/buffer.hpp"
+#include "idk/gfx3d/shader.hpp"
 #include <cstring>
 
 using namespace idk::gfx;

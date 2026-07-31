@@ -1,6 +1,6 @@
 #include "idk/GfxService.hpp"
-#include "idk/gfx/renderer.hpp"
-#include "idk/gfx/window.hpp"
+#include "idk/gfx/RenderEngine.hpp"
+#include "libidk/platform/WindowSDL3.hpp"
 
 #include "libidk/New.hpp"
 

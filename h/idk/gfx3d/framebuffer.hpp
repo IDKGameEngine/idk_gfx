@@ -1,6 +1,6 @@
 #pragma once
 
-#include "idk/gfx/fwd.hpp"
+#include "idk/gfx3d/fwd.hpp"
 
 
 class idk::gfx::Framebuffer
