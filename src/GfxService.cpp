@@ -1,7 +1,9 @@
 #include "idk/GfxService.hpp"
 #include "idk/gfx/renderer.hpp"
 #include "idk/gfx/window.hpp"
-#include "idk_config/Memory.hpp"
+
+#include "libidk/New.hpp"
+
 
 idk::GfxService::GfxService(idk::core::IPlatformService *plat)
 :   IDK_SERVICE_CTOR(GfxService),

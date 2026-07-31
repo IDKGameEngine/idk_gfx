@@ -1,7 +1,7 @@
 #pragma once
 
-#include "idk/core/Engine.hpp"
-#include "idk/core/Service.hpp"
+#include "libidk/Engine.hpp"
+#include "libidk/Service.hpp"
 #include "idk/gfx/renderer.hpp"
 
 namespace idk

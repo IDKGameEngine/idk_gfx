@@ -6,7 +6,7 @@
 #include <cstring>
 #include <glm/glm.hpp>
 
-#include "idk/core/metric.hpp"
+#include "libidk/metric.hpp"
 
 
 namespace idk::gfx

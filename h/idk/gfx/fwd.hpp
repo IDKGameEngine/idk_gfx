@@ -1,7 +1,7 @@
 #pragma once
 
-#include "idk/core/log.hpp"
-#include "idk/core/window.hpp"
+#include "libidk/log.hpp"
+#include "libidk/window.hpp"
 #include "idk/gfx/gl_bindings.hpp"
 
 #include <memory>

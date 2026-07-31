@@ -1,5 +1,5 @@
 #include "idk/gfx/shader.hpp"
-#include "idk/core/file.hpp"
+#include "libidk/file.hpp"
 
 #include <fstream>
 #include <memory>

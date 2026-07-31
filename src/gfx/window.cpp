@@ -1,5 +1,5 @@
 #include "idk/gfx/window.hpp"
-#include "idk/core/log.hpp"
+#include "libidk/log.hpp"
 #include <filesystem>
 
 using namespace idk::gfx;
