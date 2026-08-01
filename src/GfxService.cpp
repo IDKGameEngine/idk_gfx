@@ -1,27 +1,27 @@
 #include "idk/GfxService.hpp"
-#include "idk/gfx/RenderEngine.hpp"
-#include "libidk/platform/WindowSDL3.hpp"
-
 #include "libidk/New.hpp"
 
 
 idk::GfxService::GfxService()
 :   IDK_SERVICE_CTOR(GfxService),
-    mRen(idk::New<gfx::RenderEngine>(plat))
+    mPlat(),
+    mRen(&mPlat)
 {
     uint64_t tickRateHz = mCfg["TICKRATE_HZ"].toU64();
-    mRen->setRefreshRateHz(tickRateHz);
+    mRen.setRefreshRateHz(tickRateHz);
     VLOG_INFO("[GfxService::GfxService] tickRateHz={}", tickRateHz);
 }
+
 
 idk::GfxService::~GfxService()
 {
 
 }
 
+
 void idk::GfxService::update(idk::IEngine *E)
 {
-    mRen->update(E);
+    mRen.update(E);
 
     // static constexpr uint64_t TIMESTEP_MS = 16;
     // static uint64_t accum = 0;
@@ -44,8 +44,9 @@ void idk::GfxService::update(idk::IEngine *E)
     // render(lerpState);
 }
 
+
 void idk::GfxService::shutdown(idk::IEngine*)
 {
     VLOG_INFO("[GfxService::shutdown]");
-    mRen->shutdown();
+    mRen.shutdown();
 }

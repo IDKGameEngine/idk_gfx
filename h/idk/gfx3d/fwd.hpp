@@ -1,8 +1,8 @@
 #pragma once
 
-#include "libidk/platform/WindowSDL3.hpp"
+#include "libidk/platform/Platform.hpp"
+#include "libidk/gpu/gl_bindings.hpp"
 #include "libidk/log.hpp"
-#include "idk/gfx3d/gl_bindings.hpp"
 
 #include <memory>
 #include <vector>

@@ -1,7 +1,6 @@
 #include "idk/gfx3d/RenderEngine.hpp"
 #include "idk/gfx3d/framebuffer.hpp"
 #include "idk/gfx3d/texture.hpp"
-#include "libidk/platform/WindowSDL3.hpp"
 
 #include "libidk/basis.hpp"
 #include "libidk/camera.hpp"
@@ -34,8 +33,9 @@ static glm::vec3 rand_vec3(float m)
 
 #define GFX_ASSETS_PATH = IDK_ASSETS_DIRNAME "/gfx/"
 
-RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
+RenderEngine::RenderEngine(idk::platform::Platform *plat)
 :   mPlat(plat),
+    mWin(plat->getWindow()),
     raii_(gfxDebugOutputEnable, true),
     perFrame_(),
     perCamera_(),
@@ -53,8 +53,8 @@ RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
 {
     alive_.store(true);
 
-    int winWidth, winHeight;
-    mPlat->getWindowSize(winWidth, winHeight);
+    int winWidth = mWin->getWidth();
+    int winHeight = mWin->getHeight();
     camPrev_ = idk::Camera(float(winWidth)/winHeight, 80.0f, 0.1f, 8000.0f),
     camPrev_.getTransform().SetPosition(glm::vec3(0.0f, 16.0f, 32.0f));
     camCurr_ = camPrev_;
@@ -70,7 +70,7 @@ RenderEngine::RenderEngine(idk::core::IPlatformService *plat)
     gl::CreateVertexArrays(1, &mDummyVao);
     gl::Enable(GL_MULTISAMPLE);
 
-    perFrame_->prevTime  = float(Platform::getSysTimeMs()) / 1000.0;
+    perFrame_->prevTime  = float(platform::getSysTimeMs()) / 1000.0;
     perFrame_->currTime  = perFrame_->currTime;
     perFrame_->timescale = 1.0f;
 
@@ -120,27 +120,15 @@ RenderEngine::~RenderEngine()
 void RenderEngine::update(idk::IEngine *E)
 {
     (void)E;
-    _update_image();
-}
-
-void RenderEngine::swapCamera()
-{
-    camPrev_ = camCurr_;
-    camCurr_ = camNext_;
-}
-
-
-void RenderEngine::_update_image()
-{
     // win_.makeCurrent();
-    int winWidth, winHeight;
-    mPlat->getWindowSize(winWidth, winHeight);
+    int winWidth = mWin->getWidth();
+    int winHeight = mWin->getHeight();
 
     gl::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     {
         perFrame_->prevTime  = perFrame_->currTime;
-        perFrame_->currTime  = float(Platform::getSysTimeMs()) / 1000.0f;
+        perFrame_->currTime  = float(platform::getSysTimeMs()) / 1000.0f;
         perFrame_->deltaTime = (perFrame_->currTime - perFrame_->prevTime);
         perFrame_->winSize   = glm::vec4(winWidth, winHeight, 0.0f, 0.0f);
         perFrame_.sendToGpu();
@@ -188,7 +176,14 @@ void RenderEngine::_update_image()
     // gl::BindVertexArray(mDummyVao);
     // gl::DrawArrays(GL_TRIANGLES, 0, 3);
 
-    mPlat->swapWindow();
+    mWin->swapWindow();
+}
+
+
+void RenderEngine::swapCamera()
+{
+    camPrev_ = camCurr_;
+    camCurr_ = camNext_;
 }
 
 

@@ -1,5 +1,5 @@
 #include "idk/gfx3d/mesh.hpp"
-#include "idk/gfx3d/gl_bindings.hpp"
+#include "libidk/gpu/gl_bindings.hpp"
 #include "libidk/assert.hpp"
 #include "libidk/metric.hpp"
 

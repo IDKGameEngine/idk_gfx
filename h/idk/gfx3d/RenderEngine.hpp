@@ -32,7 +32,7 @@ class idk::gfx::RenderEngine
 public:
     std::atomic_bool alive_;
 
-    RenderEngine(idk::core::IPlatformService*);
+    RenderEngine(idk::platform::Platform*);
     ~RenderEngine();
     void update(idk::IEngine*);
     void shutdown();
@@ -50,7 +50,8 @@ public:
 private:
     idk::PeriodicTimer          timer_;
     std::mutex                  mutex_;
-    core::IPlatformService     *mPlat;
+    platform::Platform         *mPlat;
+    platform::Window           *mWin;
     idk::Camera                 camPrev_, camCurr_, camNext_;
     RaiiFunc<void(bool)>        raii_;
 
@@ -76,7 +77,4 @@ private:
     std::vector<gfx::RenderProgram> renderPrograms_;
 
     float lerpAlpha_ = 0.0f;
-
-    void _update_image();
 };
-

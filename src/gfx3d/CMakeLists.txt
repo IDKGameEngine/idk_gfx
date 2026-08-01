@@ -4,7 +4,7 @@ target_sources(
     "${CMAKE_CURRENT_SOURCE_DIR}/debug.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/framebuffer.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/model.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/renderer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/RenderEngine.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/shader.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/texture.cpp"
 )
