@@ -13,7 +13,7 @@ namespace idk::gfx
     class RenderEngine: public idk::Immobile
     {
     public:
-        RenderEngine(idk::platform::Platform*);
+        RenderEngine(idk::platform::Platform&);
         ~RenderEngine();
 
         void update(idk::IEngine*);
@@ -27,8 +27,8 @@ namespace idk::gfx
         void swapCamera();
 
     private:
-        idk::platform::Platform *mPlat;
-        idk::platform::Window   *mWin;
+        idk::platform::Platform &mPlat;
+        idk::platform::Window   &mWin;
         idk::Camera mCamera;
 
     };

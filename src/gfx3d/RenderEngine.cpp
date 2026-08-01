@@ -33,9 +33,9 @@ static glm::vec3 rand_vec3(float m)
 
 #define GFX_ASSETS_PATH = IDK_ASSETS_DIRNAME "/gfx/"
 
-RenderEngine::RenderEngine(idk::platform::Platform *plat)
+RenderEngine::RenderEngine(idk::platform::Platform &plat)
 :   mPlat(plat),
-    mWin(plat->getWindow()),
+    mWin(*(plat.getWindow())),
     raii_(gfxDebugOutputEnable, true),
     perFrame_(),
     perCamera_(),
@@ -53,8 +53,8 @@ RenderEngine::RenderEngine(idk::platform::Platform *plat)
 {
     alive_.store(true);
 
-    int winWidth = mWin->getWidth();
-    int winHeight = mWin->getHeight();
+    int winWidth = mWin.getWidth();
+    int winHeight = mWin.getHeight();
     camPrev_ = idk::Camera(float(winWidth)/winHeight, 80.0f, 0.1f, 8000.0f),
     camPrev_.getTransform().SetPosition(glm::vec3(0.0f, 16.0f, 32.0f));
     camCurr_ = camPrev_;
@@ -121,8 +121,8 @@ void RenderEngine::update(idk::IEngine *E)
 {
     (void)E;
     // win_.makeCurrent();
-    int winWidth = mWin->getWidth();
-    int winHeight = mWin->getHeight();
+    int winWidth = mWin.getWidth();
+    int winHeight = mWin.getHeight();
 
     gl::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -176,7 +176,7 @@ void RenderEngine::update(idk::IEngine *E)
     // gl::BindVertexArray(mDummyVao);
     // gl::DrawArrays(GL_TRIANGLES, 0, 3);
 
-    mWin->swapWindow();
+    mWin.swapWindow();
 }
 
 

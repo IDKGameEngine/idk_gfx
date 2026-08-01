@@ -2,10 +2,10 @@
 #include "libidk/New.hpp"
 
 
-idk::GfxService::GfxService()
+idk::GfxService::GfxService(idk::platform::Platform &plat)
 :   IDK_SERVICE_CTOR(GfxService),
-    mPlat(),
-    mRen(&mPlat)
+    mPlat(plat),
+    mRen(plat)
 {
     uint64_t tickRateHz = mCfg["TICKRATE_HZ"].toU64();
     mRen.setRefreshRateHz(tickRateHz);
@@ -21,6 +21,7 @@ idk::GfxService::~GfxService()
 
 void idk::GfxService::update(idk::IEngine *E)
 {
+    mPlat.update(E);
     mRen.update(E);
 
     // static constexpr uint64_t TIMESTEP_MS = 16;
