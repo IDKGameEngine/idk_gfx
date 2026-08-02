@@ -1,3 +1,6 @@
 [submodule "external/glad"]
 	path = external/glad
 	url = https://github.com/mellic03/glad.git
+[submodule "external/imgui"]
+	path = external/imgui
+	url = https://github.com/IDKGameEngine/imgui.git

@@ -4,6 +4,7 @@ project(idk_gfx CXX)
 
 find_package(OpenGL REQUIRED)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/external/glad")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/external/imgui")
 
 add_library(
     ${PROJECT_NAME} STATIC
@@ -15,7 +16,7 @@ target_include_directories(
     ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h" "${CMAKE_CURRENT_SOURCE_DIR}/h_"
 )
 target_link_libraries(
-    ${PROJECT_NAME} PUBLIC glad OpenGL::GL OpenGL::GLU SDL3::SDL3-shared SDL3_image::SDL3_image libidk
+    ${PROJECT_NAME} PUBLIC glad idk_imgui OpenGL::GL OpenGL::GLU SDL3::SDL3-shared SDL3_image::SDL3_image libidk
 )
 
 if(IDK_GFX_MODEL STREQUAL "2D")

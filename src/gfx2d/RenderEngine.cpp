@@ -3,7 +3,7 @@
 
 idk::gfx::RenderEngine::RenderEngine(idk::platform::Platform &plat)
 :   mPlat(plat),
-    mWin(*(plat.getWindow()))
+    mWin(plat.getWindow())
 {
     int winWidth = mWin.getWidth();
     int winHeight = mWin.getHeight();

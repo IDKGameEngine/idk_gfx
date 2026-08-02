@@ -21,10 +21,9 @@ idk::GfxService::~GfxService()
 
 void idk::GfxService::update(idk::IEngine *E)
 {
-    mPlat.update(E);
+    mPlat.update();
     mRen.update(E);
-
-    mPlat.getWindow()->swapWindow();
+    mPlat.getWindow().swapWindow();
 
     // static constexpr uint64_t TIMESTEP_MS = 16;
     // static uint64_t accum = 0;
