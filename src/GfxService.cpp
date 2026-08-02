@@ -24,6 +24,8 @@ void idk::GfxService::update(idk::IEngine *E)
     mPlat.update(E);
     mRen.update(E);
 
+    mPlat.getWindow()->swapWindow();
+
     // static constexpr uint64_t TIMESTEP_MS = 16;
     // static uint64_t accum = 0;
     // static uint64_t prevTime = Platform::getSysTimeMs();
