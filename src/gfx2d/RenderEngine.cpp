@@ -1,7 +1,7 @@
 #include "idk/gfx2d/RenderEngine.hpp"
 
 
-idk::gfx::RenderEngine::RenderEngine(idk::platform::Platform &plat)
+idk::gfx::RenderEngine::RenderEngine(idk::Platform &plat)
 :   mPlat(plat),
     mWin(plat.getWindow())
 {

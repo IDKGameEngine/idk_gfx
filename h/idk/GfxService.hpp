@@ -10,11 +10,11 @@ namespace idk
     class GfxService: public idk::core::Service
     {
     private:
-        idk::platform::Platform &mPlat;
+        idk::Platform &mPlat;
         idk::gfx::RenderEngine mRen;
 
     public:
-        GfxService(idk::platform::Platform&);
+        GfxService(idk::Platform&);
         ~GfxService();
         virtual void update(idk::IEngine*) final;
         virtual void shutdown(idk::IEngine*) final;

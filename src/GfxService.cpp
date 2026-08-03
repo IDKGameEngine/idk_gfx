@@ -2,7 +2,7 @@
 #include "libidk/New.hpp"
 
 
-idk::GfxService::GfxService(idk::platform::Platform &plat)
+idk::GfxService::GfxService(idk::Platform &plat)
 :   IDK_SERVICE_CTOR(GfxService),
     mPlat(plat),
     mRen(plat)

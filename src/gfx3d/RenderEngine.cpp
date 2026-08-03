@@ -33,7 +33,7 @@ static glm::vec3 rand_vec3(float m)
 
 #define GFX_ASSETS_PATH = IDK_ASSETS_DIRNAME "/gfx/"
 
-RenderEngine::RenderEngine(idk::platform::Platform &plat)
+RenderEngine::RenderEngine(idk::Platform &plat)
 :   mPlat(plat),
     mWin(*(plat.getWindow())),
     raii_(gfxDebugOutputEnable, true),
