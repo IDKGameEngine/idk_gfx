@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "libidk/platform/Platform.hpp"
+#include "libidk/platform/IPlatform.hpp"
 #include "libidk/Types.hpp"
 #include "libidk/Engine.hpp"
 #include "libidk/camera.hpp"

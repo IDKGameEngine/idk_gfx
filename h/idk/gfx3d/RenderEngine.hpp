@@ -13,9 +13,9 @@
 #include "idk/slang.hpp"
 
 #include "libidk/camera.hpp"
-#include "libidk/double_buffer.hpp"
-#include "libidk/raii.hpp"
-#include "libidk/Timer.hpp"
+#include "libidk/dsa/double_buffer.hpp"
+#include "libidk/dsa/Raii.hpp"
+#include "libidk/dsa/PeriodicTimer.hpp"
 #include "libidk/Service.hpp"
 
 #include <map>

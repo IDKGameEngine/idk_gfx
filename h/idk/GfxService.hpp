@@ -1,6 +1,6 @@
 #pragma once
 
-#include "libidk/platform/Platform.hpp"
+#include "libidk/platform/IPlatform.hpp"
 #include "idk/gfx/RenderEngine.hpp"
 #include "libidk/Engine.hpp"
 #include "libidk/Service.hpp"
