@@ -35,7 +35,6 @@ target_sources(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/GfxService.cpp"
 )
 
-
 add_custom_target(
     idk_gfx_data
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different

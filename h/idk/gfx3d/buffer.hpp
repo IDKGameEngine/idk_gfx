@@ -1,7 +1,7 @@
 #pragma once
 
 #include "idk/gfx3d/fwd.hpp"
-#include "libidk/assert.hpp"
+#include "libidk/Assert.hpp"
 // #include "gfx/gl_storage.hpp"
 
 

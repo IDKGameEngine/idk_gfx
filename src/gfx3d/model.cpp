@@ -1,6 +1,6 @@
 #include "idk/gfx3d/mesh.hpp"
 #include "libidk/gpu/gl_bindings.hpp"
-#include "libidk/assert.hpp"
+#include "libidk/Assert.hpp"
 #include "libidk/metric.hpp"
 
 #include <glm/glm.hpp>
