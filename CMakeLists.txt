@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.2)
 
-project(idk_gfx CXX)
+project(idkgfx CXX)
 
 find_package(OpenGL REQUIRED)
 
