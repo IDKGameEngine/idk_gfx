@@ -3,12 +3,15 @@ cmake_minimum_required(VERSION 4.2)
 project(idk_gfx CXX)
 
 find_package(OpenGL REQUIRED)
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/external/glad")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/external/imgui")
 
-add_library(
-    ${PROJECT_NAME} STATIC
-)
+option(IDK_SHARED "Build as shared library" OFF)
+if(IDK_SHARED)
+    add_library(${PROJECT_NAME} SHARED)
+    set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+else()
+    add_library(${PROJECT_NAME} STATIC)
+endif()
+
 target_compile_features(
     ${PROJECT_NAME} PUBLIC cxx_std_23
 )
