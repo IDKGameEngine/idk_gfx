@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.31)
 project(idkgfx CXX)
 
 find_package(volk CONFIG REQUIRED)
-find_package(vk-bootstrap CONFIG REQUIRED)
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
 option(IDK_SHARED "Build as shared library" OFF)
@@ -22,7 +21,7 @@ target_include_directories(
 )
 target_link_libraries(
     ${PROJECT_NAME}
-    PRIVATE volk::volk vk-bootstrap::vk-bootstrap GPUOpen::VulkanMemoryAllocator
+    PRIVATE volk::volk GPUOpen::VulkanMemoryAllocator
     PUBLIC  imgui SDL3 SDL3_image libidk
 )
 
