@@ -5,8 +5,8 @@
 #     exit 1
 # fi
 
-if [[ "$IDK_ROOT_DIR" == "" ]]; then
-    echo "IDK_ROOT_DIR must be defined"
+if [[ "$IDK_SYSROOT_DIR" == "" ]]; then
+    echo "IDK_SYSROOT_DIR must be defined"
     exit 1
 fi
 
@@ -17,8 +17,8 @@ fi
 
 __slang_to_spirv()
 {
-    export PATH="${PATH}:${IDK_ROOT_DIR}/bin"
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IDK_ROOT_DIR}/lib"
+    export PATH="${PATH}:${IDK_SYSROOT_DIR}/bin"
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IDK_SYSROOT_DIR}/lib"
 
     stage="$1"
     srcpath="$2"
