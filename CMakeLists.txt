@@ -23,7 +23,6 @@ target_link_libraries(
     glad
     imgui
     OpenGL::GL
-    OpenGL::GLU
     SDL3
     SDL3_image
     libidk
