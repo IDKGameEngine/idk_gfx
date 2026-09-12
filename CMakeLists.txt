@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.31)
 
 project(idkgfx CXX)
 
-find_package(OpenGL REQUIRED)
+find_package(volk CONFIG REQUIRED)
+find_package(vk-bootstrap CONFIG REQUIRED)
+find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
 option(IDK_SHARED "Build as shared library" OFF)
 if(IDK_SHARED)
@@ -19,13 +21,9 @@ target_include_directories(
     ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h" "${CMAKE_CURRENT_SOURCE_DIR}/h_"
 )
 target_link_libraries(
-    ${PROJECT_NAME} PUBLIC
-    glad
-    imgui
-    OpenGL::GL
-    SDL3
-    SDL3_image
-    libidk
+    ${PROJECT_NAME}
+    PRIVATE volk::volk vk-bootstrap::vk-bootstrap GPUOpen::VulkanMemoryAllocator
+    PUBLIC  imgui SDL3 SDL3_image libidk
 )
 
 if(IDK_GFX_MODEL STREQUAL "2D")
