@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 3.31)
 
 project(idkgfx CXX)
 
@@ -19,7 +19,14 @@ target_include_directories(
     ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h" "${CMAKE_CURRENT_SOURCE_DIR}/h_"
 )
 target_link_libraries(
-    ${PROJECT_NAME} PUBLIC glad imgui OpenGL::GL OpenGL::GLU SDL3::SDL3-shared SDL3_image::SDL3_image libidk
+    ${PROJECT_NAME} PUBLIC
+    glad
+    imgui
+    OpenGL::GL
+    OpenGL::GLU
+    SDL3
+    SDL3_image
+    libidk
 )
 
 if(IDK_GFX_MODEL STREQUAL "2D")
