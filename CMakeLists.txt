@@ -20,7 +20,6 @@ target_link_libraries(
     PRIVATE volk::volk GPUOpen::VulkanMemoryAllocator
     PUBLIC  imgui SDL3 SDL3_image libidk
 )
-
 target_sources(
     ${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/GfxService.cpp"
