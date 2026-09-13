@@ -17,7 +17,10 @@ target_compile_features(
     ${PROJECT_NAME} PUBLIC cxx_std_23
 )
 target_include_directories(
-    ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/h" "${CMAKE_CURRENT_SOURCE_DIR}/h_"
+    ${PROJECT_NAME} PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/h_"
+    "${STEAMWORKS_INCLUDE_DIRS}"
 )
 target_link_libraries(
     ${PROJECT_NAME}
@@ -25,19 +28,10 @@ target_link_libraries(
     PUBLIC  imgui SDL3 SDL3_image libidk
 )
 
-if(IDK_GFX_MODEL STREQUAL "2D")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC IDK_GFX_MODEL_2D)
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gfx2d")
-elseif(IDK_GFX_MODEL STREQUAL "3D")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC IDK_GFX_MODEL_3D)
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gfx3d")
-else()
-    message(FATAL_ERROR "Must set IDK_GFX_MODEL=\"2D|3D\"")
-endif()
-
 target_sources(
     ${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/GfxService.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/RenderEngine.cpp"
 )
 
 add_custom_target(
