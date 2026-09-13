@@ -1,54 +1,29 @@
-// #include "idk/GfxService.hpp"
-// #include "libidk/New.hpp"
+#include "idk/GfxService.hpp"
 
+namespace idk
+{
+    GfxService::GfxService() = default;
 
-// idk::GfxService::GfxService(idk::Platform &plat)
-// :   IDK_SERVICE_CTOR(GfxService),
-//     mPlat(plat),
-//     mRen(plat)
-// {
-//     uint64_t tickRateHz = mCfg["TICKRATE_HZ"].toU64();
-//     mRen.setRefreshRateHz(tickRateHz);
-//     VLOG_INFO("[GfxService::GfxService] tickRateHz={}", tickRateHz);
-// }
+    GfxService::~GfxService() = default;
 
+    void GfxService::update(void *engine)
+    {
+        mRenderEngine.update(engine);
+    }
 
-// idk::GfxService::~GfxService()
-// {
+    void GfxService::shutdown(void *engine)
+    {
+        (void)engine;
+        mRenderEngine.shutdown();
+    }
 
-// }
+    void GfxService::setRefreshRateHz(uint64_t hz)
+    {
+        mRenderEngine.setRefreshRateHz(hz);
+    }
 
-
-// void idk::GfxService::update(idk::IEngine *E)
-// {
-//     mPlat.update();
-//     mRen.update(E);
-//     mPlat.getWindow().swapWindow();
-
-//     // static constexpr uint64_t TIMESTEP_MS = 16;
-//     // static uint64_t accum = 0;
-//     // static uint64_t prevTime = Platform::getSysTimeMs();
-
-//     // uint64_t currTime = Platform::getSysTimeMs();
-//     // uint64_t frameTime = currTime - prevTime;
-//     // if (frameTime > maxFrameTime) { frameTime = maxFrameTime; }
-//     // accum += frameTime;
-
-//     // while (accum >= TIMESTEP_MS)
-//     // {
-//     //     prevState = currState;
-//     //     doStuff(currState);
-//     //     accum -= TIMESTEP_MS;
-//     // }
-
-//     // double alpha = double(accum) / double(TIMESTEP_MS);
-//     // lerpState = mix(prevState, currState, alpha);
-//     // render(lerpState);
-// }
-
-
-// void idk::GfxService::shutdown(idk::IEngine*)
-// {
-//     VLOG_INFO("[GfxService::shutdown]");
-//     mRen.shutdown();
-// }
+    idk::gfx::RenderEngine &GfxService::getRenderEngine()
+    {
+        return mRenderEngine;
+    }
+}
