@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.31)
 project(idkgfx CXX)
 
 find_package(volk CONFIG REQUIRED)
-find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+# find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
 add_library(${PROJECT_NAME} STATIC)
 target_compile_features(
@@ -17,7 +17,7 @@ target_include_directories(
 )
 target_link_libraries(
     ${PROJECT_NAME}
-    PRIVATE volk::volk GPUOpen::VulkanMemoryAllocator
+    PRIVATE volk::volk # GPUOpen::VulkanMemoryAllocator
     PUBLIC  imgui SDL3 SDL3_image libidk
 )
 target_sources(
