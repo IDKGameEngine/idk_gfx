@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.31)
 
 project(idkgfx CXX)
 
-find_package(volk CONFIG REQUIRED)
-# find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+find_package(Vulkan REQUIRED)
 
 add_library(${PROJECT_NAME} STATIC)
 target_compile_features(
@@ -15,13 +14,14 @@ target_include_directories(
 )
 target_link_libraries(
     ${PROJECT_NAME}
-    PRIVATE volk::volk # GPUOpen::VulkanMemoryAllocator
-    PUBLIC  imgui SDL3 SDL3_image libidk
+    PRIVATE Vulkan::Vulkan idk_platform_sdl3
+    PUBLIC  imgui libidk
 )
 target_sources(
     ${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/GfxService.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/RenderEngine.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/VulkanRenderer.cpp"
 )
 
 # add_custom_target(
