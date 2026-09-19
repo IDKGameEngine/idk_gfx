@@ -18,7 +18,7 @@ target_include_directories(
 target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE volk::volk # GPUOpen::VulkanMemoryAllocator
-    PUBLIC  imgui SDL3 SDL3_image libidk
+    PUBLIC  libidk imgui SDL3 SDL3_image idkengine
 )
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src")
