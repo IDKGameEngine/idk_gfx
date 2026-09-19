@@ -21,10 +21,10 @@
 #define IDK_GFX_SLANG_HPP
 
 #ifdef __cplusplus
-    #include "slang/defs.hpp"
+    #include "defs.hpp"
     #define IDK_SLANG_NAMESPACE idk::gfx::slang
 #else
-    #include "slang/defs.slang"
+    #include "defs.slang"
     #define IDK_SLANG_NAMESPACE idk
 #endif
 
