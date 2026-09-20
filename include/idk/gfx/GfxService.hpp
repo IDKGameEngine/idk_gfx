@@ -6,12 +6,13 @@
 
 namespace idk::gfx
 {
-    class GfxService: public idk::EngineComponent
+    class GfxService: public idk::EngineService
     {
     public:
         GfxService(idk::EngineContext&);
         ~GfxService();
-        virtual void update() final;
+        virtual void init(idk::Engine&) final;
+        virtual void update(idk::Engine&) final;
 
     private:
         GraphicsDevice *mGfxDevice;

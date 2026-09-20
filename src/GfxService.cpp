@@ -4,7 +4,7 @@
 
 
 idk::gfx::GfxService::GfxService(idk::EngineContext &ctx)
-:   EngineComponent(ctx),
+:   EngineService(ctx),
     mGfxDevice(idk::New<GraphicsDevice>())
 {
 
@@ -15,7 +15,12 @@ idk::gfx::GfxService::~GfxService()
 
 }
 
-void idk::gfx::GfxService::update()
+void idk::gfx::GfxService::init(idk::Engine &E)
 {
+    (void)E;
+}
 
+void idk::gfx::GfxService::update(idk::Engine &E)
+{
+    (void)E;
 }
